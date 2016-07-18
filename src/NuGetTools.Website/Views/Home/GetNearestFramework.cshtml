@@ -1,0 +1,82 @@
+﻿@model GetNearestFrameworkOutput
+@{
+    ViewData["Title"] = "Get Nearest Framework";
+}
+
+<h1>Get Nearest Framework</h1>
+<p>
+    The get nearest framework operation is what NuGet uses to select one framework from many available framework assets in a package based on the project's framework. Enter one project framework and one or more package frameworks.
+</p>
+
+<form method="GET" action="">
+    <div class="form-group">
+        <label for="project">Project Framework</label>
+        <input type="text" class="form-control" name="project" id="project"
+               placeholder="net45" value="@Model.Input.Project">
+    </div>
+    <div class="form-group">
+        <label for="package-frameworks">Package Frameworks</label>
+        <textarea class="form-control" rows="5" name="package" id="package" placeholder="netstandard1.0">@Model.Input.Package</textarea>
+    </div>
+    <button type="submit" class="btn btn-default">Submit</button>
+</form>
+
+<div class="results">
+    @if (@Model.InputStatus == InputStatus.Valid)
+    {
+        if (@Model.Nearest != null)
+        {
+            <div class="alert alert-success" role="alert">
+                The <code>@Model.Nearest.Framework.GetShortFolderName()</code> (<b>@Model.Nearest.Input</b>) package framework is the nearest to the <code>@Model.Project.GetShortFolderName()</code> (<b>@Model.Input.Project</b>) project framework.
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning" role="alert">
+                None of the recognized frameworks are compatible with the <code>@Model.Project.GetShortFolderName()</code> project framework.
+            </div>
+        }
+
+        <div class="alert alert-info" role="alert">
+            <p>The package frameworks that were considering were:</p>
+            <ul>
+                @foreach (var pair in Model.Package)
+                {
+                    <li><code>@pair.Framework.GetShortFolderName()</code> (<b>@pair.Input</b>)</li>
+                }
+            </ul>
+            @if (Model.Invalid.Any())
+            {
+                <p>The following package framework(s) could not be parsed:</p>
+                <ul>
+                    @foreach (var invalid in Model.Invalid)
+                    {
+                        <li><b>@invalid</b></li>
+                    }
+                </ul>
+            }
+        </div>
+    }
+    else if (@Model.InputStatus == InputStatus.Invalid)
+    {
+        if (!@Model.IsProjectValid)
+        {
+            <div class="alert alert-danger" role="alert">
+                Project framework <b>@Model.Input.Project</b> could not be parsed.
+            </div>
+        }
+
+        if (!@Model.IsPackageValid)
+        {
+            <div class="alert alert-danger" role="alert">
+                <p>The following package framework(s) could not be parsed:</p>
+                <ul>
+                    @foreach (var invalid in Model.Invalid)
+                    {
+                        <li><b>@invalid</b></li>
+                    }
+                </ul>
+            </div>
+        }
+    }
+</div>

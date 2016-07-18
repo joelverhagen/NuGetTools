@@ -1,0 +1,57 @@
+﻿@model FrameworkCompatibilityOutput
+@{
+    ViewData["Title"] = "Framework Compatibility";
+}
+
+<h1>Check framework compatiblity</h1>
+<p>
+    Enter the project and package frameworks below. Both short form (e.g. <code>net45</code>) and long form (e.g. <code>.NETFramework,Version=v4.5</code>) are supported.
+</p>
+
+<form method="GET" action="">
+    <div class="form-group">
+        <label for="project">Project Framework</label>
+        <input type="text" class="form-control" name="project" id="project"
+               placeholder="net45" value="@Model.Input.Project">
+    </div>
+    <div class="form-group">
+        <label for="package">Package Framework</label>
+        <input type="text" class="form-control" name="package" id="package"
+               placeholder="netstandard1.0" value="@Model.Input.Package">
+    </div>
+    <button type="submit" class="btn btn-default">Submit</button>
+</form>
+
+<div class="results">
+    @if (@Model.InputStatus == InputStatus.Valid)
+    {
+        if (@Model.Compatible)
+        {
+            <div class="alert alert-success" role="alert">
+                <code>@Model.Project.GetShortFolderName()</code> projects support <code>@Model.Package.GetShortFolderName()</code> packages.
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning" role="alert">
+                <code>@Model.Project.GetShortFolderName()</code> projects do not support <code>@Model.Package.GetShortFolderName()</code> packages.
+            </div>
+        }
+    }
+    else if (@Model.InputStatus == InputStatus.Invalid)
+    {
+        if (!@Model.IsProjectValid)
+        {
+            <div class="alert alert-danger" role="alert">
+                Project framework <b>@Model.Input.Project</b> could not be parsed.
+            </div>
+        }
+
+        if (!@Model.IsPackageValid)
+        {
+            <div class="alert alert-danger" role="alert">
+                Package framework <b>@Model.Input.Package</b> could not be parsed.
+            </div>
+        }
+    }
+</div>
