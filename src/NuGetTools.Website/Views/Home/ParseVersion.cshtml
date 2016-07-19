@@ -27,14 +27,33 @@
             <p>
                 The full version is <code>@Model.Version.ToFullString()</code>.
             </p>
-            @if (Model.Version.IsSemVer2)
+            <p>
+            @if (Model.Version.Revision != 0)
             {
-                <p>The version <b>is</b> SemVer 2.0.0.</p>
+                @:The version has a revision (fourth integer in the version) so it is not strictly SemVer. However,
+                @:NuGet considers the version to be
+                if (Model.Version.IsSemVer2)
+                {
+                    @:<b>SemVer 2.0.0</b>.
+                }
+                else
+                {
+                    @:<b>SemVer 1.0.0</b>.
+                }
             }
             else
             {
-                <p>The version <b>is not</b> SemVer 2.0.0.</p>
+                @:The version is
+                if (Model.Version.IsSemVer2)
+                {
+                    @:<b>SemVer 2.0.0</b>.
+                }
+                else
+                {
+                    @:<b>SemVer 1.0.0</b>.
+                }
             }
+            </p>
             @if (Model.Version.IsPrerelease)
             {
                 <p>The version <b>is</b> prerelease.</p>
