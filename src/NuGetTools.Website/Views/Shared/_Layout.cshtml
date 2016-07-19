@@ -43,7 +43,11 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>This site was made by <a href="http://joelverhagen.com/">Joel Verhagen</a> in 2016.</p>
+            <p>
+                Site by <a href="http://joelverhagen.com/">Joel Verhagen</a>,
+                version @(Configuration.AssemblyInformationalVersion) (<a href="@("https://github.com/joelverhagen/NuGetTools/commit/" + Configuration.AssemblyCommitHash)">commit</a>).
+                Visit the <a href="https://github.com/joelverhagen/NuGetTools">GitHub repository</a>.
+            </p>
         </footer>
     </div>
 

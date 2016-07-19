@@ -31,7 +31,12 @@
 
   "buildOptions": {
     "emitEntryPoint": true,
-    "preserveCompilationContext": true
+    "preserveCompilationContext": true,
+    "embed": {
+      "include": [
+        "../../version.txt"
+      ]
+    }
   },
 
   "runtimeOptions": {
