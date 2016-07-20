@@ -53,6 +53,7 @@
   },
 
   "scripts": {
+    "precompile": [ "dotnet run -p %project:Directory%/../../build/NuGetTools.Build/project.json" ],
     "prepublish": [ "npm install", "bower install", "gulp clean", "gulp min" ],
     "postpublish": [ "dotnet publish-iis --publish-folder %publish:OutputPath% --framework %publish:FullTargetFramework%" ]
   }
