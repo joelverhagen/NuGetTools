@@ -22,6 +22,9 @@
     {
         <div class="alert alert-success" role="alert">
             <p>
+                The input value is <b>@Model.Input.Version</b>.
+            </p>
+            <p>
                 The normalized version is <code>@Model.Version.ToNormalizedString()</code>.
             </p>
             <p>
@@ -56,11 +59,11 @@
             </p>
             @if (Model.Version.IsPrerelease)
             {
-                <p>The version <b>is</b> prerelease.</p>
+                <p>The version is <b>prerelease</b>.</p>
             }
             else
             {
-                <p>The version <b>is not</b> prerelease.</p>
+                <p>The version is <b>not prerelease</b>.</p>
             }
         </div>
     }
