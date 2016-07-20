@@ -77,6 +77,32 @@ namespace Knapcode.NuGetTools.Website
             return View(output);
         }
 
+        [HttpGet("/3.5.0-beta2/parse-version-range")]
+        public IActionResult ParseVersionRange(ParseVersionRangeInput input)
+        {
+            var output = new ParseVersionRangeOutput
+            {
+                InputStatus = InputStatus.Missing,
+                Input = input
+            };
+
+            if (input != null &&
+                !string.IsNullOrWhiteSpace(input.VersionRange))
+            {
+                try
+                {
+                    output.VersionRange = VersionRange.Parse(input.VersionRange);
+                    output.InputStatus = InputStatus.Valid;
+                }
+                catch (Exception)
+                {
+                    output.InputStatus = InputStatus.Invalid;
+                }
+            }
+
+            return View(output);
+        }
+
         [HttpGet("/3.5.0-beta2/framework-compatibility")]
         public IActionResult FrameworkCompatibility(FrameworkCompatibilityInput input)
         {

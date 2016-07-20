@@ -1,0 +1,66 @@
+﻿@model ParseVersionRangeOutput
+@{
+    ViewData["Title"] = "Parse Version Range";
+}
+
+<h1>Parse a version range</h1>
+<p>
+    Enter a NuGet package version range (version specification) to see how it parses.
+</p>
+
+<form method="GET" action="">
+    <div class="form-group">
+        <label for="versionRange">Version Range</label>
+        <input type="text" class="form-control" name="versionRange" id="versionRange"
+               placeholder="[2.0.0--, )" value="@Model.Input.VersionRange">
+    </div>
+    <button type="submit" class="btn btn-default">Submit</button>
+</form>
+
+<div class="results">
+    @if (@Model.InputStatus == InputStatus.Valid)
+    {
+        <div class="alert alert-success" role="alert">
+            <p>
+                The input value is <b>@Model.Input.VersionRange</b>.
+            </p>
+            <p>
+                The version range is <b>@(Model.VersionRange.IsFloating ? "floating" : "not floating")</b>.
+            </p>
+            <p>
+                The normalized version range is <code>@Model.VersionRange.ToNormalizedString()</code>.
+            </p>
+            <p>
+                The pretty printed version range is <code>@Model.VersionRange.PrettyPrint()</code>.
+            </p>
+            <p>
+                @if (Model.VersionRange.HasLowerBound)
+                {
+                    @:The version range has an <b>@(Model.VersionRange.IsMinInclusive ? "inclusive" : "exclusive") lower bound</b> of
+                    @:<code>@Model.VersionRange.MinVersion</code>.
+                }
+                else
+                {
+                    @:The version range has <b>no lower bound</b>, but the lower bound is @(Model.VersionRange.IsMinInclusive ? "inclusive" : "exclusive").
+                }
+            </p>
+            <p>
+                @if (Model.VersionRange.HasUpperBound)
+                {
+                    @:The version range has an <b>@(Model.VersionRange.IsMaxInclusive ? "inclusive" : "exclusive") upper bound</b> of
+                    @:<code>@Model.VersionRange.MaxVersion</code>.
+                }
+                else
+                {
+                    @:The version range has <b>no upper bound</b>, but the upper bound is @(Model.VersionRange.IsMaxInclusive ? "inclusive" : "exclusive").
+                }
+            </p>
+        </div>
+    }
+    else if (@Model.InputStatus == InputStatus.Invalid)
+    {
+        <div class="alert alert-danger" role="alert">
+            The version range <b>@Model.Input.VersionRange</b> could not be parsed.
+        </div>
+    }
+</div>
