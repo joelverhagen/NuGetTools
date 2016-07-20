@@ -30,12 +30,27 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a asp-controller="Home" asp-action="ParseFramework">Parse Framework</a></li>
-                    <li><a asp-controller="Home" asp-action="ParseVersion">Parse Version</a></li>
-                    <li><a asp-controller="Home" asp-action="ParseVersionRange">Parse Version Range</a></li>
-                    <li><a asp-controller="Home" asp-action="FrameworkCompatibility">Framework Compatibility</a></li>
-                    <li><a asp-controller="Home" asp-action="VersionComparison">Version Comparison</a></li>
-                    <li><a asp-controller="Home" asp-action="GetNearestFramework">Get Nearest Framework</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Framework <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a asp-controller="Home" asp-action="ParseFramework">Parse Framework</a></li>
+                            <li><a asp-controller="Home" asp-action="FrameworkCompatibility">Framework Compatibility</a></li>
+                            <li><a asp-controller="Home" asp-action="GetNearestFramework">Get Nearest Framework</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Version <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a asp-controller="Home" asp-action="ParseVersion">Parse Version</a></li>
+                            <li><a asp-controller="Home" asp-action="VersionComparison">Version Comparison</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Version Range <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a asp-controller="Home" asp-action="ParseVersionRange">Parse Version Range</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>
