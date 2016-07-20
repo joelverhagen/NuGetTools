@@ -39,10 +39,21 @@
 
         <div class="alert alert-info" role="alert">
             <p>The package frameworks that were considered were:</p>
-            <ul>
-                @foreach (var pair in Model.Package)
+            <ul class="list-unstyled">
+                @foreach (var input in Model.Package)
                 {
-                    <li><code>@pair.Framework.GetShortFolderName()</code> (<b>@pair.Input</b>)</li>
+                    <li>
+                        @if (input.Compatible)
+                        {
+                            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                        }
+                        else
+                        {
+                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                        }
+                        <code>@input.Framework.GetShortFolderName()</code>
+                        (<b>@input.Input</b>)
+                    </li>
                 }
             </ul>
             @if (Model.Invalid.Any())

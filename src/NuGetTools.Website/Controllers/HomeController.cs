@@ -198,7 +198,7 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/3.5.0-beta2/get-nearest-framework")]
         public IActionResult GetNearestFramework(GetNearestFrameworkInput input)
         {
-            var package = new List<InputFrameworkPair>();
+            var package = new List<InputFramework>();
             var invalid = new List<string>();
             var output = new GetNearestFrameworkOutput
             {
@@ -236,10 +236,13 @@ namespace Knapcode.NuGetTools.Website
                         try
                         {
                             var framework = NuGetFramework.Parse(line);
-                            var pair = new InputFrameworkPair
+                            var pair = new InputFramework
                             {
                                 Input = line,
-                                Framework = framework
+                                Framework = framework,
+                                Compatible = DefaultCompatibilityProvider
+                                    .Instance
+                                    .IsCompatible(output.Project, framework)
                             };
                             package.Add(pair);
                         }

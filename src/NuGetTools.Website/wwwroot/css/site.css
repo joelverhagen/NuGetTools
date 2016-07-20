@@ -13,3 +13,11 @@
 .results {
   padding: 10px 0px;
 }
+
+ul, ol {
+    margin: 5px 0px;
+}
+
+li {
+    padding: 2px 0px;
+}

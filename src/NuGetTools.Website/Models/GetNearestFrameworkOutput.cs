@@ -10,8 +10,8 @@ namespace Knapcode.NuGetTools.Website
         public bool IsProjectValid { get; set; }
         public bool IsPackageValid { get; set; }
         public NuGetFramework Project { get; set; }
-        public IReadOnlyList<InputFrameworkPair> Package { get; set; }
-        public InputFrameworkPair Nearest { get; set; }
+        public IReadOnlyList<InputFramework> Package { get; set; }
+        public InputFramework Nearest { get; set; }
         public IReadOnlyList<string> Invalid { get; set; }
     }
 }
