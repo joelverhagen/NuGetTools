@@ -4,5 +4,6 @@ namespace Knapcode.NuGetTools.Website
     {
         public string VersionA { get; set; }
         public string VersionB { get; set; }
+        public bool Swap { get; set; }
     }
 }

@@ -80,6 +80,17 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/3.5.0-beta2/framework-compatibility")]
         public IActionResult FrameworkCompatibility(FrameworkCompatibilityInput input)
         {
+            if (input.Swap)
+            {
+                return new RedirectToActionResult(
+                    nameof(FrameworkCompatibility),
+                    "Home",
+                    new { project = input.Package, package = input.Project })
+                {
+                    Permanent = false
+                };
+            }
+
             var output = new FrameworkCompatibilityOutput
             {
                 InputStatus = InputStatus.Missing,
@@ -129,6 +140,17 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/3.5.0-beta2/version-comparison")]
         public IActionResult VersionComparison(VersionComparisonInput input)
         {
+            if (input.Swap)
+            {
+                return new RedirectToActionResult(
+                    nameof(VersionComparison),
+                    "Home",
+                    new { versionA = input.VersionB, versionB = input.VersionA })
+                {
+                    Permanent = false
+                };
+            }
+
             var output = new VersionComparisonOutput
             {
                 InputStatus = InputStatus.Missing,
