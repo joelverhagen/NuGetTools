@@ -31,12 +31,7 @@
 
   "buildOptions": {
     "emitEntryPoint": true,
-    "preserveCompilationContext": true,
-    "embed": {
-      "include": [
-        "../../version.txt"
-      ]
-    }
+    "preserveCompilationContext": true
   },
 
   "runtimeOptions": {
@@ -54,7 +49,7 @@
 
   "scripts": {
     "precompile": [ "dotnet run -p %project:Directory%/../../build/NuGetTools.Build/project.json" ],
-    "postcompile": [ "dotnet publish --configuration Release --no-build"],
+    "postcompile": [ "npm install", "bower install", "gulp clean", "gulp min" ],
     "prepublish": [ "npm install", "bower install", "gulp clean", "gulp min" ],
     "postpublish": [ "dotnet publish-iis --publish-folder %publish:OutputPath% --framework %publish:FullTargetFramework%" ]
   }
