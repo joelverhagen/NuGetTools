@@ -313,5 +313,62 @@ namespace Knapcode.NuGetTools.Website
             return output;
         }
 
+        public VersionSatisfiesOutput VersionSatisfies(VersionSatisfiesInput input)
+        {
+            var output = new VersionSatisfiesOutput
+            {
+                InputStatus = InputStatus.Missing,
+                Input = input
+            };
+
+            if (input == null)
+            {
+                return output;
+            }
+
+            bool versionRangeMissing = string.IsNullOrWhiteSpace(input.VersionRange);
+            bool versionMissing = string.IsNullOrWhiteSpace(input.Version);
+
+            if (!versionRangeMissing)
+            {
+                try
+                {
+                    output.VersionRange = VersionRange.Parse(input.VersionRange);
+                    output.IsVersionRangeValid = true;
+                }
+                catch
+                {
+                    output.IsVersionRangeValid = false;
+                }
+            }
+
+            if (!versionMissing)
+            {
+                try
+                {
+                    output.Version = NuGetVersion.Parse(input.Version);
+                    output.IsVersionValid = true;
+                }
+                catch
+                {
+                    output.IsVersionValid = false;
+                }
+            }
+
+            if (!versionRangeMissing && !versionMissing)
+            {
+                if (output.IsVersionRangeValid && output.IsVersionValid)
+                {
+                    output.InputStatus = InputStatus.Valid;
+                    output.Satisfies = output.VersionRange.Satisfies(output.Version);
+                }
+                else
+                {
+                    output.InputStatus = InputStatus.Invalid;
+                }
+            }
+
+            return output;
+        }
     }
 }

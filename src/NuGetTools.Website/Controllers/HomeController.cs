@@ -95,5 +95,13 @@ namespace Knapcode.NuGetTools.Website
 
             return View(output);
         }
+
+        [HttpGet("/3.5.0-beta2/version-satisfies")]
+        public IActionResult VersionSatisfies(VersionSatisfiesInput input)
+        {
+            var output = _toolService.VersionSatisfies(input);
+
+            return View(output);
+        }
     }
 }

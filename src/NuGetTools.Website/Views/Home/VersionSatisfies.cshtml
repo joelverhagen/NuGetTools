@@ -1,0 +1,61 @@
+﻿@model VersionSatisfiesOutput
+@{
+    ViewData["Title"] = "Version Satisfies";
+}
+
+<h1>Version satisfies version range</h1>
+<p>
+    Enter a NuGet version range (verion specification) and a NuGet package version to see if the version satisfies the version range.
+</p>
+
+<form method="GET" action="">
+    <div class="form-group">
+        <label for="versionRange">Version Range</label>
+        <input type="text" class="form-control" name="versionRange" id="versionRange"
+               placeholder="[1.0.0, )" value="@Model.Input.VersionRange">
+    </div>
+    <div class="form-group">
+        <label for="version">Version</label>
+        <input type="text" class="form-control" name="version" id="version"
+               placeholder="2.0.0" value="@Model.Input.Version">
+    </div>
+    <button type="submit" class="btn btn-default">Submit</button>
+</form>
+
+<div class="results">
+    @if (@Model.InputStatus == InputStatus.Valid)
+    {   
+        @if (Model.Satisfies)
+        {
+            <div class="alert alert-success" role="alert">
+                <code>@Model.Version.ToNormalizedString()</code> (<b>@Model.Input.Version</b>)
+                satisfies
+                <code>@Model.VersionRange.ToNormalizedString()</code> (<b>@Model.Input.VersionRange</b>).
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning" role="alert">
+                <code>@Model.Version.ToNormalizedString()</code> (<b>@Model.Input.Version</b>)
+                does not satisfy
+                <code>@Model.VersionRange.ToNormalizedString()</code> (<b>@Model.Input.VersionRange</b>).
+            </div>
+        }
+    }
+    else if (@Model.InputStatus == InputStatus.Invalid)
+    {
+        if (!@Model.IsVersionRangeValid)
+        {
+            <div class="alert alert-danger" role="alert">
+                Version range <b>@Model.Input.VersionRange</b> could not be parsed.
+            </div>
+        }
+
+        if (!@Model.IsVersionValid)
+        {
+            <div class="alert alert-danger" role="alert">
+                <b>Version @Model.Input.Version</b> could not be parsed.
+            </div>
+        }
+    }
+</div>

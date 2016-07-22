@@ -876,5 +876,217 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(0, output.Package.Count);
             Assert.Null(output.Nearest);
         }
+
+        [Fact]
+        public void VersionSatisfies_NullInput()
+        {
+            // Arrange
+            var target = new ToolsService();
+            VersionSatisfiesInput input = null;
+
+            // Act
+            var output = target.VersionSatisfies(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Missing, output.InputStatus);
+            Assert.False(output.IsVersionRangeValid);
+            Assert.False(output.IsVersionValid);
+            Assert.Null(output.VersionRange);
+            Assert.Null(output.Version);
+            Assert.False(output.Satisfies);
+        }
+
+        [Fact]
+        public void VersionSatisfies_MissingVersionRange()
+        {
+            // Arrange
+            var target = new ToolsService();
+            var input = new VersionSatisfiesInput
+            {
+                VersionRange = null,
+                Version = "2.0"
+            };
+
+            // Act
+            var output = target.VersionSatisfies(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Missing, output.InputStatus);
+            Assert.False(output.IsVersionRangeValid);
+            Assert.True(output.IsVersionValid);
+            Assert.Null(output.VersionRange);
+            Assert.Equal(NuGetVersion.Parse(input.Version), output.Version);
+            Assert.False(output.Satisfies);
+        }
+
+        [Fact]
+        public void VersionSatisfies_MissingVersion()
+        {
+            // Arrange
+            var target = new ToolsService();
+            var input = new VersionSatisfiesInput
+            {
+                VersionRange = "(, 1.0.0]",
+                Version = null
+            };
+
+            // Act
+            var output = target.VersionSatisfies(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Missing, output.InputStatus);
+            Assert.True(output.IsVersionRangeValid);
+            Assert.False(output.IsVersionValid);
+            Assert.Equal(VersionRange.Parse(input.VersionRange), output.VersionRange);
+            Assert.Null(output.Version);
+            Assert.False(output.Satisfies);
+        }
+
+        [Fact]
+        public void VersionSatisfies_MissingVersionRangeAndVersion()
+        {
+            // Arrange
+            var target = new ToolsService();
+            var input = new VersionSatisfiesInput
+            {
+                VersionRange = null,
+                Version = null
+            };
+
+            // Act
+            var output = target.VersionSatisfies(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Missing, output.InputStatus);
+            Assert.False(output.IsVersionRangeValid);
+            Assert.False(output.IsVersionValid);
+            Assert.Null(output.VersionRange);
+            Assert.Null(output.Version);
+            Assert.False(output.Satisfies);
+        }
+
+        [Fact]
+        public void VersionSatisfies_Satisfies()
+        {
+            // Arrange
+            var target = new ToolsService();
+            var input = new VersionSatisfiesInput
+            {
+                VersionRange = "(, 1.0.0]",
+                Version = "1.0.0"
+            };
+
+            // Act
+            var output = target.VersionSatisfies(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Valid, output.InputStatus);
+            Assert.True(output.IsVersionRangeValid);
+            Assert.True(output.IsVersionValid);
+            Assert.Equal(VersionRange.Parse(input.VersionRange), output.VersionRange);
+            Assert.Equal(NuGetVersion.Parse(input.Version), output.Version);
+            Assert.True(output.Satisfies);
+        }
+
+        [Fact]
+        public void VersionSatisfies_DoesNotSatisfy()
+        {
+            // Arrange
+            var target = new ToolsService();
+            var input = new VersionSatisfiesInput
+            {
+                VersionRange = "(, 1.0.0)",
+                Version = "1.0.0"
+            };
+
+            // Act
+            var output = target.VersionSatisfies(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Valid, output.InputStatus);
+            Assert.True(output.IsVersionRangeValid);
+            Assert.True(output.IsVersionValid);
+            Assert.Equal(VersionRange.Parse(input.VersionRange), output.VersionRange);
+            Assert.Equal(NuGetVersion.Parse(input.Version), output.Version);
+            Assert.False(output.Satisfies);
+        }
+
+        [Fact]
+        public void VersionSatisfies_InvalidVersionRange()
+        {
+            // Arrange
+            var target = new ToolsService();
+            var input = new VersionSatisfiesInput
+            {
+                VersionRange = "a",
+                Version = "1.0.0"
+            };
+
+            // Act
+            var output = target.VersionSatisfies(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Invalid, output.InputStatus);
+            Assert.False(output.IsVersionRangeValid);
+            Assert.True(output.IsVersionValid);
+            Assert.Null(output.VersionRange);
+            Assert.Equal(NuGetVersion.Parse(input.Version), output.Version);
+            Assert.False(output.Satisfies);
+        }
+
+        [Fact]
+        public void VersionSatisfies_InvalidVersion()
+        {
+            // Arrange
+            var target = new ToolsService();
+            var input = new VersionSatisfiesInput
+            {
+                VersionRange = "1.0.0",
+                Version = "b"
+            };
+
+            // Act
+            var output = target.VersionSatisfies(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Invalid, output.InputStatus);
+            Assert.True(output.IsVersionRangeValid);
+            Assert.False(output.IsVersionValid);
+            Assert.Equal(VersionRange.Parse(input.VersionRange), output.VersionRange);
+            Assert.Null(output.Version);
+            Assert.False(output.Satisfies);
+        }
+
+        [Fact]
+        public void VersionSatisfies_InvalidVersionRangeAndVersion()
+        {
+            // Arrange
+            var target = new ToolsService();
+            var input = new VersionSatisfiesInput
+            {
+                VersionRange = "a",
+                Version = "b"
+            };
+
+            // Act
+            var output = target.VersionSatisfies(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Invalid, output.InputStatus);
+            Assert.False(output.IsVersionRangeValid);
+            Assert.False(output.IsVersionValid);
+            Assert.Null(output.VersionRange);
+            Assert.Null(output.Version);
+            Assert.False(output.Satisfies);
+        }
     }
 }

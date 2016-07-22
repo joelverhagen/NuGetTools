@@ -8,5 +8,6 @@
         ParseVersionOutput ParseVersion(ParseVersionInput input);
         ParseVersionRangeOutput ParseVersionRange(ParseVersionRangeInput input);
         VersionComparisonOutput VersionComparison(VersionComparisonInput input);
+        VersionSatisfiesOutput VersionSatisfies(VersionSatisfiesInput input);
     }
 }
