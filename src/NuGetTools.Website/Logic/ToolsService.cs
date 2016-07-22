@@ -92,9 +92,15 @@ namespace Knapcode.NuGetTools.Website
                 Input = input
             };
 
-            if (input != null &&
-                !string.IsNullOrWhiteSpace(input.Project) &&
-                !string.IsNullOrWhiteSpace(input.Package))
+            if (input == null)
+            {
+                return output;
+            }
+
+            bool projectMissing = string.IsNullOrWhiteSpace(input.Project);
+            bool packageMissing = string.IsNullOrWhiteSpace(input.Package);
+
+            if (!projectMissing)
             {
                 try
                 {
@@ -105,7 +111,10 @@ namespace Knapcode.NuGetTools.Website
                 {
                     output.IsProjectValid = false;
                 }
+            }
 
+            if (!packageMissing)
+            {
                 try
                 {
                     output.Package = NuGetFramework.Parse(input.Package);
@@ -115,7 +124,10 @@ namespace Knapcode.NuGetTools.Website
                 {
                     output.IsPackageValid = false;
                 }
+            }
 
+            if (!projectMissing && !packageMissing)
+            {
                 if (output.IsProjectValid && output.IsPackageValid)
                 {
                     output.InputStatus = InputStatus.Valid;
@@ -137,21 +149,46 @@ namespace Knapcode.NuGetTools.Website
             var output = new VersionComparisonOutput
             {
                 InputStatus = InputStatus.Missing,
-                Input = input
+                Input = input,
+                Result = ComparisonResult.Equal
             };
 
-            if (input != null &&
-                !string.IsNullOrWhiteSpace(input.VersionA) &&
-                !string.IsNullOrWhiteSpace(input.VersionB))
+            if (input == null)
             {
-                NuGetVersion versionA;
-                output.IsVersionAValid = NuGetVersion.TryParse(input.VersionA, out versionA);
-                output.VersionA = versionA;
+                return output;
+            }
 
-                NuGetVersion versionB;
-                output.IsVersionBValid = NuGetVersion.TryParse(input.VersionB, out versionB);
-                output.VersionB = versionB;
-                ;
+            bool versionAMissing = string.IsNullOrWhiteSpace(input.VersionA);
+            bool versionBMissing = string.IsNullOrWhiteSpace(input.VersionB);
+
+            if (!versionAMissing)
+            {
+                try
+                {
+                    output.VersionA = NuGetVersion.Parse(input.VersionA);
+                    output.IsVersionAValid = true;
+                }
+                catch
+                {
+                    output.IsVersionAValid = false;
+                }
+            }
+
+            if (!versionBMissing)
+            {
+                try
+                {
+                    output.VersionB = NuGetVersion.Parse(input.VersionB);
+                    output.IsVersionBValid = true;
+                }
+                catch
+                {
+                    output.IsVersionBValid = false;
+                }
+            }
+
+            if (!versionAMissing && !versionBMissing)
+            {
                 if (output.IsVersionAValid && output.IsVersionBValid)
                 {
                     output.InputStatus = InputStatus.Valid;
@@ -180,7 +217,7 @@ namespace Knapcode.NuGetTools.Website
 
         public GetNearestFrameworkOutput GetNearestFramework(GetNearestFrameworkInput input)
         {
-            var package = new List<InputFramework>();
+            var package = new List<OutputFramework>();
             var invalid = new List<string>();
             var output = new GetNearestFrameworkOutput
             {
@@ -190,9 +227,15 @@ namespace Knapcode.NuGetTools.Website
                 Input = input
             };
 
-            if (input != null &&
-                !string.IsNullOrWhiteSpace(input.Project) &&
-                !string.IsNullOrWhiteSpace(input.Package))
+            if (input == null)
+            {
+                return output;
+            }
+
+            bool projectMissing = string.IsNullOrWhiteSpace(input.Project);
+            bool packageMissing = string.IsNullOrWhiteSpace(input.Package);
+
+            if (!projectMissing)
             {
                 try
                 {
@@ -203,7 +246,10 @@ namespace Knapcode.NuGetTools.Website
                 {
                     output.IsProjectValid = false;
                 }
+            }
 
+            if (!packageMissing)
+            {
                 using (var reader = new StringReader(input.Package))
                 {
                     string line;
@@ -218,14 +264,20 @@ namespace Knapcode.NuGetTools.Website
                         try
                         {
                             var framework = NuGetFramework.Parse(line);
-                            var pair = new InputFramework
+                            var pair = new OutputFramework
                             {
                                 Input = line,
                                 Framework = framework,
-                                Compatible = DefaultCompatibilityProvider
-                                    .Instance
-                                    .IsCompatible(output.Project, framework)
+                                Compatible = false
                             };
+
+                            if (output.Project != null)
+                            {
+                                pair.Compatible = DefaultCompatibilityProvider
+                                    .Instance
+                                    .IsCompatible(output.Project, framework);
+                            }
+
                             package.Add(pair);
                         }
                         catch (Exception)
@@ -236,7 +288,10 @@ namespace Knapcode.NuGetTools.Website
                 }
 
                 output.IsPackageValid = output.Package.Any();
+            }
 
+            if (!projectMissing && !packageMissing)
+            {
                 if (output.IsProjectValid && output.IsPackageValid)
                 {
                     output.InputStatus = InputStatus.Valid;

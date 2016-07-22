@@ -2,7 +2,7 @@
 
 namespace Knapcode.NuGetTools.Website
 {
-    public class InputFramework
+    public class OutputFramework
     {
         public string Input { get; set; }
         public NuGetFramework Framework { get; set; }
