@@ -10,9 +10,11 @@ You can visit NuGet Tools at http://nugettoolsdev.azurewebsites.net/.
 
 - Parse a NuGet framework
 - Parse a NuGet package version
+- Parse a NuGet package version range
 - Test NuGet framework compatibility
 - Compare two NuGet package versions
 - Test get nearest NuGet framework algorithm
+- Test if a version satisfies a version range
 
 ## Future
 
