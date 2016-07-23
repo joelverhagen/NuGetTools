@@ -103,5 +103,13 @@ namespace Knapcode.NuGetTools.Website
 
             return View(output);
         }
+
+        [HttpGet("/3.5.0-beta2/find-best-version-match")]
+        public IActionResult FindBestVersionmatch(FindBestVersionMatchInput input)
+        {
+            var output = _toolService.FindBestVersionMatch(input);
+
+            return View(output);
+        }
     }
 }

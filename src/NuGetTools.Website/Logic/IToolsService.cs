@@ -9,5 +9,6 @@
         ParseVersionRangeOutput ParseVersionRange(ParseVersionRangeInput input);
         VersionComparisonOutput VersionComparison(VersionComparisonInput input);
         VersionSatisfiesOutput VersionSatisfies(VersionSatisfiesInput input);
+        FindBestVersionMatchOutput FindBestVersionMatch(FindBestVersionMatchInput input);
     }
 }

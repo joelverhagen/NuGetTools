@@ -1088,5 +1088,203 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Null(output.Version);
             Assert.False(output.Satisfies);
         }
+
+        [Fact]
+        public void FindBestVersionMatch_NullInput()
+        {
+            // Arrange
+            var target = new ToolsService();
+            FindBestVersionMatchInput input = null;
+
+            // Act
+            var output = target.FindBestVersionMatch(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Missing, output.InputStatus);
+            Assert.Empty(output.Invalid);
+            Assert.False(output.IsVersionRangeValid);
+            Assert.False(output.IsVersionValid);
+            Assert.Null(output.VersionRange);
+            Assert.Empty(output.Versions);
+            Assert.Null(output.BestMatch);
+        }
+
+        [Fact]
+        public void FindBestVersionMatch_MissingVersionRange()
+        {
+            // Arrange
+            var target = new ToolsService();
+            var inputVersions = new[] { "1.0.0" };
+            var input = new FindBestVersionMatchInput
+            {
+                VersionRange = null,
+                Versions = string.Join("\n", inputVersions)
+            };
+
+            // Act
+            var output = target.FindBestVersionMatch(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Missing, output.InputStatus);
+            Assert.Empty(output.Invalid);
+            Assert.False(output.IsVersionRangeValid);
+            Assert.True(output.IsVersionValid);
+            Assert.Null(output.VersionRange);
+            Assert.Equal(1, output.Versions.Count);
+            var outputVersion = output.Versions.First();
+            Assert.Equal(inputVersions[0], outputVersion.Input);
+            Assert.Equal(NuGetVersion.Parse(inputVersions[0]), outputVersion.Version);
+            Assert.Null(output.BestMatch);
+        }
+
+        [Fact]
+        public void FindBestVersionMatch_MissingVersions()
+        {
+            // Arrange
+            var target = new ToolsService();
+            var input = new FindBestVersionMatchInput
+            {
+                VersionRange = "[1.0.0, )",
+                Versions = null
+            };
+
+            // Act
+            var output = target.FindBestVersionMatch(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Missing, output.InputStatus);
+            Assert.Empty(output.Invalid);
+            Assert.True(output.IsVersionRangeValid);
+            Assert.False(output.IsVersionValid);
+            Assert.Equal(VersionRange.Parse(input.VersionRange), output.VersionRange);
+            Assert.Empty(output.Versions);
+            Assert.Null(output.BestMatch);
+        }
+
+        [Fact]
+        public void FindBestVersionMatch_MissingVersionRangeAndVersions()
+        {
+            // Arrange
+            var target = new ToolsService();
+            var input = new FindBestVersionMatchInput
+            {
+                VersionRange = null,
+                Versions = null
+            };
+
+            // Act
+            var output = target.FindBestVersionMatch(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Missing, output.InputStatus);
+            Assert.Empty(output.Invalid);
+            Assert.False(output.IsVersionRangeValid);
+            Assert.False(output.IsVersionValid);
+            Assert.Null(output.VersionRange);
+            Assert.Empty(output.Versions);
+            Assert.Null(output.BestMatch);
+        }
+
+        [Fact]
+        public void FindBestVersionMatch_InvalidAndIncompatible()
+        {
+            // Arrange
+            var target = new ToolsService();
+            var inputVersions = new[] { "0.1.0", "a" };
+            var input = new FindBestVersionMatchInput
+            {
+                VersionRange = "[1.0.0, )",
+                Versions = string.Join("\n", inputVersions)
+            };
+
+            // Act
+            var output = target.FindBestVersionMatch(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Valid, output.InputStatus);
+            Assert.Equal(1, output.Invalid.Count);
+            Assert.Equal(inputVersions[1], output.Invalid[0]);
+            Assert.True(output.IsVersionRangeValid);
+            Assert.True(output.IsVersionValid);
+            Assert.Equal(VersionRange.Parse(input.VersionRange), output.VersionRange);
+            Assert.Equal(1, output.Versions.Count);
+            var outputVersion = output.Versions.First();
+            Assert.Equal(inputVersions[0], outputVersion.Input);
+            Assert.Equal(NuGetVersion.Parse(inputVersions[0]), outputVersion.Version);
+            Assert.Null(output.BestMatch);
+        }
+
+        [Fact]
+        public void FindBestVersionMatch_Mixed()
+        {
+            // Arrange
+            var target = new ToolsService();
+            var inputVersions = new[] { "1.1.0", "1.2.0", "0.9.0", "a" };
+            var input = new FindBestVersionMatchInput
+            {
+                VersionRange = "[1.0.0, 2.0.0]",
+                Versions = string.Join("\n", inputVersions)
+            };
+
+            // Act
+            var output = target.FindBestVersionMatch(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Valid, output.InputStatus);
+            Assert.Equal(1, output.Invalid.Count);
+            Assert.Equal(inputVersions[3], output.Invalid[0]);
+            Assert.True(output.IsVersionRangeValid);
+            Assert.True(output.IsVersionValid);
+            Assert.Equal(VersionRange.Parse(input.VersionRange), output.VersionRange);
+            Assert.Equal(3, output.Versions.Count);
+
+            var outputVersionA = output.Versions.ElementAt(0);
+            Assert.Equal(inputVersions[0], outputVersionA.Input);
+            Assert.Equal(NuGetVersion.Parse(inputVersions[0]), outputVersionA.Version);
+
+            var outputVersionB = output.Versions.ElementAt(1);
+            Assert.Equal(inputVersions[1], outputVersionB.Input);
+            Assert.Equal(NuGetVersion.Parse(inputVersions[1]), outputVersionB.Version);
+
+            var outputVersionC = output.Versions.ElementAt(2);
+            Assert.Equal(inputVersions[2], outputVersionC.Input);
+            Assert.Equal(NuGetVersion.Parse(inputVersions[2]), outputVersionC.Version);
+
+            Assert.Same(outputVersionA, output.BestMatch);
+        }
+
+        [Fact]
+        public void FindBestVersionMatch_Invalid()
+        {
+            // Arrange
+            var target = new ToolsService();
+            var inputVersions = new[] { "a", "b" };
+            var input = new FindBestVersionMatchInput
+            {
+                VersionRange = "[1.0.0, )",
+                Versions = string.Join("\n", inputVersions)
+            };
+
+            // Act
+            var output = target.FindBestVersionMatch(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Invalid, output.InputStatus);
+            Assert.Equal(2, output.Invalid.Count);
+            Assert.Equal(inputVersions[0], output.Invalid[0]);
+            Assert.Equal(inputVersions[1], output.Invalid[1]);
+            Assert.True(output.IsVersionRangeValid);
+            Assert.False(output.IsVersionValid);
+            Assert.Equal(VersionRange.Parse(input.VersionRange), output.VersionRange);
+            Assert.Equal(0, output.Versions.Count);
+            Assert.Null(output.BestMatch);
+        }
     }
 }

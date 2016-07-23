@@ -217,12 +217,12 @@ namespace Knapcode.NuGetTools.Website
 
         public GetNearestFrameworkOutput GetNearestFramework(GetNearestFrameworkInput input)
         {
-            var package = new List<OutputFramework>();
+            var outputFrameworks = new List<OutputFramework>();
             var invalid = new List<string>();
             var output = new GetNearestFrameworkOutput
             {
                 InputStatus = InputStatus.Missing,
-                Package = package,
+                Package = outputFrameworks,
                 Invalid = invalid,
                 Input = input
             };
@@ -278,7 +278,7 @@ namespace Knapcode.NuGetTools.Website
                                     .IsCompatible(output.Project, framework);
                             }
 
-                            package.Add(pair);
+                            outputFrameworks.Add(pair);
                         }
                         catch (Exception)
                         {
@@ -361,6 +361,95 @@ namespace Knapcode.NuGetTools.Website
                 {
                     output.InputStatus = InputStatus.Valid;
                     output.Satisfies = output.VersionRange.Satisfies(output.Version);
+                }
+                else
+                {
+                    output.InputStatus = InputStatus.Invalid;
+                }
+            }
+
+            return output;
+        }
+
+        public FindBestVersionMatchOutput FindBestVersionMatch(FindBestVersionMatchInput input)
+        {
+            var outputVersions = new List<OutputVersion>();
+            var invalid = new List<string>();
+            var output = new FindBestVersionMatchOutput
+            {
+                InputStatus = InputStatus.Missing,
+                Versions = outputVersions,
+                Invalid = invalid,
+                Input = input
+            };
+
+            if (input == null)
+            {
+                return output;
+            }
+
+            bool versionRangeMissing = string.IsNullOrWhiteSpace(input.VersionRange);
+            bool versionsMissing = string.IsNullOrWhiteSpace(input.Versions);
+
+            if (!versionRangeMissing)
+            {
+                try
+                {
+                    output.VersionRange = VersionRange.Parse(input.VersionRange);
+                    output.IsVersionRangeValid = true;
+                }
+                catch (Exception)
+                {
+                    output.IsVersionRangeValid = false;
+                }
+            }
+
+            if (!versionsMissing)
+            {
+                using (var reader = new StringReader(input.Versions))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        line = line.Trim();
+                        if (string.IsNullOrEmpty(line))
+                        {
+                            continue;
+                        }
+
+                        try
+                        {
+                            var version = NuGetVersion.Parse(line);
+                            var pair = new OutputVersion
+                            {
+                                Input = line,
+                                Version = version
+                            };
+
+                            outputVersions.Add(pair);
+                        }
+                        catch (Exception)
+                        {
+                            invalid.Add(line);
+                        }
+                    }
+                }
+
+                output.IsVersionValid = output.Versions.Any();
+            }
+
+            if (!versionRangeMissing && !versionsMissing)
+            {
+                if (output.IsVersionRangeValid && output.IsVersionValid)
+                {
+                    output.InputStatus = InputStatus.Valid;
+                    
+                    var versions = output.Versions.Select(x => x.Version).ToArray();
+                    var bestMatch = output.VersionRange.FindBestMatch(versions);
+                    if (bestMatch != null)
+                    {
+                        output.BestMatch = output.Versions.First(x => x.Version.Equals(bestMatch));
+                    }
                 }
                 else
                 {
