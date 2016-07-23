@@ -41,10 +41,18 @@
 
         <div class="alert alert-info" role="alert">
             <p>The versions that were considered were:</p>
-            <ul>
+            <ul class="list-unstyled">
                 @foreach (var input in Model.Versions)
                 {
                     <li>
+                        @if (input.Satisfies)
+                        {
+                            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                        }
+                        else
+                        {
+                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                        }
                         <code>@input.Version.ToNormalizedString()</code>
                         (<b>@input.Input</b>)
                     </li>

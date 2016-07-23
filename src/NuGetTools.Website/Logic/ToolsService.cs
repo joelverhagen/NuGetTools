@@ -426,6 +426,11 @@ namespace Knapcode.NuGetTools.Website
                                 Version = version
                             };
 
+                            if (output.VersionRange != null)
+                            {
+                                pair.Satisfies = output.VersionRange.Satisfies(version);
+                            }
+
                             outputVersions.Add(pair);
                         }
                         catch (Exception)

@@ -1136,6 +1136,7 @@ namespace Knapcode.NuGetTools.Website.Tests
             var outputVersion = output.Versions.First();
             Assert.Equal(inputVersions[0], outputVersion.Input);
             Assert.Equal(NuGetVersion.Parse(inputVersions[0]), outputVersion.Version);
+            Assert.False(outputVersion.Satisfies);
             Assert.Null(output.BestMatch);
         }
 
@@ -1190,7 +1191,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         }
 
         [Fact]
-        public void FindBestVersionMatch_InvalidAndIncompatible()
+        public void FindBestVersionMatch_InvalidAndDoesNotSatisfy()
         {
             // Arrange
             var target = new ToolsService();
@@ -1216,6 +1217,7 @@ namespace Knapcode.NuGetTools.Website.Tests
             var outputVersion = output.Versions.First();
             Assert.Equal(inputVersions[0], outputVersion.Input);
             Assert.Equal(NuGetVersion.Parse(inputVersions[0]), outputVersion.Version);
+            Assert.False(outputVersion.Satisfies);
             Assert.Null(output.BestMatch);
         }
 
@@ -1247,14 +1249,17 @@ namespace Knapcode.NuGetTools.Website.Tests
             var outputVersionA = output.Versions.ElementAt(0);
             Assert.Equal(inputVersions[0], outputVersionA.Input);
             Assert.Equal(NuGetVersion.Parse(inputVersions[0]), outputVersionA.Version);
+            Assert.True(outputVersionA.Satisfies);
 
             var outputVersionB = output.Versions.ElementAt(1);
             Assert.Equal(inputVersions[1], outputVersionB.Input);
             Assert.Equal(NuGetVersion.Parse(inputVersions[1]), outputVersionB.Version);
+            Assert.True(outputVersionB.Satisfies);
 
             var outputVersionC = output.Versions.ElementAt(2);
             Assert.Equal(inputVersions[2], outputVersionC.Input);
             Assert.Equal(NuGetVersion.Parse(inputVersions[2]), outputVersionC.Version);
+            Assert.False(outputVersionC.Satisfies);
 
             Assert.Same(outputVersionA, output.BestMatch);
         }

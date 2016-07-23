@@ -6,5 +6,6 @@ namespace Knapcode.NuGetTools.Website
     {
         public string Input { get; set; }
         public NuGetVersion Version { get; set; }
+        public bool Satisfies { get; set; }
     }
 }
