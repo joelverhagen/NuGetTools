@@ -26,16 +26,16 @@
 <div class="results">
     @if (@Model.InputStatus == InputStatus.Valid)
     {
-        if (@Model.Compatible)
+        if (@Model.IsCompatible)
         {
             <div class="alert alert-success" role="alert">
-                <code>@Model.Project.GetShortFolderName()</code> (<b>@Model.Input.Project</b>) projects support <code>@Model.Package.GetShortFolderName()</code> (<b>@Model.Input.Package</b>) packages.
+                <code>@Model.Project.ShortFolderName</code> (<b>@Model.Input.Project</b>) projects support <code>@Model.Package.ShortFolderName</code> (<b>@Model.Input.Package</b>) packages.
             </div>
         }
         else
         {
             <div class="alert alert-warning" role="alert">
-                <code>@Model.Project.GetShortFolderName()</code> (<b>@Model.Input.Project</b>) projects do not support <code>@Model.Package.GetShortFolderName()</code> (<b>@Model.Input.Package</b>) packages.
+                <code>@Model.Project.ShortFolderName</code> (<b>@Model.Input.Project</b>) projects do not support <code>@Model.Package.ShortFolderName</code> (<b>@Model.Input.Package</b>) packages.
             </div>
         }
     }

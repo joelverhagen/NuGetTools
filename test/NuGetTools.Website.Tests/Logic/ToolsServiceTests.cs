@@ -1,7 +1,10 @@
 ﻿using System.Linq;
+using Knapcode.NuGetTools.Logic.Wrappers.Direct;
 using NuGet.Frameworks;
 using NuGet.Versioning;
 using Xunit;
+using NuGetVersionRange = NuGet.Versioning.VersionRange;
+using VersionRange = Knapcode.NuGetTools.Logic.Wrappers.Direct.VersionRange;
 
 namespace Knapcode.NuGetTools.Website.Tests
 {
@@ -11,7 +14,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void ParseVersionRange_ValidVersionRange()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new ParseVersionRangeInput
             {
                 VersionRange = "(, 1.0.0-beta]"
@@ -23,14 +26,14 @@ namespace Knapcode.NuGetTools.Website.Tests
             // Assert
             Assert.Same(input, output.Input);
             Assert.Equal(InputStatus.Valid, output.InputStatus);
-            Assert.Equal(VersionRange.Parse(input.VersionRange), output.VersionRange);
+            Assert.Equal(GetVersionRangeNormalizedString(input.VersionRange), output.VersionRange.NormalizedString);
         }
 
         [Fact]
         public void ParseVersionRange_InvalidVersionRange()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new ParseVersionRangeInput
             {
                 VersionRange = "a"
@@ -49,7 +52,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void ParseVersionRange_NullInput()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             ParseVersionRangeInput input = null;
 
             // Act
@@ -65,7 +68,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void ParseVersionRange_MissingVersionRange()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new ParseVersionRangeInput
             {
                 VersionRange = null
@@ -84,7 +87,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void ParseVersion_ValidVersion()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new ParseVersionInput
             {
                 Version = "1.0.0-beta"
@@ -96,14 +99,14 @@ namespace Knapcode.NuGetTools.Website.Tests
             // Assert
             Assert.Same(input, output.Input);
             Assert.Equal(InputStatus.Valid, output.InputStatus);
-            Assert.Equal(NuGetVersion.Parse(input.Version), output.Version);
+            Assert.Equal(GetVersionNormalizedString(input.Version), output.Version.NormalizedString);
         }
 
         [Fact]
         public void ParseVersion_InvalidVersion()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new ParseVersionInput
             {
                 Version = "1.0.0.0.0"
@@ -122,7 +125,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void ParseVersion_MissingVersion()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new ParseVersionInput
             {
                 Version = null
@@ -141,7 +144,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void ParseVersion_NullInput()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             ParseVersionInput input = null;
 
             // Act
@@ -157,7 +160,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void ParseFramework_ValidFramework()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new ParseFrameworkInput
             {
                 Framework = ".NETFramework,Version=v4.5"
@@ -169,14 +172,14 @@ namespace Knapcode.NuGetTools.Website.Tests
             // Assert
             Assert.Same(input, output.Input);
             Assert.Equal(InputStatus.Valid, output.InputStatus);
-            Assert.Equal(NuGetFramework.Parse(input.Framework), output.Framework);
+            Assert.Equal(GetFrameworkShortFolderName(input.Framework), output.Framework.ShortFolderName);
         }
 
         [Fact]
         public void ParseFramework_InvalidFramework()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new ParseFrameworkInput
             {
                 Framework = ".NETPortable,Version=v4.5,Profile=net45+net-cf"
@@ -195,7 +198,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void ParseFramework_NullInput()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             ParseFrameworkInput input = null;
 
             // Act
@@ -211,7 +214,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void ParseFramework_MissingFramework()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new ParseFrameworkInput
             {
                 Framework = null
@@ -230,7 +233,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void FrameworkCompatibility_InvalidProject()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new FrameworkCompatibilityInput
             {
                 Project = "portable-net45+net-cf",
@@ -246,15 +249,15 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.False(output.IsProjectValid);
             Assert.True(output.IsPackageValid);
             Assert.Null(output.Project);
-            Assert.Equal(NuGetFramework.Parse(input.Package), output.Package);
-            Assert.False(output.Compatible);
+            Assert.Equal(GetFrameworkShortFolderName(input.Package), output.Package.ShortFolderName);
+            Assert.False(output.IsCompatible);
         }
 
         [Fact]
         public void FrameworkCompatibility_InvalidPackage()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new FrameworkCompatibilityInput
             {
                 Project = "net45",
@@ -269,16 +272,16 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(InputStatus.Invalid, output.InputStatus);
             Assert.True(output.IsProjectValid);
             Assert.False(output.IsPackageValid);
-            Assert.Equal(NuGetFramework.Parse(input.Project), output.Project);
-            Assert.Null(output.Package);            
-            Assert.False(output.Compatible);
+            Assert.Equal(GetFrameworkShortFolderName(input.Project), output.Project.ShortFolderName);
+            Assert.Null(output.Package);
+            Assert.False(output.IsCompatible);
         }
 
         [Fact]
         public void FrameworkCompatibility_InvalidProjectAndPackage()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new FrameworkCompatibilityInput
             {
                 Project = "portable-win8+net-cf",
@@ -295,14 +298,14 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.False(output.IsPackageValid);
             Assert.Null(output.Project);
             Assert.Null(output.Package);
-            Assert.False(output.Compatible);
+            Assert.False(output.IsCompatible);
         }
 
         [Fact]
         public void FrameworkCompatibility_Compatible()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new FrameworkCompatibilityInput
             {
                 Project = "net45",
@@ -317,16 +320,16 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(InputStatus.Valid, output.InputStatus);
             Assert.True(output.IsProjectValid);
             Assert.True(output.IsPackageValid);
-            Assert.Equal(NuGetFramework.Parse(input.Project), output.Project);
-            Assert.Equal(NuGetFramework.Parse(input.Package), output.Package);
-            Assert.True(output.Compatible);
+            Assert.Equal(GetFrameworkShortFolderName(input.Project), output.Project.ShortFolderName);
+            Assert.Equal(GetFrameworkShortFolderName(input.Package), output.Package.ShortFolderName);
+            Assert.True(output.IsCompatible);
         }
 
         [Fact]
         public void FrameworkCompatibility_Incompatible()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new FrameworkCompatibilityInput
             {
                 Project = "net45",
@@ -341,16 +344,16 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(InputStatus.Valid, output.InputStatus);
             Assert.True(output.IsProjectValid);
             Assert.True(output.IsPackageValid);
-            Assert.Equal(NuGetFramework.Parse(input.Project), output.Project);
-            Assert.Equal(NuGetFramework.Parse(input.Package), output.Package);
-            Assert.False(output.Compatible);
+            Assert.Equal(GetFrameworkShortFolderName(input.Project), output.Project.ShortFolderName);
+            Assert.Equal(GetFrameworkShortFolderName(input.Package), output.Package.ShortFolderName);
+            Assert.False(output.IsCompatible);
         }
 
         [Fact]
         public void FrameworkCompatibility_MissingProject()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new FrameworkCompatibilityInput
             {
                 Project = null,
@@ -366,15 +369,15 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.False(output.IsProjectValid);
             Assert.True(output.IsPackageValid);
             Assert.Null(output.Project);
-            Assert.Equal(NuGetFramework.Parse(input.Package), output.Package);
-            Assert.False(output.Compatible);
+            Assert.Equal(GetFrameworkShortFolderName(input.Package), output.Package.ShortFolderName);
+            Assert.False(output.IsCompatible);
         }
 
         [Fact]
         public void FrameworkCompatibility_MissingPackage()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new FrameworkCompatibilityInput
             {
                 Project = "net45",
@@ -389,16 +392,16 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(InputStatus.Missing, output.InputStatus);
             Assert.True(output.IsProjectValid);
             Assert.False(output.IsPackageValid);
-            Assert.Equal(NuGetFramework.Parse(input.Project), output.Project);
+            Assert.Equal(GetFrameworkShortFolderName(input.Project), output.Project.ShortFolderName);
             Assert.Null(output.Package);
-            Assert.False(output.Compatible);
+            Assert.False(output.IsCompatible);
         }
 
         [Fact]
         public void FrameworkCompatibility_MissingProjectAndPackage()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new FrameworkCompatibilityInput
             {
                 Project = null,
@@ -415,14 +418,14 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.False(output.IsPackageValid);
             Assert.Null(output.Project);
             Assert.Null(output.Package);
-            Assert.False(output.Compatible);
+            Assert.False(output.IsCompatible);
         }
 
         [Fact]
         public void FrameworkCompatibility_NullInput()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             FrameworkCompatibilityInput input = null;
 
             // Act
@@ -435,14 +438,14 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.False(output.IsPackageValid);
             Assert.Null(output.Project);
             Assert.Null(output.Package);
-            Assert.False(output.Compatible);
+            Assert.False(output.IsCompatible);
         }
 
         [Fact]
         public void VersionComparison_NullInput()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             VersionComparisonInput input = null;
 
             // Act
@@ -462,7 +465,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void VersionComparison_MissingVersionA()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new VersionComparisonInput
             {
                 VersionA = null,
@@ -478,7 +481,7 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.False(output.IsVersionAValid);
             Assert.True(output.IsVersionBValid);
             Assert.Null(output.VersionA);
-            Assert.Equal(NuGetVersion.Parse(input.VersionB), output.VersionB);
+            Assert.Equal(GetVersionNormalizedString(input.VersionB), output.VersionB.NormalizedString);
             Assert.Equal(ComparisonResult.Equal, output.Result);
         }
 
@@ -486,7 +489,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void VersionComparison_MissingVersionB()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new VersionComparisonInput
             {
                 VersionA = "1.0.0-beta",
@@ -501,7 +504,7 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(InputStatus.Missing, output.InputStatus);
             Assert.True(output.IsVersionAValid);
             Assert.False(output.IsVersionBValid);
-            Assert.Equal(NuGetVersion.Parse(input.VersionA), output.VersionA);
+            Assert.Equal(GetVersionNormalizedString(input.VersionA), output.VersionA.NormalizedString);
             Assert.Null(output.VersionB);
             Assert.Equal(ComparisonResult.Equal, output.Result);
         }
@@ -510,7 +513,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void VersionComparison_MissingVersionAAndVersionB()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new VersionComparisonInput
             {
                 VersionA = null,
@@ -534,7 +537,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void VersionComparison_LessThan()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new VersionComparisonInput
             {
                 VersionA = "1.0",
@@ -549,8 +552,8 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(InputStatus.Valid, output.InputStatus);
             Assert.True(output.IsVersionAValid);
             Assert.True(output.IsVersionBValid);
-            Assert.Equal(NuGetVersion.Parse(input.VersionA), output.VersionA);
-            Assert.Equal(NuGetVersion.Parse(input.VersionB), output.VersionB);
+            Assert.Equal(GetVersionNormalizedString(input.VersionA), output.VersionA.NormalizedString);
+            Assert.Equal(GetVersionNormalizedString(input.VersionB), output.VersionB.NormalizedString);
             Assert.Equal(ComparisonResult.LessThan, output.Result);
         }
 
@@ -558,7 +561,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void VersionComparison_GreaterThan()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new VersionComparisonInput
             {
                 VersionA = "2.0",
@@ -573,8 +576,8 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(InputStatus.Valid, output.InputStatus);
             Assert.True(output.IsVersionAValid);
             Assert.True(output.IsVersionBValid);
-            Assert.Equal(NuGetVersion.Parse(input.VersionA), output.VersionA);
-            Assert.Equal(NuGetVersion.Parse(input.VersionB), output.VersionB);
+            Assert.Equal(GetVersionNormalizedString(input.VersionA), output.VersionA.NormalizedString);
+            Assert.Equal(GetVersionNormalizedString(input.VersionB), output.VersionB.NormalizedString);
             Assert.Equal(ComparisonResult.GreaterThan, output.Result);
         }
 
@@ -582,7 +585,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void VersionComparison_Equal()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new VersionComparisonInput
             {
                 VersionA = "1",
@@ -597,8 +600,8 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(InputStatus.Valid, output.InputStatus);
             Assert.True(output.IsVersionAValid);
             Assert.True(output.IsVersionBValid);
-            Assert.Equal(NuGetVersion.Parse(input.VersionA), output.VersionA);
-            Assert.Equal(NuGetVersion.Parse(input.VersionB), output.VersionB);
+            Assert.Equal(GetVersionNormalizedString(input.VersionA), output.VersionA.NormalizedString);
+            Assert.Equal(GetVersionNormalizedString(input.VersionB), output.VersionB.NormalizedString);
             Assert.Equal(ComparisonResult.Equal, output.Result);
         }
 
@@ -606,7 +609,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void VersionComparison_InvalidVersionA()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new VersionComparisonInput
             {
                 VersionA = "a",
@@ -622,7 +625,7 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.False(output.IsVersionAValid);
             Assert.True(output.IsVersionBValid);
             Assert.Null(output.VersionA);
-            Assert.Equal(NuGetVersion.Parse(input.VersionB), output.VersionB);
+            Assert.Equal(GetVersionNormalizedString(input.VersionB), output.VersionB.NormalizedString);
             Assert.Equal(ComparisonResult.Equal, output.Result);
         }
 
@@ -630,7 +633,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void VersionComparison_InvalidVersionB()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new VersionComparisonInput
             {
                 VersionA = "1.0.0",
@@ -645,7 +648,7 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(InputStatus.Invalid, output.InputStatus);
             Assert.True(output.IsVersionAValid);
             Assert.False(output.IsVersionBValid);
-            Assert.Equal(NuGetVersion.Parse(input.VersionA), output.VersionA);
+            Assert.Equal(GetVersionNormalizedString(input.VersionA), output.VersionA.NormalizedString);
             Assert.Null(output.VersionB);
             Assert.Equal(ComparisonResult.Equal, output.Result);
         }
@@ -654,7 +657,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void VersionComparison_InvalidVersionAAndVersionB()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new VersionComparisonInput
             {
                 VersionA = "a",
@@ -678,7 +681,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void GetNearestFramework_NullInput()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             GetNearestFrameworkInput input = null;
 
             // Act
@@ -699,7 +702,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void GetNearestFramework_MissingProject()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var inputPackage = new[] { "net45" };
             var input = new GetNearestFrameworkInput
             {
@@ -720,8 +723,8 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(1, output.Package.Count);
             var outputFramework = output.Package.First();
             Assert.Equal(inputPackage[0], outputFramework.Input);
-            Assert.Equal(NuGetFramework.Parse(inputPackage[0]), outputFramework.Framework);
-            Assert.False(outputFramework.Compatible);
+            Assert.Equal(GetFrameworkShortFolderName(inputPackage[0]), outputFramework.Framework.ShortFolderName);
+            Assert.False(outputFramework.IsCompatible);
             Assert.Null(output.Nearest);
         }
 
@@ -729,7 +732,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void GetNearestFramework_MissingPackage()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new GetNearestFrameworkInput
             {
                 Project = "net45",
@@ -745,7 +748,7 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Empty(output.Invalid);
             Assert.True(output.IsProjectValid);
             Assert.False(output.IsPackageValid);
-            Assert.Equal(NuGetFramework.Parse(input.Project), output.Project);
+            Assert.Equal(GetFrameworkShortFolderName(input.Project), output.Project.ShortFolderName);
             Assert.Empty(output.Package);
             Assert.Null(output.Nearest);
         }
@@ -754,7 +757,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void GetNearestFramework_MissingProjectAndPackage()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new GetNearestFrameworkInput
             {
                 Project = null,
@@ -779,7 +782,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void GetNearestFramework_InvalidAndIncompatible()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var inputPackage = new[] { "netstandard1.6", "portable-net45+net-cf" };
             var input = new GetNearestFrameworkInput
             {
@@ -797,12 +800,12 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(inputPackage[1], output.Invalid[0]);
             Assert.True(output.IsProjectValid);
             Assert.True(output.IsPackageValid);
-            Assert.Equal(NuGetFramework.Parse(input.Project), output.Project);
+            Assert.Equal(GetFrameworkShortFolderName(input.Project), output.Project.ShortFolderName);
             Assert.Equal(1, output.Package.Count);
             var outputFramework = output.Package.First();
             Assert.Equal(inputPackage[0], outputFramework.Input);
-            Assert.Equal(NuGetFramework.Parse(inputPackage[0]), outputFramework.Framework);
-            Assert.False(outputFramework.Compatible);
+            Assert.Equal(GetFrameworkShortFolderName(inputPackage[0]), outputFramework.Framework.ShortFolderName);
+            Assert.False(outputFramework.IsCompatible);
             Assert.Null(output.Nearest);
         }
 
@@ -810,7 +813,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void GetNearestFramework_Mixed()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var inputPackage = new[] { "net40", "net45", "netstandard1.6", "portable-net45+net-cf" };
             var input = new GetNearestFrameworkInput
             {
@@ -828,23 +831,23 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(inputPackage[3], output.Invalid[0]);
             Assert.True(output.IsProjectValid);
             Assert.True(output.IsPackageValid);
-            Assert.Equal(NuGetFramework.Parse(input.Project), output.Project);
+            Assert.Equal(GetFrameworkShortFolderName(input.Project), output.Project.ShortFolderName);
             Assert.Equal(3, output.Package.Count);
 
             var outputFrameworkA = output.Package.ElementAt(0);
             Assert.Equal(inputPackage[0], outputFrameworkA.Input);
-            Assert.Equal(NuGetFramework.Parse(inputPackage[0]), outputFrameworkA.Framework);
-            Assert.True(outputFrameworkA.Compatible);
+            Assert.Equal(GetFrameworkShortFolderName(inputPackage[0]), outputFrameworkA.Framework.ShortFolderName);
+            Assert.True(outputFrameworkA.IsCompatible);
 
             var outputFrameworkB = output.Package.ElementAt(1);
             Assert.Equal(inputPackage[1], outputFrameworkB.Input);
-            Assert.Equal(NuGetFramework.Parse(inputPackage[1]), outputFrameworkB.Framework);
-            Assert.True(outputFrameworkB.Compatible);
+            Assert.Equal(GetFrameworkShortFolderName(inputPackage[1]), outputFrameworkB.Framework.ShortFolderName);
+            Assert.True(outputFrameworkB.IsCompatible);
 
             var outputFrameworkC = output.Package.ElementAt(2);
             Assert.Equal(inputPackage[2], outputFrameworkC.Input);
-            Assert.Equal(NuGetFramework.Parse(inputPackage[2]), outputFrameworkC.Framework);
-            Assert.False(outputFrameworkC.Compatible);
+            Assert.Equal(GetFrameworkShortFolderName(inputPackage[2]), outputFrameworkC.Framework.ShortFolderName);
+            Assert.False(outputFrameworkC.IsCompatible);
 
             Assert.Same(outputFrameworkB, output.Nearest);
         }
@@ -853,7 +856,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void GetNearestFramework_Invalid()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var inputPackage = new[] { "portable-net45+net-cf", "portable-win8+net-cf" };
             var input = new GetNearestFrameworkInput
             {
@@ -872,7 +875,7 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(inputPackage[1], output.Invalid[1]);
             Assert.True(output.IsProjectValid);
             Assert.False(output.IsPackageValid);
-            Assert.Equal(NuGetFramework.Parse(input.Project), output.Project);
+            Assert.Equal(GetFrameworkShortFolderName(input.Project), output.Project.ShortFolderName);
             Assert.Equal(0, output.Package.Count);
             Assert.Null(output.Nearest);
         }
@@ -881,7 +884,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void VersionSatisfies_NullInput()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             VersionSatisfiesInput input = null;
 
             // Act
@@ -901,7 +904,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void VersionSatisfies_MissingVersionRange()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new VersionSatisfiesInput
             {
                 VersionRange = null,
@@ -917,7 +920,7 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.False(output.IsVersionRangeValid);
             Assert.True(output.IsVersionValid);
             Assert.Null(output.VersionRange);
-            Assert.Equal(NuGetVersion.Parse(input.Version), output.Version);
+            Assert.Equal(GetVersionNormalizedString(input.Version), output.Version.NormalizedString);
             Assert.False(output.Satisfies);
         }
 
@@ -925,7 +928,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void VersionSatisfies_MissingVersion()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new VersionSatisfiesInput
             {
                 VersionRange = "(, 1.0.0]",
@@ -940,7 +943,7 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(InputStatus.Missing, output.InputStatus);
             Assert.True(output.IsVersionRangeValid);
             Assert.False(output.IsVersionValid);
-            Assert.Equal(VersionRange.Parse(input.VersionRange), output.VersionRange);
+            Assert.Equal(GetVersionRangeNormalizedString(input.VersionRange), output.VersionRange.NormalizedString);
             Assert.Null(output.Version);
             Assert.False(output.Satisfies);
         }
@@ -949,7 +952,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void VersionSatisfies_MissingVersionRangeAndVersion()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new VersionSatisfiesInput
             {
                 VersionRange = null,
@@ -973,7 +976,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void VersionSatisfies_Satisfies()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new VersionSatisfiesInput
             {
                 VersionRange = "(, 1.0.0]",
@@ -988,8 +991,8 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(InputStatus.Valid, output.InputStatus);
             Assert.True(output.IsVersionRangeValid);
             Assert.True(output.IsVersionValid);
-            Assert.Equal(VersionRange.Parse(input.VersionRange), output.VersionRange);
-            Assert.Equal(NuGetVersion.Parse(input.Version), output.Version);
+            Assert.Equal(GetVersionRangeNormalizedString(input.VersionRange), output.VersionRange.NormalizedString);
+            Assert.Equal(GetVersionNormalizedString(input.Version), output.Version.NormalizedString);
             Assert.True(output.Satisfies);
         }
 
@@ -997,7 +1000,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void VersionSatisfies_DoesNotSatisfy()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new VersionSatisfiesInput
             {
                 VersionRange = "(, 1.0.0)",
@@ -1012,8 +1015,8 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(InputStatus.Valid, output.InputStatus);
             Assert.True(output.IsVersionRangeValid);
             Assert.True(output.IsVersionValid);
-            Assert.Equal(VersionRange.Parse(input.VersionRange), output.VersionRange);
-            Assert.Equal(NuGetVersion.Parse(input.Version), output.Version);
+            Assert.Equal(GetVersionRangeNormalizedString(input.VersionRange), output.VersionRange.NormalizedString);
+            Assert.Equal(GetVersionNormalizedString(input.Version), output.Version.NormalizedString);
             Assert.False(output.Satisfies);
         }
 
@@ -1021,7 +1024,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void VersionSatisfies_InvalidVersionRange()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new VersionSatisfiesInput
             {
                 VersionRange = "a",
@@ -1037,7 +1040,7 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.False(output.IsVersionRangeValid);
             Assert.True(output.IsVersionValid);
             Assert.Null(output.VersionRange);
-            Assert.Equal(NuGetVersion.Parse(input.Version), output.Version);
+            Assert.Equal(GetVersionNormalizedString(input.Version), output.Version.NormalizedString);
             Assert.False(output.Satisfies);
         }
 
@@ -1045,7 +1048,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void VersionSatisfies_InvalidVersion()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new VersionSatisfiesInput
             {
                 VersionRange = "1.0.0",
@@ -1060,7 +1063,7 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(InputStatus.Invalid, output.InputStatus);
             Assert.True(output.IsVersionRangeValid);
             Assert.False(output.IsVersionValid);
-            Assert.Equal(VersionRange.Parse(input.VersionRange), output.VersionRange);
+            Assert.Equal(GetVersionRangeNormalizedString(input.VersionRange), output.VersionRange.NormalizedString);
             Assert.Null(output.Version);
             Assert.False(output.Satisfies);
         }
@@ -1069,7 +1072,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void VersionSatisfies_InvalidVersionRangeAndVersion()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new VersionSatisfiesInput
             {
                 VersionRange = "a",
@@ -1093,7 +1096,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void FindBestVersionMatch_NullInput()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             FindBestVersionMatchInput input = null;
 
             // Act
@@ -1114,7 +1117,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void FindBestVersionMatch_MissingVersionRange()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var inputVersions = new[] { "1.0.0" };
             var input = new FindBestVersionMatchInput
             {
@@ -1135,7 +1138,7 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(1, output.Versions.Count);
             var outputVersion = output.Versions.First();
             Assert.Equal(inputVersions[0], outputVersion.Input);
-            Assert.Equal(NuGetVersion.Parse(inputVersions[0]), outputVersion.Version);
+            Assert.Equal(GetVersionNormalizedString(inputVersions[0]), outputVersion.Version.NormalizedString);
             Assert.False(outputVersion.Satisfies);
             Assert.Null(output.BestMatch);
         }
@@ -1144,7 +1147,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void FindBestVersionMatch_MissingVersions()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new FindBestVersionMatchInput
             {
                 VersionRange = "[1.0.0, )",
@@ -1160,7 +1163,7 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Empty(output.Invalid);
             Assert.True(output.IsVersionRangeValid);
             Assert.False(output.IsVersionValid);
-            Assert.Equal(VersionRange.Parse(input.VersionRange), output.VersionRange);
+            Assert.Equal(GetVersionRangeNormalizedString(input.VersionRange), output.VersionRange.NormalizedString);
             Assert.Empty(output.Versions);
             Assert.Null(output.BestMatch);
         }
@@ -1169,7 +1172,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void FindBestVersionMatch_MissingVersionRangeAndVersions()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var input = new FindBestVersionMatchInput
             {
                 VersionRange = null,
@@ -1194,7 +1197,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void FindBestVersionMatch_InvalidAndDoesNotSatisfy()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var inputVersions = new[] { "0.1.0", "a" };
             var input = new FindBestVersionMatchInput
             {
@@ -1212,11 +1215,11 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(inputVersions[1], output.Invalid[0]);
             Assert.True(output.IsVersionRangeValid);
             Assert.True(output.IsVersionValid);
-            Assert.Equal(VersionRange.Parse(input.VersionRange), output.VersionRange);
+            Assert.Equal(GetVersionRangeNormalizedString(input.VersionRange), output.VersionRange.NormalizedString);
             Assert.Equal(1, output.Versions.Count);
             var outputVersion = output.Versions.First();
             Assert.Equal(inputVersions[0], outputVersion.Input);
-            Assert.Equal(NuGetVersion.Parse(inputVersions[0]), outputVersion.Version);
+            Assert.Equal(GetVersionNormalizedString(inputVersions[0]), outputVersion.Version.NormalizedString);
             Assert.False(outputVersion.Satisfies);
             Assert.Null(output.BestMatch);
         }
@@ -1225,7 +1228,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void FindBestVersionMatch_Mixed()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var inputVersions = new[] { "1.1.0", "1.2.0", "0.9.0", "a" };
             var input = new FindBestVersionMatchInput
             {
@@ -1243,22 +1246,22 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(inputVersions[3], output.Invalid[0]);
             Assert.True(output.IsVersionRangeValid);
             Assert.True(output.IsVersionValid);
-            Assert.Equal(VersionRange.Parse(input.VersionRange), output.VersionRange);
+            Assert.Equal(GetVersionRangeNormalizedString(input.VersionRange), output.VersionRange.NormalizedString);
             Assert.Equal(3, output.Versions.Count);
 
             var outputVersionA = output.Versions.ElementAt(0);
             Assert.Equal(inputVersions[0], outputVersionA.Input);
-            Assert.Equal(NuGetVersion.Parse(inputVersions[0]), outputVersionA.Version);
+            Assert.Equal(GetVersionNormalizedString(inputVersions[0]), outputVersionA.Version.NormalizedString);
             Assert.True(outputVersionA.Satisfies);
 
             var outputVersionB = output.Versions.ElementAt(1);
             Assert.Equal(inputVersions[1], outputVersionB.Input);
-            Assert.Equal(NuGetVersion.Parse(inputVersions[1]), outputVersionB.Version);
+            Assert.Equal(GetVersionNormalizedString(inputVersions[1]), outputVersionB.Version.NormalizedString);
             Assert.True(outputVersionB.Satisfies);
 
             var outputVersionC = output.Versions.ElementAt(2);
             Assert.Equal(inputVersions[2], outputVersionC.Input);
-            Assert.Equal(NuGetVersion.Parse(inputVersions[2]), outputVersionC.Version);
+            Assert.Equal(GetVersionNormalizedString(inputVersions[2]), outputVersionC.Version.NormalizedString);
             Assert.False(outputVersionC.Satisfies);
 
             Assert.Same(outputVersionA, output.BestMatch);
@@ -1268,7 +1271,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         public void FindBestVersionMatch_Invalid()
         {
             // Arrange
-            var target = new ToolsService();
+            var target = GetToolsService();
             var inputVersions = new[] { "a", "b" };
             var input = new FindBestVersionMatchInput
             {
@@ -1287,9 +1290,32 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Equal(inputVersions[1], output.Invalid[1]);
             Assert.True(output.IsVersionRangeValid);
             Assert.False(output.IsVersionValid);
-            Assert.Equal(VersionRange.Parse(input.VersionRange), output.VersionRange);
+            Assert.Equal(GetVersionRangeNormalizedString(input.VersionRange), output.VersionRange.NormalizedString);
             Assert.Equal(0, output.Versions.Count);
             Assert.Null(output.BestMatch);
+        }
+
+        private string GetFrameworkShortFolderName(string input)
+        {
+            return NuGetFramework.Parse(input).GetShortFolderName();
+        }
+
+        private string GetVersionNormalizedString(string input)
+        {
+            return NuGetVersion.Parse(input).ToNormalizedString();
+        }
+
+        private string GetVersionRangeNormalizedString(string input)
+        {
+            return NuGetVersionRange.Parse(input).ToNormalizedString();
+        }
+
+        private ToolsService<Framework, Version, VersionRange> GetToolsService()
+        {
+            return new ToolsService<Framework, Version, VersionRange>(
+                new FrameworkLogic(),
+                new VersionLogic(),
+                new VersionRangeLogic());
         }
     }
 }

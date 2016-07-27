@@ -27,13 +27,13 @@
         if (@Model.Nearest != null)
         {
             <div class="alert alert-success" role="alert">
-                The <code>@Model.Nearest.Framework.GetShortFolderName()</code> (<b>@Model.Nearest.Input</b>) package framework is the nearest to the <code>@Model.Project.GetShortFolderName()</code> (<b>@Model.Input.Project</b>) project framework.
+                The <code>@Model.Nearest.Framework.ShortFolderName</code> (<b>@Model.Nearest.Input</b>) package framework is the nearest to the <code>@Model.Project.ShortFolderName</code> (<b>@Model.Input.Project</b>) project framework.
             </div>
         }
         else
         {
             <div class="alert alert-warning" role="alert">
-                None of the recognized frameworks are compatible with the <code>@Model.Project.GetShortFolderName()</code> (<b>@Model.Input.Project</b>) project framework.
+                None of the recognized frameworks are compatible with the <code>@Model.Project.ShortFolderName</code> (<b>@Model.Input.Project</b>) project framework.
             </div>
         }
 
@@ -43,7 +43,7 @@
                 @foreach (var input in Model.Package)
                 {
                     <li>
-                        @if (input.Compatible)
+                        @if (input.IsCompatible)
                         {
                             <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                         }
@@ -51,7 +51,7 @@
                         {
                             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                         }
-                        <code>@input.Framework.GetShortFolderName()</code>
+                        <code>@input.Framework.ShortFolderName</code>
                         (<b>@input.Input</b>)
                     </li>
                 }

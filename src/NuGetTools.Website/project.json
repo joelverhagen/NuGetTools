@@ -1,11 +1,10 @@
 {
   "dependencies": {
-    "Microsoft.NETCore.App": {
-      "version": "1.0.0",
-      "type": "platform"
-    },
     "NuGetTools.Build": {
       "type": "build",
+      "target": "project"
+    },
+    "NuGetTools.Logic": {
       "target": "project"
     },
     "Microsoft.AspNetCore.Diagnostics": "1.0.0",
@@ -30,7 +29,14 @@
   },
 
   "frameworks": {
-    "netcoreapp1.0": {}
+    "netcoreapp1.0": {
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.0"
+        }
+      }
+    }
   },
 
   "buildOptions": {

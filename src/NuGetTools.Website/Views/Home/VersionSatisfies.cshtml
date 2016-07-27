@@ -28,17 +28,17 @@
         @if (Model.Satisfies)
         {
             <div class="alert alert-success" role="alert">
-                <code>@Model.Version.ToNormalizedString()</code> (<b>@Model.Input.Version</b>)
+                <code>@Model.Version.NormalizedString</code> (<b>@Model.Input.Version</b>)
                 satisfies
-                <code>@Model.VersionRange.ToNormalizedString()</code> (<b>@Model.Input.VersionRange</b>).
+                <code>@Model.VersionRange.NormalizedString</code> (<b>@Model.Input.VersionRange</b>).
             </div>
         }
         else
         {
             <div class="alert alert-warning" role="alert">
-                <code>@Model.Version.ToNormalizedString()</code> (<b>@Model.Input.Version</b>)
+                <code>@Model.Version.NormalizedString</code> (<b>@Model.Input.Version</b>)
                 does not satisfy
-                <code>@Model.VersionRange.ToNormalizedString()</code> (<b>@Model.Input.VersionRange</b>).
+                <code>@Model.VersionRange.NormalizedString</code> (<b>@Model.Input.VersionRange</b>).
             </div>
         }
     }

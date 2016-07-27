@@ -28,14 +28,14 @@
         if (@Model.BestMatch != null)
         {
             <div class="alert alert-success" role="alert">
-                The <code>@Model.BestMatch.Version.ToNormalizedString()</code> (<b>@Model.BestMatch.Input</b>) version
-                is the best match to the <code>@Model.VersionRange.ToNormalizedString()</code> (<b>@Model.Input.VersionRange</b>) version range.
+                The <code>@Model.BestMatch.Version.NormalizedString</code> (<b>@Model.BestMatch.Input</b>) version
+                is the best match to the <code>@Model.VersionRange.NormalizedString</code> (<b>@Model.Input.VersionRange</b>) version range.
             </div>
         }
         else
         {
             <div class="alert alert-warning" role="alert">
-                None of the recognized versions satisfied the <code>@Model.VersionRange.ToNormalizedString()</code> (<b>@Model.Input.VersionRange</b>) version range.
+                None of the recognized versions satisfied the <code>@Model.VersionRange.NormalizedString</code> (<b>@Model.Input.VersionRange</b>) version range.
             </div>
         }
 
@@ -53,7 +53,7 @@
                         {
                             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                         }
-                        <code>@input.Version.ToNormalizedString()</code>
+                        <code>@input.Version.NormalizedString</code>
                         (<b>@input.Input</b>)
                     </li>
                 }

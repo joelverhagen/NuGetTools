@@ -28,16 +28,16 @@
                 The version range is <b>@(Model.VersionRange.IsFloating ? "floating" : "not floating")</b>.
             </p>
             <p>
-                The normalized version range is <code>@Model.VersionRange.ToNormalizedString()</code>.
+                The normalized version range is <code>@Model.VersionRange.NormalizedString</code>.
             </p>
             <p>
-                The pretty printed version range is <code>@Model.VersionRange.PrettyPrint()</code>.
+                The pretty printed version range is <code>@Model.VersionRange.PrettyPrint</code>.
             </p>
             <p>
                 @if (Model.VersionRange.HasLowerBound)
                 {
                     @:The version range has an <b>@(Model.VersionRange.IsMinInclusive ? "inclusive" : "exclusive") lower bound</b> of
-                    @:<code>@Model.VersionRange.MinVersion</code>.
+                    @:<code>@Model.VersionRange.MinVersion.NormalizedString</code>.
                 }
                 else
                 {
@@ -48,7 +48,7 @@
                 @if (Model.VersionRange.HasUpperBound)
                 {
                     @:The version range has an <b>@(Model.VersionRange.IsMaxInclusive ? "inclusive" : "exclusive") upper bound</b> of
-                    @:<code>@Model.VersionRange.MaxVersion</code>.
+                    @:<code>@Model.VersionRange.MaxVersion.NormalizedString</code>.
                 }
                 else
                 {

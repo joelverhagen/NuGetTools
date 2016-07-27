@@ -27,7 +27,7 @@
     @if (@Model.InputStatus == InputStatus.Valid)
     {
         <div class="alert alert-success" role="alert">
-            <code>@Model.VersionA.ToFullString()</code> (<b>@Model.Input.VersionA</b>)
+            <code>@Model.VersionA.FullString</code> (<b>@Model.Input.VersionA</b>)
             @switch (Model.Result)
             {
                 case ComparisonResult.LessThan:
@@ -40,7 +40,7 @@
                     @:is greater than
                     break;
             }
-            <code>@Model.VersionB.ToFullString()</code> (<b>@Model.Input.VersionB</b>).
+            <code>@Model.VersionB.FullString</code> (<b>@Model.Input.VersionB</b>).
         </div>
     }
     else if (@Model.InputStatus == InputStatus.Invalid)

@@ -1,4 +1,4 @@
-using NuGet.Frameworks;
+using Knapcode.NuGetTools.Logic.Wrappers;
 
 namespace Knapcode.NuGetTools.Website
 {
@@ -6,6 +6,6 @@ namespace Knapcode.NuGetTools.Website
     {
         public InputStatus InputStatus { get; set; }
         public ParseFrameworkInput Input { get; set; }
-        public NuGetFramework Framework { get; set; }
+        public IFramework Framework { get; set; }
     }
 }

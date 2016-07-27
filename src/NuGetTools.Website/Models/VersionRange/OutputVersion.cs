@@ -1,11 +1,11 @@
-﻿using NuGet.Versioning;
+﻿using Knapcode.NuGetTools.Logic.Wrappers;
 
 namespace Knapcode.NuGetTools.Website
 {
     public class OutputVersion
     {
         public string Input { get; set; }
-        public NuGetVersion Version { get; set; }
+        public IVersion Version { get; set; }
         public bool Satisfies { get; set; }
     }
 }

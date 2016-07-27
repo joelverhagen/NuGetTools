@@ -1,4 +1,4 @@
-using NuGet.Versioning;
+using Knapcode.NuGetTools.Logic.Wrappers;
 
 namespace Knapcode.NuGetTools.Website
 {
@@ -8,8 +8,8 @@ namespace Knapcode.NuGetTools.Website
         public VersionSatisfiesInput Input { get; set; }
         public bool IsVersionRangeValid { get; set; }
         public bool IsVersionValid { get; set; }
-        public VersionRange VersionRange { get; set; }
-        public NuGetVersion Version { get; set; }
+        public IVersionRange VersionRange { get; set; }
+        public IVersion Version { get; set; }
         public bool Satisfies { get; set; }
     }
 }

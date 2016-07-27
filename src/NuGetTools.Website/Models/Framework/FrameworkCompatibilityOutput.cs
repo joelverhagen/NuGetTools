@@ -1,3 +1,4 @@
+using Knapcode.NuGetTools.Logic.Wrappers;
 using NuGet.Frameworks;
 
 namespace Knapcode.NuGetTools.Website
@@ -8,8 +9,8 @@ namespace Knapcode.NuGetTools.Website
         public FrameworkCompatibilityInput Input { get; set; }
         public bool IsProjectValid { get; set; }
         public bool IsPackageValid { get; set; }
-        public NuGetFramework Project { get; set; }
-        public NuGetFramework Package { get; set; }
-        public bool Compatible { get; set; }
+        public IFramework Project { get; set; }
+        public IFramework Package { get; set; }
+        public bool IsCompatible { get; set; }
     }
 }

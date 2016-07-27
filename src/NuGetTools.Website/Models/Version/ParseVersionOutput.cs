@@ -1,4 +1,4 @@
-using NuGet.Versioning;
+using Knapcode.NuGetTools.Logic.Wrappers;
 
 namespace Knapcode.NuGetTools.Website
 {
@@ -6,6 +6,6 @@ namespace Knapcode.NuGetTools.Website
     {
         public InputStatus InputStatus { get; set; }
         public ParseVersionInput Input { get; set; }
-        public NuGetVersion Version { get; set; }
+        public IVersion Version { get; set; }
     }
 }

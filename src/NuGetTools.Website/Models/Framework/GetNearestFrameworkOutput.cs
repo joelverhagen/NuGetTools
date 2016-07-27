@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using NuGet.Frameworks;
+using Knapcode.NuGetTools.Logic.Wrappers;
 
 namespace Knapcode.NuGetTools.Website
 {
@@ -9,7 +9,7 @@ namespace Knapcode.NuGetTools.Website
         public GetNearestFrameworkInput Input { get; set; }
         public bool IsProjectValid { get; set; }
         public bool IsPackageValid { get; set; }
-        public NuGetFramework Project { get; set; }
+        public IFramework Project { get; set; }
         public IReadOnlyList<OutputFramework> Package { get; set; }
         public OutputFramework Nearest { get; set; }
         public IReadOnlyList<string> Invalid { get; set; }

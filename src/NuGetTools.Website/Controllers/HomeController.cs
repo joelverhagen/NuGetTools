@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Knapcode.NuGetTools.Logic.Wrappers.Direct;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Knapcode.NuGetTools.Website
 {
@@ -8,7 +9,10 @@ namespace Knapcode.NuGetTools.Website
 
         public HomeController()
         {
-            _toolService = new ToolsService();
+            _toolService = new ToolsService<Framework, Version, VersionRange>(
+                new FrameworkLogic(),
+                new VersionLogic(),
+                new VersionRangeLogic());
         }
 
         [HttpGet("/")]
