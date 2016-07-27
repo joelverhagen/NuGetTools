@@ -1,0 +1,15 @@
+﻿{
+  "buildOptions": {
+    "emitEntryPoint": true
+  },
+
+  "dependencies": {
+    "NuGetTools.Logic": {
+      "target": "project"
+    }
+  },
+
+  "frameworks": {
+    "net46": {}
+  }
+}
