@@ -1,24 +1,28 @@
 ﻿using System;
 using System.Reflection;
+using Knapcode.NuGetTools.Logic.Wrappers.Reflection;
 
 namespace Knapcode.NuGetTools.Logic.Wrappers.Remote
 {
     public class Proxy : MarshalByRefObject
     {
-        public string GetString(string typeName, object[] args, string methodName, Type[] methodArgTypes, object[] methodArgs)
+        public ReflectionFrameworkLogic GetFrameworkLogic(AssemblyName assemblyName)
         {
-            var type = Type.GetType(typeName);
+            var frameworkApi = new FrameworkApi(assemblyName);
+            return new ReflectionFrameworkLogic(frameworkApi);
+        }
 
-            object instance = null;
-            if (args != null)
-            {
-                instance = Activator.CreateInstance(type, args);
-            }
+        public ReflectionVersionLogic GetVersionLogic(AssemblyName assemblyName)
+        {
+            var versionApi = new VersionApi(assemblyName);
+            return new ReflectionVersionLogic(versionApi);
+        }
 
-            var method = type.GetMethod(methodName, methodArgTypes);
-            var result = method.Invoke(instance, methodArgs);
-
-            return result.ToString();
+        public ReflectionVersionRangeLogic GetVersionRangeLogic(AssemblyName assemblyName)
+        {
+            var versionApi = new VersionApi(assemblyName);
+            var versionRangeApi = new VersionRangeApi(assemblyName);
+            return new ReflectionVersionRangeLogic(versionApi, versionRangeApi);
         }
 
         public AssemblyName TryLoadAssembly(string assemblyPath)

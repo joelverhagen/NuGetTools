@@ -23,8 +23,8 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Remote
             _settings = settings;
         }
 
-        public IReadOnlyList<AssemblyName> LoadPackageAssemblies(
-            string appDomainName,
+        public AppDomainContext LoadPackageAssemblies(
+            string appDomainId,
             NuGetFramework framework,
             PackageIdentity packageIdentity)
         {
@@ -33,7 +33,7 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Remote
 
             if (!File.Exists(hashPath))
             {
-                throw new ArgumentException($"The package {packageIdentity} could not found.", nameof(packageIdentity));
+                throw new InvalidOperationException($"The package {packageIdentity} could not found.");
             }
 
             var installPath = pathResolver.GetInstallPath(packageIdentity.Id, packageIdentity.Version);
@@ -57,7 +57,7 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Remote
 
                 // Initialize the app domain if necessary.
                 AppDomainContext appDomainContext;
-                if (!_appDomains.TryGetValue(appDomainName, out appDomainContext))
+                if (!_appDomains.TryGetValue(appDomainId, out appDomainContext))
                 {
                     var proxyType = typeof(Proxy);
                     var appDomainSetup = new AppDomainSetup
@@ -66,7 +66,7 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Remote
                     };
                     var evidence = AppDomain.CurrentDomain.Evidence;
                     var appDomain = AppDomain.CreateDomain(
-                        appDomainName + ' ' + Guid.NewGuid(),
+                        appDomainId + ' ' + Guid.NewGuid(),
                         evidence,
                         appDomainSetup);
 
@@ -74,24 +74,18 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Remote
                         proxyType.Assembly.FullName,
                         proxyType.FullName);
 
-                    appDomainContext = new AppDomainContext
-                    {
-                        AppDomain = appDomain,
-                        Proxy = proxy
-                    };
-
-                    _appDomains[appDomainName] = appDomainContext;
+                    appDomainContext = new AppDomainContext(appDomainId, appDomain, proxy);
+                    _appDomains[appDomainId] = appDomainContext;
                 }
-
-                var assemblyNames = new List<AssemblyName>();
+                
                 foreach (var asset in runtimeGroup.Items)
                 {
                     var absolutePath = Path.Combine(installPath, asset.Path.Replace(AssetDirectorySeparator, Path.DirectorySeparatorChar));
                     var assemblyName = appDomainContext.Proxy.TryLoadAssembly(absolutePath);
-                    assemblyNames.Add(assemblyName);
+                    appDomainContext.LoadedAssemblies.Add(assemblyName);
                 }
 
-                return assemblyNames;
+                return appDomainContext;
             }
         }
 
