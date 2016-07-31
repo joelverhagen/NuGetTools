@@ -1,6 +1,7 @@
-﻿using NuGet.Versioning;
+﻿using Knapcode.NuGetTools.Logic.Wrappers;
+using NuGet.Versioning;
 
-namespace Knapcode.NuGetTools.Logic.Wrappers.Direct
+namespace Knapcode.NuGetTools.Logic.Direct.Wrappers
 {
     public class VersionLogic : IVersionLogic<Version>
     {

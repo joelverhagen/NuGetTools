@@ -1,10 +1,7 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Threading;
-using Knapcode.NuGetTools.Logic;
-using Knapcode.NuGetTools.Logic.Wrappers.Reflection;
-using Knapcode.NuGetTools.Logic.Wrappers.Remote;
+using Knapcode.NuGetTools.Logic.Direct;
 using NuGet.Common;
 using NuGet.Frameworks;
 using NuGet.Packaging.Core;
@@ -35,7 +32,8 @@ namespace Knapcode.NuGetTools.Sandbox
                 log: NullLogger.Instance,
                 token: CancellationToken.None).Wait();
 
-            using (var packageLoader = new PackageLoader(nuGetSettings))
+            using (var assemblyLoader = new AssemblyLoader())
+            using (var packageLoader = new PackageLoader(assemblyLoader, nuGetSettings))
             {
                 packageLoader.LoadPackageAssemblies(
                     "3.5.0-beta2-1484",

@@ -1,10 +1,10 @@
 ﻿using System.Linq;
-using Knapcode.NuGetTools.Logic.Wrappers.Direct;
+using Knapcode.NuGetTools.Logic.Direct.Wrappers;
 using NuGet.Frameworks;
 using NuGet.Versioning;
 using Xunit;
 using NuGetVersionRange = NuGet.Versioning.VersionRange;
-using VersionRange = Knapcode.NuGetTools.Logic.Wrappers.Direct.VersionRange;
+using VersionRange = Knapcode.NuGetTools.Logic.Direct.Wrappers.VersionRange;
 
 namespace Knapcode.NuGetTools.Website.Tests
 {

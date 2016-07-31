@@ -1,6 +1,7 @@
-﻿using NuGetVersionRange = NuGet.Versioning.VersionRange;
+﻿using Knapcode.NuGetTools.Logic.Wrappers;
+using NuGetVersionRange = NuGet.Versioning.VersionRange;
 
-namespace Knapcode.NuGetTools.Logic.Wrappers.Direct
+namespace Knapcode.NuGetTools.Logic.Direct.Wrappers
 {
     public class VersionRange : IVersionRange
     {

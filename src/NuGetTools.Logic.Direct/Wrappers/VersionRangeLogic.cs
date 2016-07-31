@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Knapcode.NuGetTools.Logic.Wrappers;
 using NuGetVersionRange = NuGet.Versioning.VersionRange;
 
-namespace Knapcode.NuGetTools.Logic.Wrappers.Direct
+namespace Knapcode.NuGetTools.Logic.Direct.Wrappers
 {
     public class VersionRangeLogic : IVersionRangeLogic<Version, VersionRange>
     {

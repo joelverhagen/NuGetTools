@@ -1,4 +1,4 @@
-﻿using Knapcode.NuGetTools.Logic.Wrappers.Direct;
+﻿using Knapcode.NuGetTools.Logic.Direct.Wrappers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Knapcode.NuGetTools.Website

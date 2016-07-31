@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Knapcode.NuGetTools.Logic.Wrappers.Remote
+namespace Knapcode.NuGetTools.Logic
 {
     public class AppDomainContext
     {
-        public AppDomainContext(string id, AppDomain appDomain, Proxy proxy)
+        public AppDomainContext(string id, AppDomain appDomain, AssemblyLoaderProxy proxy)
         {
             Id = id;
             AppDomain = appDomain;
@@ -16,7 +16,7 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Remote
 
         public string Id { get; }
         public AppDomain AppDomain { get; }
-        public Proxy Proxy { get; }
+        public AssemblyLoaderProxy Proxy { get; }
         public IList<AssemblyName> LoadedAssemblies { get; }
     }
 }

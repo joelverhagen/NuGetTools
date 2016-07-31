@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using NuGet.Configuration;
 
-namespace Knapcode.NuGetTools.Logic
+namespace Knapcode.NuGetTools.Logic.Direct
 {
     public class InMemorySettings : ISettings
     {

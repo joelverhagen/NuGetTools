@@ -6,7 +6,7 @@ using NuGet.Protocol.Core.Types;
 using NuGet.Protocol.Core.v3;
 using NuGet.Versioning;
 
-namespace Knapcode.NuGetTools.Logic.Wrappers.Remote
+namespace Knapcode.NuGetTools.Logic.Direct
 {
     public class PackageDownloader
     {

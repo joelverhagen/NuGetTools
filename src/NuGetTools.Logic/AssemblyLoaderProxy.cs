@@ -2,9 +2,9 @@
 using System.Reflection;
 using Knapcode.NuGetTools.Logic.Wrappers.Reflection;
 
-namespace Knapcode.NuGetTools.Logic.Wrappers.Remote
+namespace Knapcode.NuGetTools.Logic
 {
-    public class Proxy : MarshalByRefObject
+    public class AssemblyLoaderProxy : MarshalByRefObject
     {
         public ReflectionFrameworkLogic GetFrameworkLogic(AssemblyName assemblyName)
         {
@@ -25,7 +25,7 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Remote
             return new ReflectionVersionRangeLogic(versionApi, versionRangeApi);
         }
 
-        public AssemblyName TryLoadAssembly(string assemblyPath)
+        public AssemblyName LoadAssembly(string assemblyPath)
         {
             try
             {
