@@ -3,6 +3,9 @@
     "NuGetTools.Website": {
       "target": "project"
     },
+    "NuGetTools.Logic.Direct": {
+      "target": "project"
+    },
     "xunit": "2.1.0",
     "dotnet-test-xunit": "1.0.0-*"
   },

@@ -1,28 +1,29 @@
 ﻿using System;
 using System.Reflection;
 using Knapcode.NuGetTools.Logic.Wrappers.Reflection;
+using Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api;
 
 namespace Knapcode.NuGetTools.Logic
 {
     public class AssemblyLoaderProxy : MarshalByRefObject
     {
-        public ReflectionFrameworkLogic GetFrameworkLogic(AssemblyName assemblyName)
+        public FrameworkLogic GetFrameworkLogic(AssemblyName assemblyName)
         {
             var frameworkApi = new FrameworkApi(assemblyName);
-            return new ReflectionFrameworkLogic(frameworkApi);
+            return new FrameworkLogic(frameworkApi);
         }
 
-        public ReflectionVersionLogic GetVersionLogic(AssemblyName assemblyName)
+        public VersionLogic GetVersionLogic(AssemblyName assemblyName)
         {
             var versionApi = new VersionApi(assemblyName);
-            return new ReflectionVersionLogic(versionApi);
+            return new VersionLogic(versionApi);
         }
 
-        public ReflectionVersionRangeLogic GetVersionRangeLogic(AssemblyName assemblyName)
+        public VersionRangeLogic GetVersionRangeLogic(AssemblyName assemblyName)
         {
             var versionApi = new VersionApi(assemblyName);
             var versionRangeApi = new VersionRangeApi(assemblyName);
-            return new ReflectionVersionRangeLogic(versionApi, versionRangeApi);
+            return new VersionRangeLogic(versionApi, versionRangeApi);
         }
 
         public AssemblyName LoadAssembly(string assemblyPath)

@@ -1,18 +1,18 @@
-﻿using Knapcode.NuGetTools.Logic.Direct.Wrappers;
+﻿using Knapcode.NuGetTools.Logic;
+using Knapcode.NuGetTools.Logic.Models.Framework;
+using Knapcode.NuGetTools.Logic.Models.Version;
+using Knapcode.NuGetTools.Logic.Models.VersionRange;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Knapcode.NuGetTools.Website
 {
     public class HomeController : Controller
     {
-        private readonly IToolsService _toolService;
+        private readonly IToolsService _toolsService;
 
-        public HomeController()
+        public HomeController(IToolsService toolsService)
         {
-            _toolService = new ToolsService<Framework, Version, VersionRange>(
-                new FrameworkLogic(),
-                new VersionLogic(),
-                new VersionRangeLogic());
+            _toolsService = toolsService;
         }
 
         [HttpGet("/")]
@@ -33,7 +33,7 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/3.5.0-beta2/parse-framework")]
         public IActionResult ParseFramework(ParseFrameworkInput input)
         {
-            var output = _toolService.ParseFramework(input);
+            var output = _toolsService.ParseFramework(input);
 
             return View(output);
         }
@@ -41,7 +41,7 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/3.5.0-beta2/parse-version")]
         public IActionResult ParseVersion(ParseVersionInput input)
         {
-            var output = _toolService.ParseVersion(input);
+            var output = _toolsService.ParseVersion(input);
 
             return View(output);
         }
@@ -49,7 +49,7 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/3.5.0-beta2/parse-version-range")]
         public IActionResult ParseVersionRange(ParseVersionRangeInput input)
         {
-            var output = _toolService.ParseVersionRange(input);
+            var output = _toolsService.ParseVersionRange(input);
 
             return View(output);
         }
@@ -68,7 +68,7 @@ namespace Knapcode.NuGetTools.Website
                 };
             }
 
-            var output = _toolService.FrameworkCompatibility(input);
+            var output = _toolsService.FrameworkCompatibility(input);
                         
             return View(output);
         }
@@ -87,7 +87,7 @@ namespace Knapcode.NuGetTools.Website
                 };
             }
 
-            var output = _toolService.VersionComparison(input);
+            var output = _toolsService.VersionComparison(input);
 
             return View(output);
         }
@@ -95,7 +95,7 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/3.5.0-beta2/get-nearest-framework")]
         public IActionResult GetNearestFramework(GetNearestFrameworkInput input)
         {
-            var output = _toolService.GetNearestFramework(input);
+            var output = _toolsService.GetNearestFramework(input);
 
             return View(output);
         }
@@ -103,7 +103,7 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/3.5.0-beta2/version-satisfies")]
         public IActionResult VersionSatisfies(VersionSatisfiesInput input)
         {
-            var output = _toolService.VersionSatisfies(input);
+            var output = _toolsService.VersionSatisfies(input);
 
             return View(output);
         }
@@ -111,7 +111,7 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/3.5.0-beta2/find-best-version-match")]
         public IActionResult FindBestVersionmatch(FindBestVersionMatchInput input)
         {
-            var output = _toolService.FindBestVersionMatch(input);
+            var output = _toolsService.FindBestVersionMatch(input);
 
             return View(output);
         }

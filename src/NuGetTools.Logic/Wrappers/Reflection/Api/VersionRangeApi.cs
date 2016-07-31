@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection
+namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
 {
     public class VersionRangeApi
     {
