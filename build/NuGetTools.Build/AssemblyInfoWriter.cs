@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -18,6 +19,9 @@ namespace Knapcode.NuGetTools.Build
         public static AssemblyInfo DiscoverAssemblyInfo(string repositoryDirectory)
         {
             var rawAssemblyVersion = GetGitOutput("describe --abbrev=0");
+
+            // Remove any prerelease label.
+            rawAssemblyVersion = rawAssemblyVersion.Split('-')[0];
 
             // Make sure there are four digits in the version number.
             while (rawAssemblyVersion.Count(x => x == '.') < 3)
