@@ -251,5 +251,5 @@ paket-files/
 .idea/
 *.sln.iml
 
-# Version file
-version.txt
+# Publish profiles
+PublishProfiles
