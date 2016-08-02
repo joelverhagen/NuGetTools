@@ -1,9 +1,5 @@
 {
   "dependencies": {
-    "NuGetTools.Build": {
-      "type": "build",
-      "target": "project"
-    },
     "NuGetTools.Logic": {
       "target": "project"
     },
@@ -49,7 +45,6 @@
   },
 
   "scripts": {
-    "precompile": [ "dotnet run -p %project:Directory%/../../build/NuGetTools.Build/project.json --configuration %compile:Configuration%" ],
     "postcompile": [ "npm install", "bower install", "gulp clean", "gulp min" ],
     "prepublish": [ "npm install", "bower install", "gulp clean", "gulp min" ],
     "postpublish": [ "dotnet publish-iis --publish-folder %publish:OutputPath% --framework %publish:FullTargetFramework%" ]
