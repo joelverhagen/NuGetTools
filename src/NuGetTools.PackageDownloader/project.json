@@ -1,0 +1,16 @@
+{
+  "buildOptions": {
+    "emitEntryPoint": true
+  },
+
+  "dependencies": {
+    "Microsoft.Extensions.CommandLineUtils": "1.0.0",
+    "NuGetTools.Logic.Direct": {
+      "target": "project"
+    }
+  },
+
+  "frameworks": {
+    "net46": {}
+  }
+}

@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Knapcode.NuGetTools.Logic.Direct
 {
-    public class AssemblyLoader : IDisposable
+    public class AssemblyLoader : IAssemblyLoader
     {
         private readonly Dictionary<string, AppDomainContext> _appDomains
             = new Dictionary<string, AppDomainContext>();

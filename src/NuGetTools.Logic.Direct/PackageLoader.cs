@@ -13,10 +13,10 @@ namespace Knapcode.NuGetTools.Logic.Direct
     public class PackageLoader : IDisposable
     {
         private const char AssetDirectorySeparator = '/';
-        private AssemblyLoader _loader;
+        private IAssemblyLoader _loader;
         private readonly NuGetSettings _settings;
 
-        public PackageLoader(AssemblyLoader loader, NuGetSettings settings)
+        public PackageLoader(IAssemblyLoader loader, NuGetSettings settings)
         {
             _loader = loader;
             _settings = settings;

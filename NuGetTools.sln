@@ -27,6 +27,8 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "NuGetTools.Sandbox", "src\N
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "NuGetTools.Logic.Direct", "src\NuGetTools.Logic.Direct\NuGetTools.Logic.Direct.xproj", "{D7F487E6-9A50-4F7B-A6AE-E323408136F4}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "NuGetTools.PackageDownloader", "src\NuGetTools.PackageDownloader\NuGetTools.PackageDownloader.xproj", "{2EE6D448-3E19-432C-A25B-E21474D8D8E3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,14 @@ Global
 		{D7F487E6-9A50-4F7B-A6AE-E323408136F4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D7F487E6-9A50-4F7B-A6AE-E323408136F4}.Release|x64.ActiveCfg = Release|Any CPU
 		{D7F487E6-9A50-4F7B-A6AE-E323408136F4}.Release|x64.Build.0 = Release|Any CPU
+		{2EE6D448-3E19-432C-A25B-E21474D8D8E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EE6D448-3E19-432C-A25B-E21474D8D8E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EE6D448-3E19-432C-A25B-E21474D8D8E3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2EE6D448-3E19-432C-A25B-E21474D8D8E3}.Debug|x64.Build.0 = Debug|Any CPU
+		{2EE6D448-3E19-432C-A25B-E21474D8D8E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EE6D448-3E19-432C-A25B-E21474D8D8E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EE6D448-3E19-432C-A25B-E21474D8D8E3}.Release|x64.ActiveCfg = Release|Any CPU
+		{2EE6D448-3E19-432C-A25B-E21474D8D8E3}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -94,5 +104,6 @@ Global
 		{A2B1EA5C-DA79-4894-BCB6-11FDBA2CD610} = {C65B2136-1245-4F2D-950F-55187D51FEC0}
 		{07C73F45-3DF8-428F-AC91-58654E18BA24} = {C65B2136-1245-4F2D-950F-55187D51FEC0}
 		{D7F487E6-9A50-4F7B-A6AE-E323408136F4} = {C65B2136-1245-4F2D-950F-55187D51FEC0}
+		{2EE6D448-3E19-432C-A25B-E21474D8D8E3} = {C65B2136-1245-4F2D-950F-55187D51FEC0}
 	EndGlobalSection
 EndGlobal

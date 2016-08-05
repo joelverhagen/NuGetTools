@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using Knapcode.NuGetTools.Logic.Direct;
-using NuGet.Common;
 using NuGet.Frameworks;
 using NuGet.Packaging.Core;
 using NuGet.Versioning;
@@ -17,20 +16,18 @@ namespace Knapcode.NuGetTools.Sandbox
             var nuGetSettings = new NuGetSettings(settings);
             nuGetSettings.GlobalPackagesFolder = Path.GetFullPath("packages");
 
-            var versionDownloader = new PackageDownloader(
-                "https://api.nuget.org/v3/index.json",
-                nuGetSettings);
+            var packageRangeDownloader = new PackageRangeDownloader(nuGetSettings);
 
-            versionDownloader.DownloadAllVersions(
-                id: "NuGet.Versioning",
-                versionRange: VersionRange.Parse("*"),
-                log: NullLogger.Instance,
-                token: CancellationToken.None).Wait();
-            versionDownloader.DownloadAllVersions(
-                id: "NuGet.Frameworks",
-                versionRange: VersionRange.Parse("*"),
-                log: NullLogger.Instance,
-                token: CancellationToken.None).Wait();
+            var alignedVersionDownloader = new AlignedVersionsDownloader(packageRangeDownloader);
+
+            var ids = new[] { "NuGet.Versioning", "NuGet.Frameworks" };
+
+            alignedVersionDownloader.DownloadPackagesAsync(
+                new[] { "https://api.nuget.org/v3/index.json" },
+                ids,
+                VersionRange.All,
+                new ConsoleLogger(),
+                CancellationToken.None).Wait();
 
             using (var assemblyLoader = new AssemblyLoader())
             using (var packageLoader = new PackageLoader(assemblyLoader, nuGetSettings))
@@ -59,6 +56,10 @@ namespace Knapcode.NuGetTools.Sandbox
                 var versionRange = versionRangeLogic.Parse("(, 1.0.0-beta]");
                 var versionRangeNormalizedString = versionRange.NormalizedString;
             }
+
+            var versions = alignedVersionDownloader.GetDownloadedVersionsAsync(
+                ids,
+                CancellationToken.None).Result;
         }
     }
 }
