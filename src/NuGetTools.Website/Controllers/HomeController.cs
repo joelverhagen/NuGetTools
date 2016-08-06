@@ -1,4 +1,5 @@
-﻿using Knapcode.NuGetTools.Logic;
+﻿using System.Linq;
+using Knapcode.NuGetTools.Logic;
 using Knapcode.NuGetTools.Logic.Models.Framework;
 using Knapcode.NuGetTools.Logic.Models.Version;
 using Knapcode.NuGetTools.Logic.Models.VersionRange;
@@ -8,55 +9,105 @@ namespace Knapcode.NuGetTools.Website
 {
     public class HomeController : Controller
     {
-        private readonly IToolsService _toolsService;
+        private readonly IToolsFactory _toolsFactory;
 
-        public HomeController(IToolsService toolsService)
+        public HomeController(IToolsFactory toolsFactory)
         {
-            _toolsService = toolsService;
+            _toolsFactory = toolsFactory;
         }
 
         [HttpGet("/")]
         public IActionResult Index()
         {
-            return new RedirectToActionResult(nameof(SelectedVersionIndex), "Home", null)
+            var version = _toolsFactory
+                .GetAvailableVersions()
+                .First();
+
+            return new RedirectToActionResult(nameof(SelectedVersionIndex), "Home", new { version })
             {
                 Permanent = false
             };
         }
 
-        [HttpGet("/3.5.0-beta2")]
-        public IActionResult SelectedVersionIndex()
+        private bool TryGetToolsService(string version, out IToolsService toolsService, out IActionResult notFoundResult)
         {
-            return View();
+            toolsService = _toolsFactory.GetService(version);
+
+            if (toolsService == null)
+            {
+                notFoundResult = new StatusCodeResult(404);
+                return false;
+            }
+
+            notFoundResult = null;
+            return true;
         }
 
-        [HttpGet("/3.5.0-beta2/parse-framework")]
-        public IActionResult ParseFramework(ParseFrameworkInput input)
+        [HttpGet("/{version}")]
+        public IActionResult SelectedVersionIndex(string version)
         {
-            var output = _toolsService.ParseFramework(input);
+            var toolsService = _toolsFactory.GetService(version);
+            if (toolsService == null)
+            {
+                return NotFound();
+            }
+
+            var output = toolsService.Version;
 
             return View(output);
         }
 
-        [HttpGet("/3.5.0-beta2/parse-version")]
-        public IActionResult ParseVersion(ParseVersionInput input)
+        [HttpGet("/{version}/parse-framework")]
+        public IActionResult ParseFramework(string version, ParseFrameworkInput input)
         {
-            var output = _toolsService.ParseVersion(input);
+            var toolsService = _toolsFactory.GetService(version);
+            if (toolsService == null)
+            {
+                return NotFound();
+            }
+
+            var output = toolsService.ParseFramework(input);
 
             return View(output);
         }
 
-        [HttpGet("/3.5.0-beta2/parse-version-range")]
-        public IActionResult ParseVersionRange(ParseVersionRangeInput input)
+        [HttpGet("/{version}/parse-version")]
+        public IActionResult ParseVersion(string version, ParseVersionInput input)
         {
-            var output = _toolsService.ParseVersionRange(input);
+            var toolsService = _toolsFactory.GetService(version);
+            if (toolsService == null)
+            {
+                return NotFound();
+            }
+
+            var output = toolsService.ParseVersion(input);
 
             return View(output);
         }
 
-        [HttpGet("/3.5.0-beta2/framework-compatibility")]
-        public IActionResult FrameworkCompatibility(FrameworkCompatibilityInput input, bool swap)
+        [HttpGet("/{version}/parse-version-range")]
+        public IActionResult ParseVersionRange(string version, ParseVersionRangeInput input)
         {
+            var toolsService = _toolsFactory.GetService(version);
+            if (toolsService == null)
+            {
+                return NotFound();
+            }
+
+            var output = toolsService.ParseVersionRange(input);
+
+            return View(output);
+        }
+
+        [HttpGet("/{version}/framework-compatibility")]
+        public IActionResult FrameworkCompatibility(string version, FrameworkCompatibilityInput input, bool swap)
+        {
+            var toolsService = _toolsFactory.GetService(version);
+            if (toolsService == null)
+            {
+                return NotFound();
+            }
+
             if (swap)
             {
                 return new RedirectToActionResult(
@@ -68,14 +119,20 @@ namespace Knapcode.NuGetTools.Website
                 };
             }
 
-            var output = _toolsService.FrameworkCompatibility(input);
+            var output = toolsService.FrameworkCompatibility(input);
                         
             return View(output);
         }
 
-        [HttpGet("/3.5.0-beta2/version-comparison")]
-        public IActionResult VersionComparison(VersionComparisonInput input, bool swap)
+        [HttpGet("/{version}/version-comparison")]
+        public IActionResult VersionComparison(string version, VersionComparisonInput input, bool swap)
         {
+            var toolsService = _toolsFactory.GetService(version);
+            if (toolsService == null)
+            {
+                return NotFound();
+            }
+
             if (swap)
             {
                 return new RedirectToActionResult(
@@ -87,31 +144,49 @@ namespace Knapcode.NuGetTools.Website
                 };
             }
 
-            var output = _toolsService.VersionComparison(input);
+            var output = toolsService.VersionComparison(input);
 
             return View(output);
         }
 
-        [HttpGet("/3.5.0-beta2/get-nearest-framework")]
-        public IActionResult GetNearestFramework(GetNearestFrameworkInput input)
+        [HttpGet("/{version}/get-nearest-framework")]
+        public IActionResult GetNearestFramework(string version, GetNearestFrameworkInput input)
         {
-            var output = _toolsService.GetNearestFramework(input);
+            var toolsService = _toolsFactory.GetService(version);
+            if (toolsService == null)
+            {
+                return NotFound();
+            }
+
+            var output = toolsService.GetNearestFramework(input);
 
             return View(output);
         }
 
-        [HttpGet("/3.5.0-beta2/version-satisfies")]
-        public IActionResult VersionSatisfies(VersionSatisfiesInput input)
+        [HttpGet("/{version}/version-satisfies")]
+        public IActionResult VersionSatisfies(string version, VersionSatisfiesInput input)
         {
-            var output = _toolsService.VersionSatisfies(input);
+            var toolsService = _toolsFactory.GetService(version);
+            if (toolsService == null)
+            {
+                return NotFound();
+            }
+
+            var output = toolsService.VersionSatisfies(input);
 
             return View(output);
         }
 
-        [HttpGet("/3.5.0-beta2/find-best-version-match")]
-        public IActionResult FindBestVersionmatch(FindBestVersionMatchInput input)
+        [HttpGet("/{version}/find-best-version-match")]
+        public IActionResult FindBestVersionmatch(string version, FindBestVersionMatchInput input)
         {
-            var output = _toolsService.FindBestVersionMatch(input);
+            var toolsService = _toolsFactory.GetService(version);
+            if (toolsService == null)
+            {
+                return NotFound();
+            }
+
+            var output = toolsService.FindBestVersionMatch(input);
 
             return View(output);
         }

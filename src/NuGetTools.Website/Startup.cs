@@ -33,26 +33,32 @@ namespace Knapcode.NuGetTools.Website
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var assemblyLoader = new AssemblyLoader();
-            var context = assemblyLoader.GetAppDomainContext("NuGet");
+            services.AddSingleton<IToolsFactory>(serviceProvider =>
+            {
+                var assemblyLoader = new AssemblyLoader();
+                var context = assemblyLoader.GetAppDomainContext("NuGet");
 
-            var assemblyLocation = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            assemblyLoader.LoadAssembly(context, Path.Combine(assemblyLocation, "NuGet.Versioning.dll"));
-            assemblyLoader.LoadAssembly(context, Path.Combine(assemblyLocation, "NuGet.Frameworks.dll"));
+                var assemblyLocation = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                assemblyLoader.LoadAssembly(context, Path.Combine(assemblyLocation, "NuGet.Versioning.dll"));
+                assemblyLoader.LoadAssembly(context, Path.Combine(assemblyLocation, "NuGet.Frameworks.dll"));
 
-            var frameworksAssemblyName = context.LoadedAssemblies.First(x => x.Name == "NuGet.Frameworks");
-            var versioningAssemblyName = context.LoadedAssemblies.First(x => x.Name == "NuGet.Versioning");
+                var frameworksAssemblyName = context.LoadedAssemblies.First(x => x.Name == "NuGet.Frameworks");
+                var versioningAssemblyName = context.LoadedAssemblies.First(x => x.Name == "NuGet.Versioning");
 
-            var frameworkLogic = context.Proxy.GetFrameworkLogic(frameworksAssemblyName);
-            var versionLogic = context.Proxy.GetVersionLogic(versioningAssemblyName);
-            var versionRangeLogic = context.Proxy.GetVersionRangeLogic(versioningAssemblyName);
+                var frameworkLogic = context.Proxy.GetFrameworkLogic(frameworksAssemblyName);
+                var versionLogic = context.Proxy.GetVersionLogic(versioningAssemblyName);
+                var versionRangeLogic = context.Proxy.GetVersionRangeLogic(versioningAssemblyName);
 
-            var toolsService = new ToolsService<Framework, Version, VersionRange>(
-                frameworkLogic,
-                versionLogic,
-                versionRangeLogic);
+                var toolsService = new ToolsService<Framework, Version, VersionRange>(
+                    "3.5.0-beta2",
+                    frameworkLogic,
+                    versionLogic,
+                    versionRangeLogic);
 
-            services.AddSingleton<IToolsService>(toolsService);
+                var toolsFactory = new SingletonToolsFactory(toolsService);
+
+                return toolsFactory;
+            });
 
             services.AddMvc();
         }

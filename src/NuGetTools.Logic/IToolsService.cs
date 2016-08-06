@@ -1,4 +1,5 @@
-﻿using Knapcode.NuGetTools.Logic.Models.Framework;
+﻿using Knapcode.NuGetTools.Logic.Models;
+using Knapcode.NuGetTools.Logic.Models.Framework;
 using Knapcode.NuGetTools.Logic.Models.Version;
 using Knapcode.NuGetTools.Logic.Models.VersionRange;
 
@@ -14,5 +15,6 @@ namespace Knapcode.NuGetTools.Logic
         VersionComparisonOutput VersionComparison(VersionComparisonInput input);
         VersionSatisfiesOutput VersionSatisfies(VersionSatisfiesInput input);
         FindBestVersionMatchOutput FindBestVersionMatch(FindBestVersionMatchInput input);
+        VersionOutput Version { get; }
     }
 }

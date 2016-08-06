@@ -1318,6 +1318,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         private ToolsService<Framework, Version, VersionRange> GetToolsService()
         {
             return new ToolsService<Framework, Version, VersionRange>(
+                "3.5.0-beta2",
                 new FrameworkLogic(),
                 new VersionLogic(),
                 new VersionRangeLogic());
