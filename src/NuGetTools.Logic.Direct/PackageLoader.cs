@@ -10,7 +10,7 @@ using NuGet.Packaging.Core;
 
 namespace Knapcode.NuGetTools.Logic.Direct
 {
-    public class PackageLoader : IDisposable
+    public class PackageLoader : IPackageLoader
     {
         private const char AssetDirectorySeparator = '/';
         private IAssemblyLoader _loader;

@@ -7,35 +7,39 @@ namespace Knapcode.NuGetTools.Logic.Direct
 {
     public class AssemblyLoader : IAssemblyLoader
     {
+        private readonly object _appDomainsLock = new object();
         private readonly Dictionary<string, AppDomainContext> _appDomains
             = new Dictionary<string, AppDomainContext>();
 
         public AppDomainContext GetAppDomainContext(string appDomainId)
         {
-            // Initialize the app domain if necessary.
-            AppDomainContext appDomainContext;
-            if (!_appDomains.TryGetValue(appDomainId, out appDomainContext))
+            lock (_appDomainsLock)
             {
-                var proxyType = typeof(AssemblyLoaderProxy);
-                var appDomainSetup = new AppDomainSetup
+                // Initialize the app domain if necessary.
+                AppDomainContext appDomainContext;
+                if (!_appDomains.TryGetValue(appDomainId, out appDomainContext))
                 {
-                    ApplicationBase = Path.GetDirectoryName(proxyType.Assembly.Location)
-                };
-                var evidence = AppDomain.CurrentDomain.Evidence;
-                var appDomain = AppDomain.CreateDomain(
-                    appDomainId + ' ' + Guid.NewGuid(),
-                    evidence,
-                    appDomainSetup);
+                    var proxyType = typeof(AssemblyLoaderProxy);
+                    var appDomainSetup = new AppDomainSetup
+                    {
+                        ApplicationBase = Path.GetDirectoryName(proxyType.Assembly.Location)
+                    };
+                    var evidence = AppDomain.CurrentDomain.Evidence;
+                    var appDomain = AppDomain.CreateDomain(
+                        appDomainId + ' ' + Guid.NewGuid(),
+                        evidence,
+                        appDomainSetup);
 
-                var proxy = (AssemblyLoaderProxy)appDomain.CreateInstanceAndUnwrap(
-                    proxyType.Assembly.FullName,
-                    proxyType.FullName);
+                    var proxy = (AssemblyLoaderProxy)appDomain.CreateInstanceAndUnwrap(
+                        proxyType.Assembly.FullName,
+                        proxyType.FullName);
 
-                appDomainContext = new AppDomainContext(appDomainId, appDomain, proxy);
-                _appDomains[appDomainId] = appDomainContext;
+                    appDomainContext = new AppDomainContext(appDomainId, appDomain, proxy);
+                    _appDomains[appDomainId] = appDomainContext;
+                }
+
+                return appDomainContext;
             }
-
-            return appDomainContext;
         }
 
         public AssemblyName LoadAssembly(AppDomainContext context, string assemblyPath)

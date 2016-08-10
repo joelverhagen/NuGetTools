@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Knapcode.NuGetTools.Logic
 {
@@ -26,6 +28,25 @@ namespace Knapcode.NuGetTools.Logic
             }
 
             return _toolsService;
+        }
+
+        public Task<IEnumerable<string>> GetAvailableVersionsAsync(CancellationToken token)
+        {
+            var versions = new[] { _version };
+
+            return Task.FromResult<IEnumerable<string>>(versions);
+        }
+
+        public Task<IToolsService> GetServiceAsync(string version, CancellationToken token)
+        {
+            IToolsService output = null;
+
+            if (version == _version)
+            {
+                output = _toolsService;
+            }
+
+            return Task.FromResult(output);
         }
     }
 }

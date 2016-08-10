@@ -1,10 +1,12 @@
-﻿@{
+﻿@using Knapcode.NuGetTools.Logic.Models
+@model SelectedVersionOutput
+@{
     ViewData["Title"] = "NuGet Tools";
 }
 
 <h1>NuGet Tools</h1>
 <p>
-    Current NuGet version: <b>3.5.0-beta2</b>
+    Current NuGet version: <b>@Model.Version</b>
 </p>
 <p>
     NuGet loves parsing strings. These tools provide insight into how these strings are parsed.

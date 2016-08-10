@@ -1,4 +1,6 @@
 ﻿using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Knapcode.NuGetTools.Logic;
 using Knapcode.NuGetTools.Logic.Models.Framework;
 using Knapcode.NuGetTools.Logic.Models.Version;
@@ -17,11 +19,11 @@ namespace Knapcode.NuGetTools.Website
         }
 
         [HttpGet("/")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index(CancellationToken token)
         {
-            var version = _toolsFactory
-                .GetAvailableVersions()
-                .First();
+            var versions = await _toolsFactory.GetAvailableVersionsAsync(token);
+
+            var version = versions.First();
 
             return new RedirectToActionResult(nameof(SelectedVersionIndex), "Home", new { version })
             {
@@ -29,24 +31,10 @@ namespace Knapcode.NuGetTools.Website
             };
         }
 
-        private bool TryGetToolsService(string version, out IToolsService toolsService, out IActionResult notFoundResult)
-        {
-            toolsService = _toolsFactory.GetService(version);
-
-            if (toolsService == null)
-            {
-                notFoundResult = new StatusCodeResult(404);
-                return false;
-            }
-
-            notFoundResult = null;
-            return true;
-        }
-
         [HttpGet("/{version}")]
-        public IActionResult SelectedVersionIndex(string version)
+        public async Task<IActionResult> SelectedVersionIndex([FromRoute]string version, CancellationToken token)
         {
-            var toolsService = _toolsFactory.GetService(version);
+            var toolsService = await _toolsFactory.GetServiceAsync(version, token);
             if (toolsService == null)
             {
                 return NotFound();
@@ -58,9 +46,9 @@ namespace Knapcode.NuGetTools.Website
         }
 
         [HttpGet("/{version}/parse-framework")]
-        public IActionResult ParseFramework(string version, ParseFrameworkInput input)
+        public async Task<IActionResult> ParseFramework([FromRoute]string version, [FromQuery]ParseFrameworkInput input, CancellationToken token)
         {
-            var toolsService = _toolsFactory.GetService(version);
+            var toolsService = await _toolsFactory.GetServiceAsync(version, token);
             if (toolsService == null)
             {
                 return NotFound();
@@ -72,9 +60,9 @@ namespace Knapcode.NuGetTools.Website
         }
 
         [HttpGet("/{version}/parse-version")]
-        public IActionResult ParseVersion(string version, ParseVersionInput input)
+        public async Task<IActionResult> ParseVersion([FromRoute]string version, [FromQuery]ParseVersionInput input, CancellationToken token)
         {
-            var toolsService = _toolsFactory.GetService(version);
+            var toolsService = await _toolsFactory.GetServiceAsync(version, token);
             if (toolsService == null)
             {
                 return NotFound();
@@ -86,9 +74,9 @@ namespace Knapcode.NuGetTools.Website
         }
 
         [HttpGet("/{version}/parse-version-range")]
-        public IActionResult ParseVersionRange(string version, ParseVersionRangeInput input)
+        public async Task<IActionResult> ParseVersionRange([FromRoute]string version, [FromQuery]ParseVersionRangeInput input, CancellationToken token)
         {
-            var toolsService = _toolsFactory.GetService(version);
+            var toolsService = await _toolsFactory.GetServiceAsync(version, token);
             if (toolsService == null)
             {
                 return NotFound();
@@ -100,9 +88,9 @@ namespace Knapcode.NuGetTools.Website
         }
 
         [HttpGet("/{version}/framework-compatibility")]
-        public IActionResult FrameworkCompatibility(string version, FrameworkCompatibilityInput input, bool swap)
+        public async Task<IActionResult> FrameworkCompatibility([FromRoute]string version, [FromQuery]FrameworkCompatibilityInput input, bool swap, CancellationToken token)
         {
-            var toolsService = _toolsFactory.GetService(version);
+            var toolsService = await _toolsFactory.GetServiceAsync(version, token);
             if (toolsService == null)
             {
                 return NotFound();
@@ -125,9 +113,9 @@ namespace Knapcode.NuGetTools.Website
         }
 
         [HttpGet("/{version}/version-comparison")]
-        public IActionResult VersionComparison(string version, VersionComparisonInput input, bool swap)
+        public async Task<IActionResult> VersionComparison([FromRoute]string version, [FromQuery]VersionComparisonInput input, bool swap, CancellationToken token)
         {
-            var toolsService = _toolsFactory.GetService(version);
+            var toolsService = await _toolsFactory.GetServiceAsync(version, token);
             if (toolsService == null)
             {
                 return NotFound();
@@ -150,9 +138,9 @@ namespace Knapcode.NuGetTools.Website
         }
 
         [HttpGet("/{version}/get-nearest-framework")]
-        public IActionResult GetNearestFramework(string version, GetNearestFrameworkInput input)
+        public async Task<IActionResult> GetNearestFramework([FromRoute]string version, [FromQuery]GetNearestFrameworkInput input, CancellationToken token)
         {
-            var toolsService = _toolsFactory.GetService(version);
+            var toolsService = await _toolsFactory.GetServiceAsync(version, token);
             if (toolsService == null)
             {
                 return NotFound();
@@ -164,9 +152,9 @@ namespace Knapcode.NuGetTools.Website
         }
 
         [HttpGet("/{version}/version-satisfies")]
-        public IActionResult VersionSatisfies(string version, VersionSatisfiesInput input)
+        public async Task<IActionResult> VersionSatisfies([FromRoute]string version, [FromQuery]VersionSatisfiesInput input, CancellationToken token)
         {
-            var toolsService = _toolsFactory.GetService(version);
+            var toolsService = await _toolsFactory.GetServiceAsync(version, token);
             if (toolsService == null)
             {
                 return NotFound();
@@ -178,9 +166,9 @@ namespace Knapcode.NuGetTools.Website
         }
 
         [HttpGet("/{version}/find-best-version-match")]
-        public IActionResult FindBestVersionmatch(string version, FindBestVersionMatchInput input)
+        public async Task<IActionResult> FindBestVersionmatch([FromRoute]string version, [FromQuery]FindBestVersionMatchInput input, CancellationToken token)
         {
-            var toolsService = _toolsFactory.GetService(version);
+            var toolsService = await _toolsFactory.GetServiceAsync(version, token);
             if (toolsService == null)
             {
                 return NotFound();

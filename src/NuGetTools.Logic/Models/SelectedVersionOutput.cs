@@ -1,6 +1,6 @@
 ﻿namespace Knapcode.NuGetTools.Logic.Models
 {
-    public class VersionOutput
+    public class SelectedVersionOutput
     {
         public string Version { get; set; }
     }

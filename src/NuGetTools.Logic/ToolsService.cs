@@ -32,11 +32,11 @@ namespace Knapcode.NuGetTools.Logic
             _versionRangeLogic = versionRangeLogic;
         }
 
-        public VersionOutput Version
+        public SelectedVersionOutput Version
         {
             get
             {
-                return new VersionOutput
+                return new SelectedVersionOutput
                 {
                     Version = _version
                 };

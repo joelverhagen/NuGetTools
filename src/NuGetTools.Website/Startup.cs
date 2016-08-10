@@ -1,9 +1,6 @@
 ﻿using System.IO;
-using System.Linq;
-using System.Reflection;
 using Knapcode.NuGetTools.Logic;
 using Knapcode.NuGetTools.Logic.Direct;
-using Knapcode.NuGetTools.Logic.Wrappers.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -33,32 +30,21 @@ namespace Knapcode.NuGetTools.Website
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IToolsFactory>(serviceProvider =>
+            services.AddSingleton(serviceProvider =>
             {
-                var assemblyLoader = new AssemblyLoader();
-                var context = assemblyLoader.GetAppDomainContext("NuGet");
+                var settings = new InMemorySettings();
+                var nuGetSettings = new NuGetSettings(settings);
+                nuGetSettings.GlobalPackagesFolder = Path.GetFullPath("packages");
 
-                var assemblyLocation = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                assemblyLoader.LoadAssembly(context, Path.Combine(assemblyLocation, "NuGet.Versioning.dll"));
-                assemblyLoader.LoadAssembly(context, Path.Combine(assemblyLocation, "NuGet.Frameworks.dll"));
-
-                var frameworksAssemblyName = context.LoadedAssemblies.First(x => x.Name == "NuGet.Frameworks");
-                var versioningAssemblyName = context.LoadedAssemblies.First(x => x.Name == "NuGet.Versioning");
-
-                var frameworkLogic = context.Proxy.GetFrameworkLogic(frameworksAssemblyName);
-                var versionLogic = context.Proxy.GetVersionLogic(versioningAssemblyName);
-                var versionRangeLogic = context.Proxy.GetVersionRangeLogic(versioningAssemblyName);
-
-                var toolsService = new ToolsService<Framework, Version, VersionRange>(
-                    "3.5.0-beta2",
-                    frameworkLogic,
-                    versionLogic,
-                    versionRangeLogic);
-
-                var toolsFactory = new SingletonToolsFactory(toolsService);
-
-                return toolsFactory;
+                return nuGetSettings;
             });
+
+            services.AddTransient<IAssemblyLoader, AssemblyLoader>();
+            services.AddTransient<IPackageLoader, PackageLoader>();
+            services.AddTransient<IPackageRangeDownloader, PackageRangeDownloader>();
+            services.AddTransient<IAlignedVersionsDownloader, AlignedVersionsDownloader>();
+
+            services.AddSingleton<IToolsFactory, ToolsFactory>();
 
             services.AddMvc();
         }
