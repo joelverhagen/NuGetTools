@@ -71,7 +71,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
             // Find the matching version.
             var versions = await _versions.Value;
 
-            var matchedVersion = versions.First(x => x.ToString() == version);
+            var matchedVersion = versions.FirstOrDefault(x => x.ToString() == version);
             if (matchedVersion == null)
             {
                 return null;
