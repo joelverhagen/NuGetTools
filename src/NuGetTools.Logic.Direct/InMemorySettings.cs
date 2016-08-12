@@ -38,7 +38,9 @@ namespace Knapcode.NuGetTools.Logic.Direct
 
         public bool DeleteSection(string section)
         {
-            return _sections.Remove(section);
+            var output = _sections.Remove(section);
+            EmitSettingsChanged();
+            return output;
         }
 
         public bool DeleteValue(string section, string key)
@@ -49,7 +51,9 @@ namespace Knapcode.NuGetTools.Logic.Direct
                 return false;
             }
 
-            return values.Remove(key);
+            var output = values.Remove(key);
+            EmitSettingsChanged();
+            return output;
         }
 
         public IList<KeyValuePair<string, string>> GetNestedValues(string section, string subSection)
@@ -99,6 +103,13 @@ namespace Knapcode.NuGetTools.Logic.Direct
             }
 
             values[key] = value;
+
+            EmitSettingsChanged();
+        }
+
+        private void EmitSettingsChanged()
+        {
+            SettingsChanged?.Invoke(this, new EventArgs());
         }
 
         public void SetValues(string section, IReadOnlyList<SettingValue> values)
