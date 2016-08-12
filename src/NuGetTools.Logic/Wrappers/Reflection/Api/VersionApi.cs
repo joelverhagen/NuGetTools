@@ -12,22 +12,19 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
         private readonly MethodInfo _getFullString;
         private readonly MethodInfo _getNormalizedString;
         private readonly MethodInfo _compare;
+        private readonly bool _isSemVer2Available;
+        private readonly bool _getFullStringAvailable;
 
-        public VersionApi(AssemblyName assemblyName)
+        public VersionApi(Assembly assembly)
         {
-            // SemanticVersion
-            var semanticTypeName = Assembly.CreateQualifiedName(
-                assemblyName.FullName,
-                "NuGet.Versioning.SemanticVersion");
+            Assembly = assembly;
 
-            var semanticVersionType = Type.GetType(semanticTypeName);
+            // SemanticVersion
+            var semanticVersionType = Assembly.GetType("NuGet.Versioning.SemanticVersion");
 
             _isPrerelease = semanticVersionType
                 .GetProperty("IsPrerelease")
                 .GetGetMethod();
-
-            _getFullString = semanticVersionType
-                .GetMethod("ToFullString");
 
             _getNormalizedString = semanticVersionType
                 .GetMethod("ToNormalizedString");
@@ -36,24 +33,33 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
                 .GetMethod("CompareTo", new[] { semanticVersionType });
 
             // NuGetVersion
-            var nuGetVersionTypeName = Assembly.CreateQualifiedName(
-                assemblyName.FullName,
-                "NuGet.Versioning.NuGetVersion");
-
-            var nuGetVersionType = Type.GetType(nuGetVersionTypeName);
+            var nuGetVersionType = Assembly.GetType("NuGet.Versioning.NuGetVersion");
 
             _getRevision = nuGetVersionType
                 .GetProperty("Revision")
                 .GetGetMethod();
 
-            _isSemVer2 = nuGetVersionType
-                .GetProperty("IsSemVer2")
-                .GetGetMethod();
-
             _parse = nuGetVersionType
                 .GetMethod("Parse", new[] { typeof(string) });
+
+            // NuGetVersion (3.4.3+)
+            _isSemVer2 = nuGetVersionType
+                .GetProperty("IsSemVer2")?
+                .GetGetMethod();
+            _isSemVer2Available = _isSemVer2 != null;
+
+            // SemanticVersion (3.5.0-beta-final+)
+            _getFullString = semanticVersionType
+                .GetMethod("ToFullString");
+            _getFullStringAvailable = _getFullString != null;
         }
-        
+
+        public VersionApi(AssemblyName assemblyName) : this(assemblyName.GetAssembly())
+        {
+        }
+
+        public Assembly Assembly { get; }
+
         public object Parse(string input)
         {
             return _parse.Invoke(null, new[] { input });
@@ -84,9 +90,24 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
             return (string)_getFullString.Invoke(nuGetVersion, new object[0]);
         }
 
+        public bool GetFullStringAvailable()
+        {
+            return _getFullStringAvailable;
+        }
+
         public bool IsSemVer2(object nuGetVersion)
         {
+            if (!_isSemVer2Available)
+            {
+                throw new NotSupportedException();
+            }
+
             return (bool)_isSemVer2.Invoke(nuGetVersion, new object[0]);
+        }
+
+        public bool IsSemVer2Available()
+        {
+            return _isSemVer2Available;
         }
     }
 }

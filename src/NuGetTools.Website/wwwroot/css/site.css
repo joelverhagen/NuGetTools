@@ -10,6 +10,11 @@
     padding-right: 15px;
 }
 
+.version-select {
+    margin: 10px;
+    width: 155px;
+}
+
 .results {
   padding: 10px 0px;
 }

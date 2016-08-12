@@ -1,8 +1,9 @@
 ﻿@using Knapcode.NuGetTools.Logic.Models
 @using Knapcode.NuGetTools.Logic.Models.Framework
-@model ParseFrameworkOutput
+@model SelectedVersionOutput<ParseFrameworkOutput>
 @{
     ViewData["Title"] = "Parse Framework";
+    var output = Model.Output;
 }
 
 <h1>Parse a framework</h1>
@@ -14,30 +15,30 @@
     <div class="form-group">
         <label for="framework">Framework</label>
         <input type="text" class="form-control" name="framework" id="framework"
-               placeholder="net45" value="@Model.Input.Framework">
+               placeholder="net45" value="@output.Input.Framework">
     </div>
     <button type="submit" class="btn btn-default">Submit</button>
 </form>
 
 <div class="results">
-    @if (@Model.InputStatus == InputStatus.Valid)
+    @if (@output.InputStatus == InputStatus.Valid)
     {
         <div class="alert alert-success" role="alert">
             <p>
-                The input value is <b>@Model.Input.Framework</b>.
+                The input value is <b>@output.Input.Framework</b>.
             </p>
             <p>
-                The short folder name is <code>@Model.Framework.ShortFolderName</code>.
+                The short folder name is <code>@output.Framework.ShortFolderName</code>.
             </p>
             <p>
-                The .NET framework name is <code>@Model.Framework.DotNetFrameworkName</code>.
+                The .NET framework name is <code>@output.Framework.DotNetFrameworkName</code>.
             </p>
         </div>
     }
-    else if (@Model.InputStatus == InputStatus.Invalid)
+    else if (@output.InputStatus == InputStatus.Invalid)
     {
         <div class="alert alert-danger" role="alert">
-            The framework <b>@Model.Input.Framework</b> could not be parsed.
+            The framework <b>@output.Input.Framework</b> could not be parsed.
         </div>
     }
 </div>

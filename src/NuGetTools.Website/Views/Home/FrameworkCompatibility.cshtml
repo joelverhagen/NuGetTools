@@ -1,8 +1,9 @@
 ﻿@using Knapcode.NuGetTools.Logic.Models
 @using Knapcode.NuGetTools.Logic.Models.Framework
-@model FrameworkCompatibilityOutput
+@model SelectedVersionOutput<FrameworkCompatibilityOutput>
 @{
     ViewData["Title"] = "Framework Compatibility";
+    var output = Model.Output;
 }
 
 <h1>Check framework compatiblity</h1>
@@ -14,46 +15,46 @@
     <div class="form-group">
         <label for="project">Project Framework</label>
         <input type="text" class="form-control" name="project" id="project"
-               placeholder="net45" value="@Model.Input.Project">
+               placeholder="net45" value="@output.Input.Project">
     </div>
     <div class="form-group">
         <label for="package">Package Framework</label>
         <input type="text" class="form-control" name="package" id="package"
-               placeholder="netstandard1.0" value="@Model.Input.Package">
+               placeholder="netstandard1.0" value="@output.Input.Package">
     </div>
     <button type="submit" class="btn btn-default">Submit</button>
     <button type="submit" name="swap" id="swap" value="true" class="btn btn-default">Swap</button>
 </form>
 
 <div class="results">
-    @if (@Model.InputStatus == InputStatus.Valid)
+    @if (@output.InputStatus == InputStatus.Valid)
     {
-        if (@Model.IsCompatible)
+        if (@output.IsCompatible)
         {
             <div class="alert alert-success" role="alert">
-                <code>@Model.Project.ShortFolderName</code> (<b>@Model.Input.Project</b>) projects support <code>@Model.Package.ShortFolderName</code> (<b>@Model.Input.Package</b>) packages.
+                <code>@output.Project.ShortFolderName</code> (<b>@output.Input.Project</b>) projects support <code>@output.Package.ShortFolderName</code> (<b>@output.Input.Package</b>) packages.
             </div>
         }
         else
         {
             <div class="alert alert-warning" role="alert">
-                <code>@Model.Project.ShortFolderName</code> (<b>@Model.Input.Project</b>) projects do not support <code>@Model.Package.ShortFolderName</code> (<b>@Model.Input.Package</b>) packages.
+                <code>@output.Project.ShortFolderName</code> (<b>@output.Input.Project</b>) projects do not support <code>@output.Package.ShortFolderName</code> (<b>@output.Input.Package</b>) packages.
             </div>
         }
     }
-    else if (@Model.InputStatus == InputStatus.Invalid)
+    else if (@output.InputStatus == InputStatus.Invalid)
     {
-        if (!@Model.IsProjectValid)
+        if (!@output.IsProjectValid)
         {
             <div class="alert alert-danger" role="alert">
-                Project framework <b>@Model.Input.Project</b> could not be parsed.
+                Project framework <b>@output.Input.Project</b> could not be parsed.
             </div>
         }
 
-        if (!@Model.IsPackageValid)
+        if (!@output.IsPackageValid)
         {
             <div class="alert alert-danger" role="alert">
-                Package framework <b>@Model.Input.Package</b> could not be parsed.
+                Package framework <b>@output.Input.Package</b> could not be parsed.
             </div>
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
@@ -19,12 +20,10 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
 
         public FrameworkApi(AssemblyName assemblyName)
         {
-            // NuGetFramework
-            var nuGetFrameworkTypeName = Assembly.CreateQualifiedName(
-                assemblyName.FullName,
-                "NuGet.Frameworks.NuGetFramework");
+            var assembly = assemblyName.GetAssembly();
 
-            _nuGetFrameworkType = Type.GetType(nuGetFrameworkTypeName);
+            // NuGetFramework
+            _nuGetFrameworkType = assembly.GetType("NuGet.Frameworks.NuGetFramework");
 
             _getDotNetFrameworkName = _nuGetFrameworkType
                 .GetProperty("DotNetFrameworkName")
@@ -44,32 +43,20 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
                 .GetMethod("Add");
 
             // FrameworkReducer
-            var frameworkReducerTypeName = Assembly.CreateQualifiedName(
-                assemblyName.FullName,
-                "NuGet.Frameworks.FrameworkReducer");
-
-            _frameworkReducerType = Type.GetType(frameworkReducerTypeName);
+            _frameworkReducerType = assembly.GetType("NuGet.Frameworks.FrameworkReducer");
             
             _getNearest = _frameworkReducerType
                 .GetMethod("GetNearest");
 
             // DefaultCompatibilityProvider
-            var defaultCompatibilityProviderTypeName = Assembly.CreateQualifiedName(
-                assemblyName.FullName,
-                "NuGet.Frameworks.DefaultCompatibilityProvider");
-
-            var defaultCompatibilityProviderType = Type.GetType(defaultCompatibilityProviderTypeName);
+            var defaultCompatibilityProviderType = assembly.GetType("NuGet.Frameworks.DefaultCompatibilityProvider");
 
             _getCompatibilityProviderInstance = defaultCompatibilityProviderType
                 .GetProperty("Instance")
                 .GetGetMethod();
 
             // CompatiblityProvider
-            var compatiblityProviderTypeName = Assembly.CreateQualifiedName(
-                assemblyName.FullName,
-                "NuGet.Frameworks.CompatibilityProvider");
-
-            var compatibilityProviderType = Type.GetType(compatiblityProviderTypeName);
+            var compatibilityProviderType = assembly.GetType("NuGet.Frameworks.CompatibilityProvider");
 
             _isCompatible = compatibilityProviderType
                 .GetMethod("IsCompatible");

@@ -41,5 +41,10 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection
 
             return new Framework(nuGetFramework, _api);
         }
+        
+        public override object InitializeLifetimeService()
+        {
+            return null;
+        }
     }
 }

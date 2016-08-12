@@ -1,9 +1,11 @@
-﻿<!DOCTYPE html>
+﻿@using Knapcode.NuGetTools.Logic.Models;
+@model SelectedVersionOutput
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - NuGet Tools</title>
+    <title>@ViewData["Title"] - NuGet Tools - NuGet v@(Model.CurrentVersion)</title>
 
     <environment names="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
@@ -27,6 +29,21 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a asp-controller="Home" asp-action="Index" class="navbar-brand">NuGet Tools</a>
+                <form class="form-inline navbar-left">
+                    <select id="version-select" class="form-control version-select">
+                        @foreach (var versionUrl in Model.VersionUrls)
+                        {
+                            if (Model.CurrentVersion == versionUrl.Version)
+                            {
+                                <option selected="selected">@versionUrl.Version</option>
+                            }
+                            else
+                            {
+                                <option value="@versionUrl.Url">@versionUrl.Version</option>
+                            }
+                        }
+                    </select>
+                </form>
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">

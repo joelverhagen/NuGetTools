@@ -11,7 +11,7 @@ namespace Knapcode.NuGetTools.Logic
 
         public SingletonToolsFactory(IToolsService toolsService)
         {
-            _version = toolsService.Version.Version;
+            _version = toolsService.Version;
             _toolsService = toolsService;
         }
 

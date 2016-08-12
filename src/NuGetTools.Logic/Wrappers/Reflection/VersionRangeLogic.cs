@@ -45,5 +45,10 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection
                 versionRange.NuGetVersionRange,
                 version.NuGetVersion);
         }
+        
+        public override object InitializeLifetimeService()
+        {
+            return null;
+        }
     }
 }

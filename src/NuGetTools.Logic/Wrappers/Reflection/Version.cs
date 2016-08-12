@@ -19,5 +19,7 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection
         public bool IsPrerelease => _api.IsPrerelease(NuGetVersion);
         public string NormalizedString => _api.GetNormalizedString(NuGetVersion);
         public string FullString => _api.GetFullString(NuGetVersion);
+        public bool IsSemVer2Available => _api.IsSemVer2Available();
+        public bool FullStringAvailable => _api.GetFullStringAvailable();
     }
 }

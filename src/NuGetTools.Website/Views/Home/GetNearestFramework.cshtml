@@ -1,8 +1,9 @@
 ﻿@using Knapcode.NuGetTools.Logic.Models
 @using Knapcode.NuGetTools.Logic.Models.Framework
-@model GetNearestFrameworkOutput
+@model SelectedVersionOutput<GetNearestFrameworkOutput>
 @{
     ViewData["Title"] = "Get Nearest Framework";
+    var output = Model.Output;
 }
 
 <h1>Get Nearest Framework</h1>
@@ -14,35 +15,35 @@
     <div class="form-group">
         <label for="project">Project Framework</label>
         <input type="text" class="form-control" name="project" id="project"
-               placeholder="net45" value="@Model.Input.Project">
+               placeholder="net45" value="@output.Input.Project">
     </div>
     <div class="form-group">
         <label for="package">Package Frameworks</label>
-        <textarea class="form-control" rows="5" name="package" id="package" placeholder="netstandard1.0">@Model.Input.Package</textarea>
+        <textarea class="form-control" rows="5" name="package" id="package" placeholder="netstandard1.0">@output.Input.Package</textarea>
     </div>
     <button type="submit" class="btn btn-default">Submit</button>
 </form>
 
 <div class="results">
-    @if (@Model.InputStatus == InputStatus.Valid)
+    @if (@output.InputStatus == InputStatus.Valid)
     {
-        if (@Model.Nearest != null)
+        if (@output.Nearest != null)
         {
             <div class="alert alert-success" role="alert">
-                The <code>@Model.Nearest.Framework.ShortFolderName</code> (<b>@Model.Nearest.Input</b>) package framework is the nearest to the <code>@Model.Project.ShortFolderName</code> (<b>@Model.Input.Project</b>) project framework.
+                The <code>@output.Nearest.Framework.ShortFolderName</code> (<b>@output.Nearest.Input</b>) package framework is the nearest to the <code>@output.Project.ShortFolderName</code> (<b>@output.Input.Project</b>) project framework.
             </div>
         }
         else
         {
             <div class="alert alert-warning" role="alert">
-                None of the recognized frameworks are compatible with the <code>@Model.Project.ShortFolderName</code> (<b>@Model.Input.Project</b>) project framework.
+                None of the recognized frameworks are compatible with the <code>@output.Project.ShortFolderName</code> (<b>@output.Input.Project</b>) project framework.
             </div>
         }
 
         <div class="alert alert-info" role="alert">
             <p>The package frameworks that were considered were:</p>
             <ul class="list-unstyled">
-                @foreach (var input in Model.Package)
+                @foreach (var input in output.Package)
                 {
                     <li>
                         @if (input.IsCompatible)
@@ -58,11 +59,11 @@
                     </li>
                 }
             </ul>
-            @if (Model.Invalid.Any())
+            @if (output.Invalid.Any())
             {
                 <p>The following package framework(s) could not be parsed:</p>
                 <ul>
-                    @foreach (var invalid in Model.Invalid)
+                    @foreach (var invalid in output.Invalid)
                     {
                         <li><b>@invalid</b></li>
                     }
@@ -70,21 +71,21 @@
             }
         </div>
     }
-    else if (@Model.InputStatus == InputStatus.Invalid)
+    else if (@output.InputStatus == InputStatus.Invalid)
     {
-        if (!@Model.IsProjectValid)
+        if (!@output.IsProjectValid)
         {
             <div class="alert alert-danger" role="alert">
-                Project framework <b>@Model.Input.Project</b> could not be parsed.
+                Project framework <b>@output.Input.Project</b> could not be parsed.
             </div>
         }
 
-        if (!@Model.IsPackageValid)
+        if (!@output.IsPackageValid)
         {
             <div class="alert alert-danger" role="alert">
                 <p>The following package framework(s) could not be parsed:</p>
                 <ul>
-                    @foreach (var invalid in Model.Invalid)
+                    @foreach (var invalid in output.Invalid)
                     {
                         <li><b>@invalid</b></li>
                     }

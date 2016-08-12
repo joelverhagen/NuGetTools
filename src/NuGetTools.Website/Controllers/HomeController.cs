@@ -55,10 +55,10 @@ namespace Knapcode.NuGetTools.Website
             {
                 return NotFound();
             }
+            
+            var versionedOutput = await GetSelectedVersionOutputAsync(toolsService, token);
 
-            var output = toolsService.Version;
-
-            return View(output);
+            return View(versionedOutput);
         }
 
         [HttpGet("/{version}/parse-framework")]
@@ -77,8 +77,9 @@ namespace Knapcode.NuGetTools.Website
             }
 
             var output = toolsService.ParseFramework(input);
+            var versionedOutput = await GetSelectedVersionOutputAsync(toolsService, output, token);
 
-            return View(output);
+            return View(versionedOutput);
         }
 
         [HttpGet("/{version}/parse-version")]
@@ -97,8 +98,9 @@ namespace Knapcode.NuGetTools.Website
             }
 
             var output = toolsService.ParseVersion(input);
+            var versionedOutput = await GetSelectedVersionOutputAsync(toolsService, output, token);
 
-            return View(output);
+            return View(versionedOutput);
         }
 
         [HttpGet("/{version}/parse-version-range")]
@@ -117,8 +119,9 @@ namespace Knapcode.NuGetTools.Website
             }
 
             var output = toolsService.ParseVersionRange(input);
+            var versionedOutput = await GetSelectedVersionOutputAsync(toolsService, output, token);
 
-            return View(output);
+            return View(versionedOutput);
         }
 
         [HttpGet("/{version}/framework-compatibility")]
@@ -149,8 +152,9 @@ namespace Knapcode.NuGetTools.Website
             }
 
             var output = toolsService.FrameworkCompatibility(input);
-                        
-            return View(output);
+            var versionedOutput = await GetSelectedVersionOutputAsync(toolsService, output, token);
+
+            return View(versionedOutput);
         }
 
         [HttpGet("/{version}/version-comparison")]
@@ -178,8 +182,9 @@ namespace Knapcode.NuGetTools.Website
             }
 
             var output = toolsService.VersionComparison(input);
+            var versionedOutput = await GetSelectedVersionOutputAsync(toolsService, output, token);
 
-            return View(output);
+            return View(versionedOutput);
         }
 
         [HttpGet("/{version}/get-nearest-framework")]
@@ -198,8 +203,9 @@ namespace Knapcode.NuGetTools.Website
             }
 
             var output = toolsService.GetNearestFramework(input);
+            var versionedOutput = await GetSelectedVersionOutputAsync(toolsService, output, token);
 
-            return View(output);
+            return View(versionedOutput);
         }
 
         [HttpGet("/{version}/version-satisfies")]
@@ -218,8 +224,9 @@ namespace Knapcode.NuGetTools.Website
             }
 
             var output = toolsService.VersionSatisfies(input);
+            var versionedOutput = await GetSelectedVersionOutputAsync(toolsService, output, token);
 
-            return View(output);
+            return View(versionedOutput);
         }
 
         [HttpGet("/{version}/find-best-version-match")]
@@ -238,8 +245,44 @@ namespace Knapcode.NuGetTools.Website
             }
 
             var output = toolsService.FindBestVersionMatch(input);
+            var versionedOutput = await GetSelectedVersionOutputAsync(toolsService, output, token);
 
-            return View(output);
+            return View(versionedOutput);
+        }
+
+        private async Task<SelectedVersionOutput> GetSelectedVersionOutputAsync(IToolsService toolsService, CancellationToken token)
+        {
+            return await GetSelectedVersionOutputAsync(toolsService, (object)null, token);
+        }
+
+        private async Task<SelectedVersionOutput<T>> GetSelectedVersionOutputAsync<T>(IToolsService toolsService, T value, CancellationToken token)
+        {
+            var currentVersion = toolsService.Version;
+            var availableVersions = await _toolsFactory.GetAvailableVersionsAsync(token);
+            var versionUrls = GetVersionUrls(availableVersions);
+
+            return new SelectedVersionOutput<T>
+            {
+                CurrentVersion = currentVersion,
+                VersionUrls = versionUrls,
+                Output = value
+            };
+        }
+
+        private IEnumerable<VersionUrl> GetVersionUrls(IEnumerable<string> versions)
+        {
+            var urlHelper = _urlHelperFactory.GetUrlHelper(ControllerContext);
+
+            foreach (var version in versions)
+            {
+                var url = GetVersionUrl(version, urlHelper);
+
+                yield return new VersionUrl
+                {
+                    Version = version,
+                    Url = url
+                };
+            }
         }
 
         private IActionResult GetVersionRedirect()
@@ -252,21 +295,27 @@ namespace Knapcode.NuGetTools.Website
             if (_versionRedirects.TryGetValue(version, out redirectVersion))
             {
                 var urlHelper = _urlHelperFactory.GetUrlHelper(ControllerContext);
-
-                var redirect = urlHelper.Action(
-                    ControllerContext.ActionDescriptor.ActionName,
-                    ControllerContext.ActionDescriptor.ControllerName,
-                    new { version = redirectVersion });
-
-                if (Request.QueryString.HasValue)
-                {
-                    redirect += Request.QueryString.Value;
-                }
+                var redirect = GetVersionUrl(redirectVersion, urlHelper);
 
                 return new RedirectResult(redirect, permanent: false);
             }
 
             return null;
+        }
+
+        private string GetVersionUrl(string version, IUrlHelper urlHelper)
+        {
+            var url = urlHelper.Action(
+                ControllerContext.ActionDescriptor.ActionName,
+                ControllerContext.ActionDescriptor.ControllerName,
+                new { version });
+
+            if (Request.QueryString.HasValue)
+            {
+                url += Request.QueryString.Value;
+            }
+
+            return url;
         }
     }
 }

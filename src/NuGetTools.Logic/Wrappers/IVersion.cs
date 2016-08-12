@@ -7,5 +7,7 @@
         bool IsPrerelease { get; }
         string NormalizedString { get; }
         string FullString { get; }
+        bool IsSemVer2Available { get; }
+        bool FullStringAvailable { get; }
     }
 }

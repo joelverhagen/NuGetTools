@@ -23,5 +23,10 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection
 
             return new Version(nuGetVersion, _api);
         }
+        
+        public override object InitializeLifetimeService()
+        {
+            return null;
+        }
     }
 }

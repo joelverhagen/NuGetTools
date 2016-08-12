@@ -15,7 +15,6 @@ namespace Knapcode.NuGetTools.Logic
         where TVersion : IVersion
         where TVersionRange : IVersionRange
     {
-        private readonly string _version;
         private readonly IFrameworkLogic<TFramework> _frameworkLogic;
         private readonly IVersionLogic<TVersion> _versionLogic;
         private readonly IVersionRangeLogic<TVersion, TVersionRange> _versionRangeLogic;
@@ -26,22 +25,13 @@ namespace Knapcode.NuGetTools.Logic
             IVersionLogic<TVersion> versionLogic,
             IVersionRangeLogic<TVersion, TVersionRange> versionRangeLogic)
         {
-            _version = version;
+            Version = version;
             _frameworkLogic = frameworkLogic;
             _versionLogic = versionLogic;
             _versionRangeLogic = versionRangeLogic;
         }
 
-        public SelectedVersionOutput Version
-        {
-            get
-            {
-                return new SelectedVersionOutput
-                {
-                    Version = _version
-                };
-            }
-        }
+        public string Version { get; }
 
         public ParseFrameworkOutput ParseFramework(ParseFrameworkInput input)
         {

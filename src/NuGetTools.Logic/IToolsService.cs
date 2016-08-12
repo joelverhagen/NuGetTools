@@ -15,6 +15,6 @@ namespace Knapcode.NuGetTools.Logic
         VersionComparisonOutput VersionComparison(VersionComparisonInput input);
         VersionSatisfiesOutput VersionSatisfies(VersionSatisfiesInput input);
         FindBestVersionMatchOutput FindBestVersionMatch(FindBestVersionMatchInput input);
-        SelectedVersionOutput Version { get; }
+        string Version { get; }
     }
 }

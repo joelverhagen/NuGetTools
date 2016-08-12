@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
@@ -23,19 +24,13 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
 
         public VersionRangeApi(AssemblyName assemblyName)
         {
-            // NuGetVersion
-            var nuGetVersionTypeName = Assembly.CreateQualifiedName(
-                assemblyName.FullName,
-                "NuGet.Versioning.NuGetVersion");
+            var assembly = assemblyName.GetAssembly();
 
-            var nuGetVersionType = Type.GetType(nuGetVersionTypeName);
+            // NuGetVersion
+            var nuGetVersionType = assembly.GetType("NuGet.Versioning.NuGetVersion");
 
             // VersionRangeBase
-            var versionRangeBaseTypeName = Assembly.CreateQualifiedName(
-                assemblyName.FullName,
-                "NuGet.Versioning.VersionRangeBase");
-
-            var versionRangeBaseType = Type.GetType(versionRangeBaseTypeName);
+            var versionRangeBaseType = assembly.GetType("NuGet.Versioning.VersionRangeBase");
 
             _hasLowerBound = versionRangeBaseType
                 .GetProperty("HasLowerBound")
@@ -65,11 +60,7 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
                 .GetMethod("Satisfies", new[] { nuGetVersionType });
 
             // VersionRange
-            var nuGetVersionRangeTypeName = Assembly.CreateQualifiedName(
-                assemblyName.FullName,
-                "NuGet.Versioning.VersionRange");
-
-            var nuGetVersionRangeType = Type.GetType(nuGetVersionRangeTypeName);
+            var nuGetVersionRangeType = assembly.GetType("NuGet.Versioning.VersionRange");
 
             _getNormalizedString = nuGetVersionRangeType
                 .GetMethod("ToNormalizedString");

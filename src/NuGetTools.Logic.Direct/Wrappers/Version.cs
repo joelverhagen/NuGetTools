@@ -16,5 +16,7 @@ namespace Knapcode.NuGetTools.Logic.Direct.Wrappers
         public bool IsSemVer2 => NuGetVersion.IsSemVer2;
         public string NormalizedString => NuGetVersion.ToNormalizedString();
         public int Revision => NuGetVersion.Revision;
+        public bool IsSemVer2Available => true;
+        public bool FullStringAvailable => true;
     }
 }
