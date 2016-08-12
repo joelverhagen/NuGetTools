@@ -16,12 +16,12 @@ You can visit NuGet Tools at http://nugettoolsdev.azurewebsites.net/.
 - Test get nearest NuGet framework algorithm
 - Test if a version satisfies a version range
 - Test get best version match algorithm 
+- Switch between different NuGet versions.
 
 ## Future
 
 I'd like to add the following features in the future:
 
-- Selecting an arbitrary NuGet version
 - Interacting with real NuGet packages (either uploaded or from a source)
 - Better copy-pasting so you can easily get a snippet to drop in an email or document
 - End-to-end tests
