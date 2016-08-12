@@ -14,7 +14,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
-    <ApplicationInsightsResourceId>/subscriptions/87b3a2cf-ab4e-487b-a7af-59192cd21caf/resourcegroups/Default-ApplicationInsights-CentralUS/providers/microsoft.insights/components/nugettoolsdevdev</ApplicationInsightsResourceId>
+    <ApplicationInsightsResourceId>/subscriptions/87b3a2cf-ab4e-487b-a7af-59192cd21caf/resourcegroups/Default-ApplicationInsights-CentralUS/providers/microsoft.insights/components/nugettoolsdev</ApplicationInsightsResourceId>
   </PropertyGroup>
   <ItemGroup>
     <DnxInvisibleContent Include="bower.json" />
