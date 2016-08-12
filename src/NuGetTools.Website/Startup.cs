@@ -21,6 +21,7 @@ namespace Knapcode.NuGetTools.Website
 
             if (env.IsDevelopment())
             {
+                builder.AddApplicationInsightsSettings(developerMode: true);
             }
 
             Configuration = builder.Build();
@@ -49,12 +50,17 @@ namespace Knapcode.NuGetTools.Website
 
             services.AddSingleton<IToolsFactory, ToolsFactory>();
 
+            services.AddApplicationInsightsTelemetry(Configuration);
+
             services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            // Add Application Insights monitoring to the request pipeline as a very first middleware.
+            app.UseApplicationInsightsRequestTelemetry();
+
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
@@ -67,6 +73,9 @@ namespace Knapcode.NuGetTools.Website
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
+            // Add Application Insights exceptions handling to the request pipeline.
+            app.UseApplicationInsightsExceptionTelemetry();
 
             app.UseStaticFiles();
 
