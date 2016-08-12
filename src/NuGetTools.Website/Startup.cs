@@ -22,6 +22,7 @@ namespace Knapcode.NuGetTools.Website
             if (env.IsDevelopment())
             {
             }
+
             Configuration = builder.Build();
         }
 
@@ -32,9 +33,11 @@ namespace Knapcode.NuGetTools.Website
         {
             services.AddSingleton(serviceProvider =>
             {
+                var hostingEnvironment = serviceProvider.GetService<IHostingEnvironment>();
+
                 var settings = new InMemorySettings();
                 var nuGetSettings = new NuGetSettings(settings);
-                nuGetSettings.GlobalPackagesFolder = Path.GetFullPath("packages");
+                nuGetSettings.GlobalPackagesFolder = Path.Combine(hostingEnvironment.ContentRootPath, "packages");
 
                 return nuGetSettings;
             });

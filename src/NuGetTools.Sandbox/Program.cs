@@ -19,12 +19,10 @@ namespace Knapcode.NuGetTools.Sandbox
             var packageRangeDownloader = new PackageRangeDownloader(nuGetSettings);
 
             var alignedVersionDownloader = new AlignedVersionsDownloader(packageRangeDownloader);
-
-            var ids = new[] { "NuGet.Versioning", "NuGet.Frameworks" };
-
+            
             alignedVersionDownloader.DownloadPackagesAsync(
                 new[] { "https://api.nuget.org/v3/index.json" },
-                ids,
+                ToolsFactory.PackageIds,
                 VersionRange.All,
                 new ConsoleLogger(),
                 CancellationToken.None).Wait();
@@ -56,10 +54,6 @@ namespace Knapcode.NuGetTools.Sandbox
                 var versionRange = versionRangeLogic.Parse("(, 1.0.0-beta]");
                 var versionRangeNormalizedString = versionRange.NormalizedString;
             }
-
-            var versions = alignedVersionDownloader.GetDownloadedVersionsAsync(
-                ids,
-                CancellationToken.None).Result;
         }
     }
 }

@@ -50,7 +50,8 @@ namespace Knapcode.NuGetTools.PackageDownloader
 
         private static void DownloadPackages(string packagesDirectory, List<string> sources)
         {
-            var nuGetSettings = new NuGetSettings(new InMemorySettings());
+            var settings = new InMemorySettings();
+            var nuGetSettings = new NuGetSettings(settings);
             nuGetSettings.GlobalPackagesFolder = packagesDirectory;
 
             var packageRangeDownloader = new PackageRangeDownloader(nuGetSettings);
@@ -59,7 +60,7 @@ namespace Knapcode.NuGetTools.PackageDownloader
 
             var downloadTask = alignedVersionDownloader.DownloadPackagesAsync(
                 sources,
-                new[] { "NuGet.Versioning", "NuGet.Frameworks" },
+                ToolsFactory.PackageIds,
                 VersionRange.All,
                 new ConsoleLogger(),
                 CancellationToken.None);

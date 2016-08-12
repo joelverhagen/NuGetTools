@@ -18,11 +18,6 @@ namespace Knapcode.NuGetTools.Logic.Direct
         private const string _versioningId = "NuGet.Versioning";
         private const string _frameworksId = "NuGet.Frameworks";
         private static NuGetFramework _framework = FrameworkConstants.CommonFrameworks.Net46;
-        private static readonly string[] _ids = new[]
-        {
-            _versioningId,
-            _frameworksId
-        };
 
         private readonly IAlignedVersionsDownloader _downloader;
         private readonly IPackageLoader _packageLoader;
@@ -39,7 +34,9 @@ namespace Knapcode.NuGetTools.Logic.Direct
 
             _versions = new Lazy<Task<List<NuGetVersion>>>(async () =>
             {
-                var versions = await _downloader.GetDownloadedVersionsAsync(_ids, CancellationToken.None);
+                var versions = await _downloader.GetDownloadedVersionsAsync(
+                    PackageIds,
+                    CancellationToken.None);
 
                 return versions
                     .OrderByDescending(x => x)
@@ -55,6 +52,12 @@ namespace Knapcode.NuGetTools.Logic.Direct
                     .ToList();
             });
         }
+
+        public static IEnumerable<string> PackageIds { get; } = new[]
+        {
+            _versioningId,
+            _frameworksId
+        };
 
         public async Task<IEnumerable<string>> GetAvailableVersionsAsync(CancellationToken token)
         {
