@@ -22,7 +22,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
             set
             {
                 var path = Path.GetFullPath(value);
-                SettingsUtility.SetConfigValue(Settings, SettingsUtility.GlobalPackagesFolderKey, path);
+                SettingsUtility.SetConfigValue(Settings, "globalPackagesFolder", path);
             }
         }
     }

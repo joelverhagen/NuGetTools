@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using NuGet.Common;
 using NuGet.PackageManagement;
 using NuGet.Packaging.Core;
+using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
-using NuGet.Protocol.Core.v3;
 
 namespace Knapcode.NuGetTools.Logic.Direct
 {
