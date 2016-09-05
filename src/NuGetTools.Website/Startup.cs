@@ -1,11 +1,18 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Threading;
 using Knapcode.NuGetTools.Logic;
 using Knapcode.NuGetTools.Logic.Direct;
+using Knapcode.NuGetTools.Logic.Direct.Wrappers;
+using Knapcode.NuGetTools.Logic.Wrappers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NuGet.Common;
+using Version = Knapcode.NuGetTools.Logic.Direct.Wrappers.Version;
 
 namespace Knapcode.NuGetTools.Website
 {
@@ -13,6 +20,8 @@ namespace Knapcode.NuGetTools.Website
     {
         public Startup(IHostingEnvironment env)
         {
+            HostingEnvironment = env;
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -26,6 +35,8 @@ namespace Knapcode.NuGetTools.Website
 
             Configuration = builder.Build();
         }
+
+        public IHostingEnvironment HostingEnvironment { get; }
 
         public IConfigurationRoot Configuration { get; }
 
@@ -49,6 +60,41 @@ namespace Knapcode.NuGetTools.Website
             services.AddTransient<IAlignedVersionsDownloader, AlignedVersionsDownloader>();
 
             services.AddSingleton<IToolsFactory, ToolsFactory>();
+
+            try
+            {
+                // Try to construct the reflection-based tools factory.
+                var serviceProvider = services.BuildServiceProvider();
+                var toolsFactory = serviceProvider.GetRequiredService<IToolsFactory>();
+
+                var versions = toolsFactory.GetAvailableVersionsAsync(CancellationToken.None).Result;
+
+                if (!versions.Any())
+                {
+                    throw new InvalidOperationException("At least one version is required.");
+                }
+            }
+            catch
+            {
+                // Fallback to using the NuGet version directly referenced by this project.
+                var serviceDescriptor = services.First(x => x.ImplementationType == typeof(ToolsFactory));
+                services.Remove(serviceDescriptor);
+
+                services.AddTransient<IFrameworkLogic<Framework>, FrameworkLogic>();
+                services.AddTransient<IVersionLogic<Version>, VersionLogic>();
+                services.AddTransient<IVersionRangeLogic<Version, VersionRange>, VersionRangeLogic>();
+
+                services.AddTransient<IToolsService>(serviceProvider =>
+                {
+                    return new ToolsService<Framework, Version, VersionRange>(
+                        ClientVersionUtility.GetNuGetAssemblyVersion(),
+                        serviceProvider.GetRequiredService<IFrameworkLogic<Framework>>(),
+                        serviceProvider.GetRequiredService<IVersionLogic<Version>>(),
+                        serviceProvider.GetRequiredService<IVersionRangeLogic<Version, VersionRange>>());
+                });
+
+                services.AddSingleton<IToolsFactory, SingletonToolsFactory>();
+            }
 
             services.AddApplicationInsightsTelemetry(Configuration);
 
