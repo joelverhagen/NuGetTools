@@ -256,3 +256,6 @@ PublishProfiles
 
 # local .NET CLI installation
 cli
+
+# AssemblyInfo (automatically generated)
+**/Properties/AssemblyInfo.cs
