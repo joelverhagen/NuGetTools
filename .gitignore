@@ -253,3 +253,6 @@ paket-files/
 
 # Publish profiles
 PublishProfiles
+
+# local .NET CLI installation
+cli

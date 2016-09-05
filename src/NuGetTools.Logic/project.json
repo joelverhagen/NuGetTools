@@ -2,10 +2,5 @@
   "dependencies": {},
   "frameworks": {
     "net46": {}
-  },
-  "scripts": {
-    "precompile": [
-      "dotnet run -p %project:Directory%/../../build/NuGetTools.Build/project.json -- assemblyInfo --baseDirectory %project:Directory%/../.."
-    ]
   }
 }
