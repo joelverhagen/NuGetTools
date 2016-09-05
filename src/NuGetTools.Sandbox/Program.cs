@@ -7,7 +7,10 @@ namespace Knapcode.NuGetTools.Sandbox
         public static void Main(string[] args)
         {
             var enumerator = new FrameworkEnumerator();
-            foreach (var framework in enumerator.Enumerate(FrameworkEnumeratorOptions.All))
+            var enumerated = enumerator.Enumerate(FrameworkEnumerationOptions.All);
+            var expanded = enumerator.Expand(enumerated, FrameworkExpansionOptions.All);
+
+            foreach (var framework in expanded)
             {
                 Console.WriteLine(framework);
             }

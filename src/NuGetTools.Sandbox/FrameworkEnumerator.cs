@@ -1,20 +1,57 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using NuGet.Frameworks;
 
 namespace Knapcode.NuGetTools.Sandbox
 {
     public class FrameworkEnumerator
     {
-        public IEnumerable<string> Enumerate(FrameworkEnumeratorOptions options)
+        public IEnumerable<FrameworkData> Expand(IEnumerable<FrameworkData> frameworks, FrameworkExpansionOptions options)
+        {
+            var existing = new HashSet<FrameworkData>();
+
+            foreach (var frameworkData in frameworks)
+            {
+                var originalAdded = AddFramework(existing, frameworkData);
+                if (originalAdded != null)
+                {
+                    yield return originalAdded;
+                }
+
+                if (options.HasFlag(FrameworkExpansionOptions.RoundTripDotNetFrameworkName))
+                {
+                    foreach (var added in ExpandByRoundTrippingDotNetFrameworkName(existing, frameworkData))
+                    {
+                        yield return added;
+                    }
+                }
+
+                if (options.HasFlag(FrameworkExpansionOptions.RoundTripShortFolderName))
+                {
+                    foreach (var added in ExpandByRoundTrippingShortFolderName(existing, frameworkData))
+                    {
+                        yield return added;
+                    }
+                }
+
+                if (options.HasFlag(FrameworkExpansionOptions.FrameworkExpander))
+                {
+                    var expander = new FrameworkExpander();
+
+                    foreach (var added in ExpandByUsingFrameworkExpander(existing, frameworkData, expander))
+                    {
+                        yield return added;
+                    }
+                }
+            }
+        }
+
+        public IEnumerable<FrameworkData> Enumerate(FrameworkEnumerationOptions options)
         {
             var existing = new HashSet<FrameworkData>();
             
-            if (options.HasFlag(FrameworkEnumeratorOptions.FrameworkNameProvider))
+            if (options.HasFlag(FrameworkEnumerationOptions.FrameworkNameProvider))
             {
                 foreach (var added in AddDefaultFrameworkNameProvider(existing))
                 {
@@ -22,7 +59,7 @@ namespace Knapcode.NuGetTools.Sandbox
                 }
             }
 
-            if (options.HasFlag(FrameworkEnumeratorOptions.CommonFrameworks))
+            if (options.HasFlag(FrameworkEnumerationOptions.CommonFrameworks))
             {
                 foreach (var added in AddCommonFrameworks(existing))
                 {
@@ -30,7 +67,7 @@ namespace Knapcode.NuGetTools.Sandbox
                 }
             }
 
-            if (options.HasFlag(FrameworkEnumeratorOptions.FrameworkMappings))
+            if (options.HasFlag(FrameworkEnumerationOptions.FrameworkMappings))
             {
                 foreach (var added in AddDefaultFrameworkMappings(existing))
                 {
@@ -38,7 +75,7 @@ namespace Knapcode.NuGetTools.Sandbox
                 }
             }
 
-            if (options.HasFlag(FrameworkEnumeratorOptions.PortableFrameworkMappings))
+            if (options.HasFlag(FrameworkEnumerationOptions.PortableFrameworkMappings))
             {
                 foreach (var added in AddDefaultPortableFrameworkMappings(existing))
                 {
@@ -46,40 +83,16 @@ namespace Knapcode.NuGetTools.Sandbox
                 }
             }
 
-            if (options.HasFlag(FrameworkEnumeratorOptions.SpecialFrameworks))
+            if (options.HasFlag(FrameworkEnumerationOptions.SpecialFrameworks))
             {
                 foreach (var added in AddSpecialFrameworks(existing))
                 {
                     yield return added;
                 }
             }
-
-            if (options.HasFlag(FrameworkEnumeratorOptions.RoundTripDotNetFrameworkName))
-            {
-                foreach (var added in ExpandByRoundTrippingDotNetFrameworkName(existing))
-                {
-                    yield return added;
-                }
-            }
-
-            if (options.HasFlag(FrameworkEnumeratorOptions.RoundTripShortFolderName))
-            {
-                foreach (var added in ExpandByRoundTrippingShortFolderName(existing))
-                {
-                    yield return added;
-                }
-            }
-
-            if (options.HasFlag(FrameworkEnumeratorOptions.FrameworkExpander))
-            {
-                foreach (var added in ExpandByUsingFrameworkExpander(existing))
-                {
-                    yield return added;
-                }
-            }
         }
 
-        private IEnumerable<string> AddSpecialFrameworks(HashSet<FrameworkData> existing)
+        private IEnumerable<FrameworkData> AddSpecialFrameworks(HashSet<FrameworkData> existing)
         {
             var specialFrameworks = new[]
                 {
@@ -92,7 +105,7 @@ namespace Knapcode.NuGetTools.Sandbox
             return AddFrameworks(existing, specialFrameworks);
         }
 
-        private static IEnumerable<string> AddDefaultFrameworkNameProvider(HashSet<FrameworkData> existing)
+        private static IEnumerable<FrameworkData> AddDefaultFrameworkNameProvider(HashSet<FrameworkData> existing)
         {
             var frameworkNameProvider = DefaultFrameworkNameProvider.Instance;
 
@@ -103,7 +116,7 @@ namespace Knapcode.NuGetTools.Sandbox
             return AddFrameworks(existing, compatibilityCandidates);
         }
 
-        private static IEnumerable<string> AddDefaultPortableFrameworkMappings(HashSet<FrameworkData> existing)
+        private static IEnumerable<FrameworkData> AddDefaultPortableFrameworkMappings(HashSet<FrameworkData> existing)
         {
             var portableFrameworkMappings = DefaultPortableFrameworkMappings.Instance;
 
@@ -168,7 +181,7 @@ namespace Knapcode.NuGetTools.Sandbox
             }
         }
 
-        private static IEnumerable<string> AddDefaultFrameworkMappings(HashSet<FrameworkData> existing)
+        private static IEnumerable<FrameworkData> AddDefaultFrameworkMappings(HashSet<FrameworkData> existing)
         {
             var frameworkMappings = DefaultFrameworkMappings.Instance;
 
@@ -219,7 +232,7 @@ namespace Knapcode.NuGetTools.Sandbox
             }
         }
 
-        private static IEnumerable<string> AddCommonFrameworks(HashSet<FrameworkData> existing)
+        private static IEnumerable<FrameworkData> AddCommonFrameworks(HashSet<FrameworkData> existing)
         {
             var commonFrameworksType = typeof(FrameworkConstants.CommonFrameworks);
 
@@ -233,51 +246,41 @@ namespace Knapcode.NuGetTools.Sandbox
             return AddFrameworks(existing, commonFrameworks);
         }
 
-        private static IEnumerable<string> ExpandByRoundTrippingShortFolderName(HashSet<FrameworkData> existing)
+        private static IEnumerable<FrameworkData> ExpandByRoundTrippingShortFolderName(HashSet<FrameworkData> existing, FrameworkData frameworkData)
         {
-            foreach (var frameworkData in existing.ToList())
-            {
-                var shortFolderName = frameworkData.NuGetFramework.GetShortFolderName();
-                var roundTrip = new FrameworkData(NuGetFramework.ParseFolder(shortFolderName));
+            var shortFolderName = frameworkData.NuGetFramework.GetShortFolderName();
+            var roundTrip = new FrameworkData(NuGetFramework.ParseFolder(shortFolderName));
 
-                var added = AddFramework(existing, roundTrip);
-                if (added != null)
-                {
-                    yield return added;
-                }
+            var added = AddFramework(existing, roundTrip);
+            if (added != null)
+            {
+                yield return added;
             }
         }
 
-        private static IEnumerable<string> ExpandByRoundTrippingDotNetFrameworkName(HashSet<FrameworkData> existing)
+        private static IEnumerable<FrameworkData> ExpandByRoundTrippingDotNetFrameworkName(HashSet<FrameworkData> existing, FrameworkData frameworkData)
         {
-            foreach (var frameworkData in existing.ToList())
-            {
-                var dotNetFrameworkName = frameworkData.NuGetFramework.DotNetFrameworkName;
-                var roundTrip = new FrameworkData(NuGetFramework.Parse(dotNetFrameworkName));
+            var dotNetFrameworkName = frameworkData.NuGetFramework.DotNetFrameworkName;
+            var roundTrip = new FrameworkData(NuGetFramework.Parse(dotNetFrameworkName));
 
-                var added = AddFramework(existing, roundTrip);
-                if (added != null)
-                {
-                    yield return added;
-                }
+            var added = AddFramework(existing, roundTrip);
+            if (added != null)
+            {
+                yield return added;
             }
         }
 
-        private static IEnumerable<string> ExpandByUsingFrameworkExpander(HashSet<FrameworkData> existing)
+        private static IEnumerable<FrameworkData> ExpandByUsingFrameworkExpander(HashSet<FrameworkData> existing, FrameworkData frameworkData, FrameworkExpander expander)
         {
-            var frameworkExpander = new FrameworkExpander();
-            foreach (var frameworkData in existing.ToList())
-            {
-                var expanded = frameworkExpander
-                    .Expand(frameworkData.NuGetFramework)
-                    .Select(x => new FrameworkData(x));
+            var expanded = expander
+                .Expand(frameworkData.NuGetFramework)
+                .Select(x => new FrameworkData(x));
 
-                if (expanded.Any())
+            if (expanded.Any())
+            {
+                foreach (var added in AddFrameworks(existing, expanded))
                 {
-                    foreach (var added in AddFrameworks(existing, expanded))
-                    {
-                        yield return added;
-                    }
+                    yield return added;
                 }
             }
         }
@@ -290,7 +293,7 @@ namespace Knapcode.NuGetTools.Sandbox
                 FrameworkNameHelpers.GetPortableProfileNumberString(profileNumber));
         }
 
-        private static IEnumerable<string> AddFrameworks(HashSet<FrameworkData> existing, IEnumerable<FrameworkData> toAdd)
+        private static IEnumerable<FrameworkData> AddFrameworks(HashSet<FrameworkData> existing, IEnumerable<FrameworkData> toAdd)
         {
             foreach (var frameworkData in toAdd)
             {
@@ -302,7 +305,7 @@ namespace Knapcode.NuGetTools.Sandbox
             }
         }
 
-        private static string AddFramework(HashSet<FrameworkData> existing, FrameworkData frameworkData)
+        private static FrameworkData AddFramework(HashSet<FrameworkData> existing, FrameworkData frameworkData)
         {
             if (frameworkData.Version == FrameworkConstants.MaxVersion)
             {
@@ -314,99 +317,7 @@ namespace Knapcode.NuGetTools.Sandbox
                 return null;
             }
 
-            return frameworkData.ToString();
-        }
-
-        private class FrameworkData : IEquatable<FrameworkData>, IComparable<FrameworkData>
-        {
-            public FrameworkData(NuGetFramework framework)
-            {
-                Framework = framework.Framework;
-                Version = framework.Version;
-                Profile = framework.Profile;
-                NuGetFramework = new NuGetFramework(Framework, Version, Profile);
-            }
-
-            public string Framework { get; }
-            public Version Version { get; }
-            public string Profile { get; }
-            public NuGetFramework NuGetFramework { get; }
-
-            public override string ToString()
-            {
-                if (string.IsNullOrEmpty(Profile))
-                {
-                    return $"{Framework},Version=v{GetDisplayVersion(Version)}";
-                }
-                else
-                {
-                    return $"{Framework},Version=v{GetDisplayVersion(Version)},Profile={Profile}";
-                }
-            }
-
-            public override bool Equals(object obj)
-            {
-                return Equals(obj as FrameworkData);
-            }
-
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    var hash = 27;
-                    hash = (13 * hash) + StringComparer.OrdinalIgnoreCase.GetHashCode(Framework);
-                    hash = (13 * hash) + Version.GetHashCode();
-                    hash = (13 * hash) + StringComparer.OrdinalIgnoreCase.GetHashCode(Profile);
-                    return hash;
-                }
-            }
-
-            public bool Equals(FrameworkData other)
-            {
-                if (other == null)
-                {
-                    return false;
-                }
-
-                return StringComparer.OrdinalIgnoreCase.Equals(Framework, other.Framework) &&
-                       Version == other.Version &&
-                       StringComparer.OrdinalIgnoreCase.Equals(Profile, other.Profile);
-            }
-
-            public int CompareTo(FrameworkData other)
-            {
-                var frameworkCompare = StringComparer.OrdinalIgnoreCase.Compare(Framework, other.Framework);
-                if (frameworkCompare != 0)
-                {
-                    return frameworkCompare;
-                }
-
-                var versionCompare = Version.CompareTo(other.Version);
-                if (versionCompare != 0)
-                {
-                    return frameworkCompare;
-                }
-
-                return Profile.CompareTo(other.Profile);
-            }
-
-            private static string GetDisplayVersion(Version version)
-            {
-                var sb = new StringBuilder(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", version.Major, version.Minor));
-
-                if (version.Build > 0
-                    || version.Revision > 0)
-                {
-                    sb.AppendFormat(CultureInfo.InvariantCulture, ".{0}", version.Build);
-
-                    if (version.Revision > 0)
-                    {
-                        sb.AppendFormat(CultureInfo.InvariantCulture, ".{0}", version.Revision);
-                    }
-                }
-
-                return sb.ToString();
-            }
+            return frameworkData;
         }
     }
 }
