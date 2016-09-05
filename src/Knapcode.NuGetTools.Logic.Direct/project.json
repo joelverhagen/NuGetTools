@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "NuGetTools.Logic": {
+    "Knapcode.NuGetTools.Logic": {
       "target": "project"
     },
     "NuGet.PackageManagement": "3.5.0-rc1-final"

@@ -67,7 +67,7 @@ Trace-Information "Restoring projects..."
 Show-ErrorExitCode
 
 Trace-Information "Generating assembly info..."
-& $dotnet run -p (Get-BuildProject -Name "NuGetTools.Build") -- assemblyInfo --baseDirectory $root
+& $dotnet run -p (Get-BuildProject -Name "Knapcode.NuGetTools.Build") -- assemblyInfo --baseDirectory $root
 Show-ErrorExitCode
 
 Trace-Information "Building..."
@@ -79,7 +79,7 @@ foreach ($projectToBuild in $projectsToBuild)
 }
 
 Trace-Information "Downloading NuGet packages for the website..."
-& $dotnet run -p (Get-SrcProject -Name "NuGetTools.PackageDownloader") -- (Join-Path (Get-SrcDir -Name "NuGetTools.Website") "packages")
+& $dotnet run -p (Get-SrcProject -Name "Knapcode.NuGetTools.PackageDownloader") -- (Join-Path (Get-SrcDir -Name "Knapcode.NuGetTools.Website") "packages")
 Show-ErrorExitCode
 
 Trace-Information "Testing..."
@@ -91,7 +91,7 @@ foreach ($projectToTest in $projectsToTest)
 }
 
 Trace-Information "Publishing the website..."
-& $dotnet publish (Get-SrcProject -Name "NuGetTools.Website")
+& $dotnet publish (Get-SrcProject -Name "Knapcode.NuGetTools.Website")
 Show-ErrorExitCode
 
 Trace-Information "Build complete."

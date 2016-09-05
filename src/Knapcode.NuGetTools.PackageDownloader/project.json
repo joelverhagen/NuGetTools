@@ -5,7 +5,7 @@
 
   "dependencies": {
     "Microsoft.Extensions.CommandLineUtils": "1.0.0",
-    "NuGetTools.Logic.Direct": {
+    "Knapcode.NuGetTools.Logic.Direct": {
       "target": "project"
     }
   },

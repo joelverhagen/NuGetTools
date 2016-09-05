@@ -1,9 +1,9 @@
 ﻿{
   "dependencies": {
-    "NuGetTools.Website": {
+    "Knapcode.NuGetTools.Website": {
       "target": "project"
     },
-    "NuGetTools.Logic.Direct": {
+    "Knapcode.NuGetTools.Logic.Direct": {
       "target": "project"
     },
     "xunit": "2.1.0",

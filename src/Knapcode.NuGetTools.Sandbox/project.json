@@ -4,10 +4,10 @@
   },
 
   "dependencies": {
-    "NuGetTools.Logic": {
+    "Knapcode.NuGetTools.Logic": {
       "target": "project"
     },
-    "NuGetTools.Logic.Direct": {
+    "Knapcode.NuGetTools.Logic.Direct": {
       "target": "project"
     }
   },
