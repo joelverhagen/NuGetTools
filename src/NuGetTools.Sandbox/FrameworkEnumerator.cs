@@ -46,6 +46,14 @@ namespace Knapcode.NuGetTools.Sandbox
                 }
             }
 
+            if (options.HasFlag(FrameworkEnumeratorOptions.SpecialFrameworks))
+            {
+                foreach (var added in AddSpecialFrameworks(existing))
+                {
+                    yield return added;
+                }
+            }
+
             if (options.HasFlag(FrameworkEnumeratorOptions.RoundTripDotNetFrameworkName))
             {
                 foreach (var added in ExpandByRoundTrippingDotNetFrameworkName(existing))
@@ -69,6 +77,19 @@ namespace Knapcode.NuGetTools.Sandbox
                     yield return added;
                 }
             }
+        }
+
+        private IEnumerable<string> AddSpecialFrameworks(HashSet<FrameworkData> existing)
+        {
+            var specialFrameworks = new[]
+                {
+                    NuGetFramework.AgnosticFramework,
+                    NuGetFramework.AnyFramework,
+                    NuGetFramework.UnsupportedFramework
+                }
+                .Select(x => new FrameworkData(x));
+
+            return AddFrameworks(existing, specialFrameworks);
         }
 
         private static IEnumerable<string> AddDefaultFrameworkNameProvider(HashSet<FrameworkData> existing)
