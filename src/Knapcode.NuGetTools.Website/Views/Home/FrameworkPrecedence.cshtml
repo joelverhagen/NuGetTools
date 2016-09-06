@@ -1,0 +1,64 @@
+﻿@model SelectedVersionOutput<FrameworkPrecedenceOutput>
+@{
+    ViewData["Title"] = "Framework Precedence";
+    var output = Model.Output;
+}
+
+<h1>Framework Precedence</h1>
+<p>
+    If multiple sets of assets are available in a package (under different frameworks), NuGet must choose between
+    these frameworks. Enter a project framework to see the order of precendence of possible package frameworks. Note
+    that this list is not exhaustive.
+</p>
+
+<form method="GET" action="">
+    <div class="form-group">
+        <label for="project">Project Framework</label>
+        <input type="text" class="form-control" name="framework" id="framework"
+               placeholder="net45" value="@output.Input.Framework">
+    </div>
+    <button type="submit" class="btn btn-default">Submit</button>
+</form>
+
+<div class="results">
+    @if (output.InputStatus == InputStatus.Valid)
+    {
+        if (!output.Precedence.Any())
+        {
+            <div class="alert alert-warning" role="alert">
+                The <code>@output.Framework.DotNetFrameworkName</code> (<b>@output.Input.Framework</b>) project framework does not have any well known compatible package frameworks.
+            </div>
+        }
+        else
+        {
+            <p>
+                The <code>@output.Framework.DotNetFrameworkName</code> (<b>@output.Input.Framework</b>) project framework has the following package framework precedence list.
+            </p>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>.NET Framework Name</th>
+                        <th>Short Folder Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (var i = 0; i < output.Precedence.Count; i++)
+                    {
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td><code>@output.Precedence[i].DotNetFrameworkName</code></td>
+                            <td><code>@output.Precedence[i].ShortFolderName</code></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    }
+    else if (@output.InputStatus == InputStatus.Invalid)
+    {
+        <div class="alert alert-danger" role="alert">
+            Project framework <b>@output.Input.Framework</b> could not be parsed.
+        </div>
+    }
+</div>

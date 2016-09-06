@@ -54,10 +54,12 @@ namespace Knapcode.NuGetTools.Website
                 return nuGetSettings;
             });
 
+            services.AddTransient<IAlignedVersionsDownloader, AlignedVersionsDownloader>();
             services.AddTransient<IAssemblyLoader, AssemblyLoader>();
+            services.AddTransient<IFrameworkEnumerator<Framework>, FrameworkEnumerator>();
+            services.AddTransient<IFrameworkList, FrameworkList<Framework>>();
             services.AddTransient<IPackageLoader, PackageLoader>();
             services.AddTransient<IPackageRangeDownloader, PackageRangeDownloader>();
-            services.AddTransient<IAlignedVersionsDownloader, AlignedVersionsDownloader>();
 
             services.AddSingleton<IToolsFactory, ToolsFactory>();
 
@@ -91,6 +93,14 @@ namespace Knapcode.NuGetTools.Website
                         serviceProvider.GetRequiredService<IFrameworkLogic<Framework>>(),
                         serviceProvider.GetRequiredService<IVersionLogic<Version>>(),
                         serviceProvider.GetRequiredService<IVersionRangeLogic<Version, VersionRange>>());
+                });
+
+                services.AddTransient<IFrameworkPrecedenceService>(serviceProvider =>
+                {
+                    return new FrameworkPrecedenceService<Framework>(
+                        ClientVersionUtility.GetNuGetAssemblyVersion(),
+                        serviceProvider.GetRequiredService<IFrameworkList>(),
+                        serviceProvider.GetRequiredService<IFrameworkLogic<Framework>>());
                 });
 
                 services.AddSingleton<IToolsFactory, SingletonToolsFactory>();

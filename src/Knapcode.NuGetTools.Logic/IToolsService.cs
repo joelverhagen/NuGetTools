@@ -5,7 +5,7 @@ using Knapcode.NuGetTools.Logic.Models.VersionRange;
 
 namespace Knapcode.NuGetTools.Logic
 {
-    public interface IToolsService
+    public interface IToolsService : IVersionedService
     {
         FrameworkCompatibilityOutput FrameworkCompatibility(FrameworkCompatibilityInput input);
         GetNearestFrameworkOutput GetNearestFramework(GetNearestFrameworkInput input);
@@ -15,6 +15,5 @@ namespace Knapcode.NuGetTools.Logic
         VersionComparisonOutput VersionComparison(VersionComparisonInput input);
         VersionSatisfiesOutput VersionSatisfies(VersionSatisfiesInput input);
         FindBestVersionMatchOutput FindBestVersionMatch(FindBestVersionMatchInput input);
-        string Version { get; }
     }
 }

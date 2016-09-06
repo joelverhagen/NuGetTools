@@ -230,7 +230,7 @@ namespace Knapcode.NuGetTools.Website
         }
 
         [HttpGet("/{version}/find-best-version-match")]
-        public async Task<IActionResult> FindBestVersionmatch([FromRoute]string version, [FromQuery]FindBestVersionMatchInput input, CancellationToken token)
+        public async Task<IActionResult> FindBestVersionMatch([FromRoute]string version, [FromQuery]FindBestVersionMatchInput input, CancellationToken token)
         {
             var redirect = GetVersionRedirect();
             if (redirect != null)
@@ -250,14 +250,39 @@ namespace Knapcode.NuGetTools.Website
             return View(versionedOutput);
         }
 
-        private async Task<SelectedVersionOutput> GetSelectedVersionOutputAsync(IToolsService toolsService, CancellationToken token)
+        [HttpGet("/{version}/framework-precedence")]
+        public async Task<IActionResult> FrameworkPrecedence([FromRoute]string version, [FromQuery]FrameworkPrecedenceInput input, CancellationToken token)
         {
-            return await GetSelectedVersionOutputAsync(toolsService, (object)null, token);
+            var redirect = GetVersionRedirect();
+            if (redirect != null)
+            {
+                return redirect;
+            }
+
+            var service = await _toolsFactory.GetFrameworkPrecedenceServiceAsync(version, token);
+            if (service == null)
+            {
+                return NotFound();
+            }
+
+            var output = service.FrameworkPrecedence(input);
+            var versionedOutput = await GetSelectedVersionOutputAsync(service, output, token);
+
+            return View(versionedOutput);
         }
 
-        private async Task<SelectedVersionOutput<T>> GetSelectedVersionOutputAsync<T>(IToolsService toolsService, T value, CancellationToken token)
+        private async Task<SelectedVersionOutput> GetSelectedVersionOutputAsync(IVersionedService service, CancellationToken token)
         {
-            var currentVersion = toolsService.Version;
+            return await GetSelectedVersionOutputAsync(service.Version, (object)null, token);
+        }
+
+        private async Task<SelectedVersionOutput<T>> GetSelectedVersionOutputAsync<T>(IVersionedService service, T value, CancellationToken token)
+        {
+            return await GetSelectedVersionOutputAsync(service.Version, value, token);
+        }
+
+        private async Task<SelectedVersionOutput<T>> GetSelectedVersionOutputAsync<T>(string currentVersion, T value, CancellationToken token)
+        {
             var availableVersions = await _toolsFactory.GetAvailableVersionsAsync(token);
             var versionUrls = GetVersionUrls(availableVersions);
 

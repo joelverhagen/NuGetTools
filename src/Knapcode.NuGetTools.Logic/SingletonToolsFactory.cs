@@ -8,11 +8,13 @@ namespace Knapcode.NuGetTools.Logic
     {
         private readonly string _version;
         private readonly IToolsService _toolsService;
+        private readonly IFrameworkPrecedenceService _frameworkPrecendenceService;
 
-        public SingletonToolsFactory(IToolsService toolsService)
+        public SingletonToolsFactory(IToolsService toolsService, IFrameworkPrecedenceService frameworkPrecendenceService)
         {
             _version = toolsService.Version;
             _toolsService = toolsService;
+            _frameworkPrecendenceService = frameworkPrecendenceService;
         }
 
         public IEnumerable<string> GetAvailableVersions()
@@ -44,6 +46,18 @@ namespace Knapcode.NuGetTools.Logic
             if (version == _version)
             {
                 output = _toolsService;
+            }
+
+            return Task.FromResult(output);
+        }
+
+        public Task<IFrameworkPrecedenceService> GetFrameworkPrecedenceServiceAsync(string version, CancellationToken token)
+        {
+            IFrameworkPrecedenceService output = null;
+
+            if (version == _version)
+            {
+                output = _frameworkPrecendenceService;
             }
 
             return Task.FromResult(output);

@@ -21,16 +21,25 @@ namespace Knapcode.NuGetTools.Logic.Direct
 
         private readonly IAlignedVersionsDownloader _downloader;
         private readonly IPackageLoader _packageLoader;
+        private readonly IFrameworkList _frameworkList;
 
         private readonly Lazy<Task<List<NuGetVersion>>> _versions;
         private readonly Lazy<Task<List<string>>> _versionStrings;
-        private readonly ConcurrentDictionary<string, Task<IToolsService>> _services
+
+        private readonly ConcurrentDictionary<string, Task<Logic>> _logic
+            = new ConcurrentDictionary<string, Task<Logic>>();
+
+        private readonly ConcurrentDictionary<string, Task<IToolsService>> _toolServices
             = new ConcurrentDictionary<string, Task<IToolsService>>();
 
-        public ToolsFactory(IPackageLoader packageLoader, IAlignedVersionsDownloader downloader)
+        private readonly ConcurrentDictionary<string, Task<IFrameworkPrecedenceService>> _frameworkPrecendenceServices
+            = new ConcurrentDictionary<string, Task<IFrameworkPrecedenceService>>();
+        
+        public ToolsFactory(IPackageLoader packageLoader, IAlignedVersionsDownloader downloader, IFrameworkList frameworkList)
         {
             _packageLoader = packageLoader;
             _downloader = downloader;
+            _frameworkList = frameworkList;
 
             _versions = new Lazy<Task<List<NuGetVersion>>>(async () =>
             {
@@ -66,10 +75,39 @@ namespace Knapcode.NuGetTools.Logic.Direct
 
         public async Task<IToolsService> GetServiceAsync(string version, CancellationToken token)
         {
-            return await _services.GetOrAdd(version, GetServiceWithoutCachingAsync);
+            return await _toolServices.GetOrAdd(
+                version,
+                async key =>
+                {
+                    var logic = await GetLogic(key);
+                    return new ToolsService<Framework, Version, VersionRange>(
+                        key,
+                        logic.Framework,
+                        logic.Version,
+                        logic.VersionRange);
+                });
         }
 
-        private async Task<IToolsService> GetServiceWithoutCachingAsync(string version)
+        public async Task<IFrameworkPrecedenceService> GetFrameworkPrecedenceServiceAsync(string version, CancellationToken token)
+        {
+            return await _frameworkPrecendenceServices.GetOrAdd(
+                version,
+                async key =>
+                {
+                    var logic = await GetLogic(key);
+                    return new FrameworkPrecedenceService<Framework>(
+                        key,
+                        _frameworkList,
+                        logic.Framework);
+                });
+        }
+
+        private async Task<Logic> GetLogic(string version)
+        {
+            return await _logic.GetOrAdd(version, GetLogicWithoutCachingAsync);
+        }
+
+        private async Task<Logic> GetLogicWithoutCachingAsync(string version)
         {
             // Find the matching version.
             var versions = await _versions.Value;
@@ -102,14 +140,19 @@ namespace Knapcode.NuGetTools.Logic.Direct
             var versionLogic = context.Proxy.GetVersionLogic(versioningAssemblyName);
             var versionRangeLogic = context.Proxy.GetVersionRangeLogic(versioningAssemblyName);
 
-            // Initialize the tools service.
-            var toolsService = new ToolsService<Framework, Version, VersionRange>(
-                version,
-                frameworkLogic,
-                versionLogic,
-                versionRangeLogic);
+            return new Logic
+            {
+                Framework = frameworkLogic,
+                Version = versionLogic,
+                VersionRange = versionRangeLogic
+            };
+        }
 
-            return toolsService;
+        private class Logic
+        {
+            public FrameworkLogic Framework { get; set; }
+            public VersionLogic Version { get; set; }
+            public VersionRangeLogic VersionRange { get; set; }
         }
     }
 }
