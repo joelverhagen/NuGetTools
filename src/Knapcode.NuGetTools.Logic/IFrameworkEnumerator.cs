@@ -5,7 +5,7 @@ namespace Knapcode.NuGetTools.Logic
 {
     public interface IFrameworkEnumerator<TFramework> where TFramework : IFramework
     {
-        IEnumerable<FrameworkData<TFramework>> Enumerate(FrameworkEnumerationOptions options);
-        IEnumerable<FrameworkData<TFramework>> Expand(IEnumerable<FrameworkData<TFramework>> frameworks, FrameworkExpansionOptions options);
+        IEnumerable<FrameworkEnumeratorData<TFramework>> Enumerate(FrameworkEnumerationOptions options);
+        IEnumerable<FrameworkEnumeratorData<TFramework>> Expand(IEnumerable<FrameworkEnumeratorData<TFramework>> frameworks, FrameworkExpansionOptions options);
     }
 }

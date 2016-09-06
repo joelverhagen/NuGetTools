@@ -5,10 +5,10 @@ using Knapcode.NuGetTools.Logic.Wrappers;
 
 namespace Knapcode.NuGetTools.Logic
 {
-    public class FrameworkData<TFramework> : IEquatable<FrameworkData<TFramework>>, IComparable<FrameworkData<TFramework>>
+    public class FrameworkEnumeratorData<TFramework> : IEquatable<FrameworkEnumeratorData<TFramework>>, IComparable<FrameworkEnumeratorData<TFramework>>
         where TFramework : IFramework
     {
-        public FrameworkData(TFramework framework)
+        public FrameworkEnumeratorData(TFramework framework)
         {
             Identifier = framework.Identifier;
             Version = framework.Version;
@@ -35,7 +35,7 @@ namespace Knapcode.NuGetTools.Logic
 
         public override bool Equals(object obj)
         {
-            return Equals(obj as FrameworkData<TFramework>);
+            return Equals(obj as FrameworkEnumeratorData<TFramework>);
         }
 
         public override int GetHashCode()
@@ -50,7 +50,7 @@ namespace Knapcode.NuGetTools.Logic
             }
         }
 
-        public bool Equals(FrameworkData<TFramework> other)
+        public bool Equals(FrameworkEnumeratorData<TFramework> other)
         {
             if (other == null)
             {
@@ -62,7 +62,7 @@ namespace Knapcode.NuGetTools.Logic
                    StringComparer.OrdinalIgnoreCase.Equals(Profile, other.Profile);
         }
 
-        public int CompareTo(FrameworkData<TFramework> other)
+        public int CompareTo(FrameworkEnumeratorData<TFramework> other)
         {
             var frameworkCompare = StringComparer.OrdinalIgnoreCase.Compare(Identifier, other.Identifier);
             if (frameworkCompare != 0)

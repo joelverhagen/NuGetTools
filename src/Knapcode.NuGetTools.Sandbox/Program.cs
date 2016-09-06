@@ -1,6 +1,7 @@
 ﻿using System;
 using Knapcode.NuGetTools.Logic;
 using Knapcode.NuGetTools.Logic.Direct;
+using Knapcode.NuGetTools.Logic.Direct.Wrappers;
 
 namespace Knapcode.NuGetTools.Sandbox
 {
@@ -9,12 +10,11 @@ namespace Knapcode.NuGetTools.Sandbox
         public static void Main(string[] args)
         {
             var enumerator = new FrameworkEnumerator();
-            var enumerated = enumerator.Enumerate(FrameworkEnumerationOptions.All);
-            var expanded = enumerator.Expand(enumerated, FrameworkExpansionOptions.All);
-
-            foreach (var framework in expanded)
+            var frameworkList = new FrameworkList<Framework>(enumerator);
+            
+            foreach (var dotNetFrameworkName in frameworkList.DotNetFrameworkNames)
             {
-                Console.WriteLine(framework);
+                Console.WriteLine(dotNetFrameworkName);
             }
         }
     }
