@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NuGet.Common;
 using Version = Knapcode.NuGetTools.Logic.Direct.Wrappers.Version;
 
 namespace Knapcode.NuGetTools.Website
@@ -86,10 +85,13 @@ namespace Knapcode.NuGetTools.Website
                 services.AddTransient<IVersionLogic<Version>, VersionLogic>();
                 services.AddTransient<IVersionRangeLogic<Version, VersionRange>, VersionRangeLogic>();
 
+                // TODO: determine this by reading the .deps.json file.
+                var clientVersion = "3.5.0-rc1-final";
+
                 services.AddTransient<IToolsService>(serviceProvider =>
                 {
                     return new ToolsService<Framework, Version, VersionRange>(
-                        ClientVersionUtility.GetNuGetAssemblyVersion(),
+                        clientVersion,
                         serviceProvider.GetRequiredService<IFrameworkLogic<Framework>>(),
                         serviceProvider.GetRequiredService<IVersionLogic<Version>>(),
                         serviceProvider.GetRequiredService<IVersionRangeLogic<Version, VersionRange>>());
@@ -98,7 +100,7 @@ namespace Knapcode.NuGetTools.Website
                 services.AddTransient<IFrameworkPrecedenceService>(serviceProvider =>
                 {
                     return new FrameworkPrecedenceService<Framework>(
-                        ClientVersionUtility.GetNuGetAssemblyVersion(),
+                        clientVersion,
                         serviceProvider.GetRequiredService<IFrameworkList>(),
                         serviceProvider.GetRequiredService<IFrameworkLogic<Framework>>());
                 });
