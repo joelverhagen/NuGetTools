@@ -50,30 +50,76 @@ namespace Knapcode.NuGetTools.Logic
 
             if (output.InputStatus == InputStatus.Valid)
             {
-                output.Precedence = GetPrecendence(framework);
+                output.Precedence = GetPrecendence(output, framework);
             }
 
             return output;
         }
 
-        private IReadOnlyList<IFramework> GetPrecendence(TFramework framework)
+        private IReadOnlyList<IFramework> GetPrecendence(FrameworkPrecedenceOutput output, TFramework framework)
         {
-            // Narrow the list of frameworks down to those that are compatible.
-            var compatible = _parsedFrameworkList
-                .Value
-                .Where(x => _logic.IsCompatible(framework, x));
-            var remainingCompatible = new HashSet<TFramework>(compatible, new FrameworkEqualityComparer());
-            var precedence = new List<IFramework>();
+            // Get the initial set of candidates.
+            var remainingCandidates = new HashSet<TFramework>(
+                GetCandidates(output, framework),
+                new FrameworkEqualityComparer());
 
-            // Perform "get nearest" on the remaining set.
-            while (remainingCompatible.Count > 0)
+            // Perform "get nearest" on the remaining set to find the next in precedence.
+            var precedence = new List<IFramework>();
+            while (remainingCandidates.Count > 0)
             {
-                var nearest = _logic.GetNearest(framework, remainingCompatible);
+                var nearest = _logic.GetNearest(framework, remainingCandidates);
                 precedence.Add(nearest);
-                remainingCompatible.Remove(nearest);
+                remainingCandidates.Remove(nearest);
             }
 
             return precedence;
+        }
+
+        private IEnumerable<TFramework> GetCandidates(FrameworkPrecedenceOutput output, TFramework framework)
+        {
+            IEnumerable<TFramework> candidates = _parsedFrameworkList.Value;
+
+            if (!output.Input.IncludeProfiles)
+            {
+                candidates = candidates.Where(x => string.IsNullOrEmpty(x.Profile) || IsPortable(x));
+            }
+
+            if (output.Input.ExcludePortable)
+            {
+                candidates = candidates.Where(x => !IsPortable(x));
+            }
+
+            var excludedIdentifiers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (!string.IsNullOrWhiteSpace(output.Input.ExludedIdentifiers))
+            {
+                var split = output
+                    .Input
+                    .ExludedIdentifiers
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .Where(x => x.Length > 0)
+                    .ToList();
+
+                foreach (var identifier in split)
+                {
+                    excludedIdentifiers.Add(identifier);
+                }
+
+                if (excludedIdentifiers.Any())
+                {
+                    candidates = candidates.Where(x => !excludedIdentifiers.Contains(x.Identifier));
+                }
+            }
+
+            // Narrow the list of frameworks down to those that are compatible.
+            candidates = candidates.Where(x => _logic.IsCompatible(framework, x));
+
+            return candidates;
+        }
+
+        private static bool IsPortable(TFramework x)
+        {
+            return StringComparer.OrdinalIgnoreCase.Equals(".NETPortable", x.Identifier);
         }
 
         private IReadOnlyList<TFramework> GetFrameworkList()
