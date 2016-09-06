@@ -12,14 +12,12 @@ namespace Knapcode.NuGetTools.Logic
     {
         private readonly IFrameworkList _frameworkList;
         private readonly IFrameworkLogic<TFramework> _logic;
-        private readonly Lazy<IReadOnlyList<TFramework>> _parsedFrameworkList;
 
         public FrameworkPrecedenceService(string version, IFrameworkList frameworkList, IFrameworkLogic<TFramework> logic)
         {
             Version = version;
             _frameworkList = frameworkList;
             _logic = logic;
-            _parsedFrameworkList = new Lazy<IReadOnlyList<TFramework>>(GetFrameworkList);
         }
 
         public string Version { get; }
@@ -77,7 +75,7 @@ namespace Knapcode.NuGetTools.Logic
 
         private IEnumerable<TFramework> GetCandidates(FrameworkPrecedenceOutput output, TFramework framework)
         {
-            IEnumerable<TFramework> candidates = _parsedFrameworkList.Value;
+            IEnumerable<TFramework> candidates = GetFrameworkList();
 
             if (!output.Input.IncludeProfiles)
             {
