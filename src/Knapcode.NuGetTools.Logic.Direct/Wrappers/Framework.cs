@@ -13,5 +13,8 @@ namespace Knapcode.NuGetTools.Logic.Direct.Wrappers
         public NuGetFramework NuGetFramework { get; }
         public string DotNetFrameworkName => NuGetFramework.DotNetFrameworkName;
         public string ShortFolderName => NuGetFramework.GetShortFolderName();
+        public string Identifier => NuGetFramework.Framework;
+        public System.Version Version => NuGetFramework.Version;
+        public string Profile => NuGetFramework.Profile;
     }
 }

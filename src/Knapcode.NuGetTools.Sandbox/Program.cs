@@ -1,4 +1,6 @@
 ﻿using System;
+using Knapcode.NuGetTools.Logic;
+using Knapcode.NuGetTools.Logic.Direct;
 
 namespace Knapcode.NuGetTools.Sandbox
 {

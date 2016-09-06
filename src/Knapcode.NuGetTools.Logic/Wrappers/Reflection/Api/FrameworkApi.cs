@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
@@ -17,6 +16,9 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
         private readonly Type _nuGetFrameworkType;
         private readonly Type _nuGetFrameworkListType;
         private readonly MethodInfo _listAdd;
+        private readonly MethodInfo _getIdentifier;
+        private readonly MethodInfo _getVersion;
+        private readonly MethodInfo _getProfile;
 
         public FrameworkApi(AssemblyName assemblyName)
         {
@@ -34,6 +36,18 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
 
             _parse = _nuGetFrameworkType
                 .GetMethod("Parse", new[] { typeof(string) });
+
+            _getIdentifier = _nuGetFrameworkType
+                .GetProperty("Framework")
+                .GetGetMethod();
+
+            _getVersion = _nuGetFrameworkType
+                .GetProperty("Version")
+                .GetGetMethod();
+
+            _getProfile = _nuGetFrameworkType
+                .GetProperty("Profile")
+                .GetGetMethod();
 
             // List<NuGetFramework>
             var listType = typeof(List<>);
@@ -70,6 +84,21 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
         public string GetShortFolderName(object nuGetFramework)
         {
             return (string)_getShortFolderName.Invoke(nuGetFramework, new object[0]);
+        }
+
+        public string GetIdentifer(object nuGetFramework)
+        {
+            return (string)_getIdentifier.Invoke(nuGetFramework, new object[0]);
+        }
+
+        public System.Version GetVersion(object nuGetFramework)
+        {
+            return (System.Version)_getVersion.Invoke(nuGetFramework, new object[0]);
+        }
+
+        public string GetProfile(object nuGetFramework)
+        {
+            return (string)_getProfile.Invoke(nuGetFramework, new object[0]);
         }
 
         public object Parse(string input)

@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Knapcode.NuGetTools.Logic.Direct.Wrappers;
 using NuGet.Frameworks;
+using FrameworkData = Knapcode.NuGetTools.Logic.FrameworkData<Knapcode.NuGetTools.Logic.Direct.Wrappers.Framework>;
 
-namespace Knapcode.NuGetTools.Sandbox
+namespace Knapcode.NuGetTools.Logic.Direct
 {
-    public class FrameworkEnumerator
+    public class FrameworkEnumerator : IFrameworkEnumerator<Framework>
     {
         public IEnumerable<FrameworkData> Expand(IEnumerable<FrameworkData> frameworks, FrameworkExpansionOptions options)
         {
@@ -100,7 +102,7 @@ namespace Knapcode.NuGetTools.Sandbox
                     NuGetFramework.AnyFramework,
                     NuGetFramework.UnsupportedFramework
                 }
-                .Select(x => new FrameworkData(x));
+                .Select(GetFrameworkData);
 
             return AddFrameworks(existing, specialFrameworks);
         }
@@ -111,7 +113,7 @@ namespace Knapcode.NuGetTools.Sandbox
 
             var compatibilityCandidates = frameworkNameProvider
                 .GetCompatibleCandidates()
-                .Select(x => new FrameworkData(x));
+                .Select(GetFrameworkData);
 
             return AddFrameworks(existing, compatibilityCandidates);
         }
@@ -123,7 +125,7 @@ namespace Knapcode.NuGetTools.Sandbox
             var profileFrameworks = portableFrameworkMappings
                 .ProfileFrameworks
                 .SelectMany(x => x.Value)
-                .Select(x => new FrameworkData(x));
+                .Select(GetFrameworkData);
 
             foreach (var added in AddFrameworks(existing, profileFrameworks))
             {
@@ -133,7 +135,7 @@ namespace Knapcode.NuGetTools.Sandbox
             var profileFrameworksNumbers = portableFrameworkMappings
                 .ProfileFrameworks
                 .Select(x => GetPortableFramework(x.Key))
-                .Select(x => new FrameworkData(x));
+                .Select(GetFrameworkData);
 
             foreach (var added in AddFrameworks(existing, profileFrameworksNumbers))
             {
@@ -143,7 +145,7 @@ namespace Knapcode.NuGetTools.Sandbox
             var profileOptionalFrameworks = portableFrameworkMappings
                 .ProfileOptionalFrameworks
                 .SelectMany(x => x.Value)
-                .Select(x => new FrameworkData(x));
+                .Select(GetFrameworkData);
 
             foreach (var added in AddFrameworks(existing, profileOptionalFrameworks))
             {
@@ -153,7 +155,7 @@ namespace Knapcode.NuGetTools.Sandbox
             var profileOptionalFrameworksNumbers = portableFrameworkMappings
                 .ProfileOptionalFrameworks
                 .Select(x => GetPortableFramework(x.Key))
-                .Select(x => new FrameworkData(x));
+                .Select(GetFrameworkData);
 
             foreach (var added in AddFrameworks(existing, profileOptionalFrameworksNumbers))
             {
@@ -163,7 +165,7 @@ namespace Knapcode.NuGetTools.Sandbox
             var compatibilityMappings = portableFrameworkMappings
                 .CompatibilityMappings
                 .SelectMany(x => new[] { x.Value.Min, x.Value.Max })
-                .Select(x => new FrameworkData(x));
+                .Select(GetFrameworkData);
 
             foreach (var added in AddFrameworks(existing, compatibilityMappings))
             {
@@ -173,7 +175,7 @@ namespace Knapcode.NuGetTools.Sandbox
             var compatibilityMappingsNumbers = portableFrameworkMappings
                 .CompatibilityMappings
                 .Select(x => GetPortableFramework(x.Key))
-                .Select(x => new FrameworkData(x));
+                .Select(GetFrameworkData);
 
             foreach (var added in AddFrameworks(existing, compatibilityMappingsNumbers))
             {
@@ -188,7 +190,7 @@ namespace Knapcode.NuGetTools.Sandbox
             var equivalentFrameworks = frameworkMappings
                 .EquivalentFrameworks
                 .SelectMany(x => new[] { x.Key, x.Value })
-                .Select(x => new FrameworkData(x));
+                .Select(GetFrameworkData);
 
             foreach (var added in AddFrameworks(existing, equivalentFrameworks))
             {
@@ -197,14 +199,14 @@ namespace Knapcode.NuGetTools.Sandbox
 
             var compatibilityMappings = frameworkMappings
                 .CompatibilityMappings
-                .SelectMany(x => new[]
+                .SelectMany(x => (new[]
                 {
                         x.SupportedFrameworkRange.Min,
                         x.SupportedFrameworkRange.Max,
                         x.TargetFrameworkRange.Min,
                         x.TargetFrameworkRange.Max
-                })
-                .Select(x => new FrameworkData(x));
+                }))
+                .Select(GetFrameworkData);
 
             foreach (var added in AddFrameworks(existing, compatibilityMappings))
             {
@@ -214,7 +216,7 @@ namespace Knapcode.NuGetTools.Sandbox
             var shortNameReplacements = frameworkMappings
                 .ShortNameReplacements
                 .SelectMany(x => new[] { x.Key, x.Value })
-                .Select(x => new FrameworkData(x));
+                .Select(GetFrameworkData);
 
             foreach (var added in AddFrameworks(existing, shortNameReplacements))
             {
@@ -224,12 +226,17 @@ namespace Knapcode.NuGetTools.Sandbox
             var fullNameReplacements = frameworkMappings
                 .FullNameReplacements
                 .SelectMany(x => new[] { x.Key, x.Value })
-                .Select(x => new FrameworkData(x));
+                .Select(GetFrameworkData);
 
             foreach (var added in AddFrameworks(existing, fullNameReplacements))
             {
                 yield return added;
             }
+        }
+
+        private static FrameworkData<Framework> GetFrameworkData(NuGetFramework x)
+        {
+            return new FrameworkData(new Framework(x));
         }
 
         private static IEnumerable<FrameworkData> AddCommonFrameworks(HashSet<FrameworkData> existing)
@@ -241,15 +248,15 @@ namespace Knapcode.NuGetTools.Sandbox
                 .Where(x => x.FieldType == typeof(NuGetFramework))
                 .Select(x => x.GetValue(null))
                 .Cast<NuGetFramework>()
-                .Select(x => new FrameworkData(x));
+                .Select(GetFrameworkData);
 
             return AddFrameworks(existing, commonFrameworks);
         }
 
         private static IEnumerable<FrameworkData> ExpandByRoundTrippingShortFolderName(HashSet<FrameworkData> existing, FrameworkData frameworkData)
         {
-            var shortFolderName = frameworkData.NuGetFramework.GetShortFolderName();
-            var roundTrip = new FrameworkData(NuGetFramework.ParseFolder(shortFolderName));
+            var shortFolderName = frameworkData.Framework.NuGetFramework.GetShortFolderName();
+            var roundTrip = GetFrameworkData(NuGetFramework.ParseFolder(shortFolderName));
 
             var added = AddFramework(existing, roundTrip);
             if (added != null)
@@ -260,8 +267,8 @@ namespace Knapcode.NuGetTools.Sandbox
 
         private static IEnumerable<FrameworkData> ExpandByRoundTrippingDotNetFrameworkName(HashSet<FrameworkData> existing, FrameworkData frameworkData)
         {
-            var dotNetFrameworkName = frameworkData.NuGetFramework.DotNetFrameworkName;
-            var roundTrip = new FrameworkData(NuGetFramework.Parse(dotNetFrameworkName));
+            var dotNetFrameworkName = frameworkData.Framework.NuGetFramework.DotNetFrameworkName;
+            var roundTrip = GetFrameworkData(NuGetFramework.Parse(dotNetFrameworkName));
 
             var added = AddFramework(existing, roundTrip);
             if (added != null)
@@ -273,8 +280,8 @@ namespace Knapcode.NuGetTools.Sandbox
         private static IEnumerable<FrameworkData> ExpandByUsingFrameworkExpander(HashSet<FrameworkData> existing, FrameworkData frameworkData, FrameworkExpander expander)
         {
             var expanded = expander
-                .Expand(frameworkData.NuGetFramework)
-                .Select(x => new FrameworkData(x));
+                .Expand(frameworkData.Framework.NuGetFramework)
+                .Select(GetFrameworkData);
 
             if (expanded.Any())
             {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Knapcode.NuGetTools.Sandbox
+namespace Knapcode.NuGetTools.Logic
 {
     [Flags]
     public enum FrameworkEnumerationOptions

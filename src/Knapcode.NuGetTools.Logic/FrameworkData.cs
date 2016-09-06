@@ -1,40 +1,41 @@
 ﻿using System;
 using System.Globalization;
 using System.Text;
-using NuGet.Frameworks;
+using Knapcode.NuGetTools.Logic.Wrappers;
 
-namespace Knapcode.NuGetTools.Sandbox
+namespace Knapcode.NuGetTools.Logic
 {
-    public class FrameworkData : IEquatable<FrameworkData>, IComparable<FrameworkData>
+    public class FrameworkData<TFramework> : IEquatable<FrameworkData<TFramework>>, IComparable<FrameworkData<TFramework>>
+        where TFramework : IFramework
     {
-        public FrameworkData(NuGetFramework framework)
+        public FrameworkData(TFramework framework)
         {
-            Framework = framework.Framework;
+            Identifier = framework.Identifier;
             Version = framework.Version;
             Profile = framework.Profile;
-            NuGetFramework = new NuGetFramework(Framework, Version, Profile);
+            Framework = framework;
         }
 
-        public string Framework { get; }
+        public string Identifier { get; }
         public Version Version { get; }
         public string Profile { get; }
-        public NuGetFramework NuGetFramework { get; }
+        public TFramework Framework { get; }
 
         public override string ToString()
         {
             if (string.IsNullOrEmpty(Profile))
             {
-                return $"{Framework},Version=v{GetDisplayVersion(Version)}";
+                return $"{Identifier},Version=v{GetDisplayVersion(Version)}";
             }
             else
             {
-                return $"{Framework},Version=v{GetDisplayVersion(Version)},Profile={Profile}";
+                return $"{Identifier},Version=v{GetDisplayVersion(Version)},Profile={Profile}";
             }
         }
 
         public override bool Equals(object obj)
         {
-            return Equals(obj as FrameworkData);
+            return Equals(obj as FrameworkData<TFramework>);
         }
 
         public override int GetHashCode()
@@ -42,28 +43,28 @@ namespace Knapcode.NuGetTools.Sandbox
             unchecked
             {
                 var hash = 27;
-                hash = (13 * hash) + StringComparer.OrdinalIgnoreCase.GetHashCode(Framework);
+                hash = (13 * hash) + StringComparer.OrdinalIgnoreCase.GetHashCode(Identifier);
                 hash = (13 * hash) + Version.GetHashCode();
                 hash = (13 * hash) + StringComparer.OrdinalIgnoreCase.GetHashCode(Profile);
                 return hash;
             }
         }
 
-        public bool Equals(FrameworkData other)
+        public bool Equals(FrameworkData<TFramework> other)
         {
             if (other == null)
             {
                 return false;
             }
 
-            return StringComparer.OrdinalIgnoreCase.Equals(Framework, other.Framework) &&
+            return StringComparer.OrdinalIgnoreCase.Equals(Identifier, other.Identifier) &&
                    Version == other.Version &&
                    StringComparer.OrdinalIgnoreCase.Equals(Profile, other.Profile);
         }
 
-        public int CompareTo(FrameworkData other)
+        public int CompareTo(FrameworkData<TFramework> other)
         {
-            var frameworkCompare = StringComparer.OrdinalIgnoreCase.Compare(Framework, other.Framework);
+            var frameworkCompare = StringComparer.OrdinalIgnoreCase.Compare(Identifier, other.Identifier);
             if (frameworkCompare != 0)
             {
                 return frameworkCompare;
