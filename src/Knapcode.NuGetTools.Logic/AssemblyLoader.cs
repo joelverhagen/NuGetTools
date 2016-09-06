@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
-namespace Knapcode.NuGetTools.Logic.Direct
+namespace Knapcode.NuGetTools.Logic
 {
     public class AssemblyLoader : IAssemblyLoader
     {

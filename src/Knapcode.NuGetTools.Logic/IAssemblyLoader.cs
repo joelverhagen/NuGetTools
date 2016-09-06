@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Knapcode.NuGetTools.Logic.Direct
+namespace Knapcode.NuGetTools.Logic
 {
     public interface IAssemblyLoader : IDisposable
     {
