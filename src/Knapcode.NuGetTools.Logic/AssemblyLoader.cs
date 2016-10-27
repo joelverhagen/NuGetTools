@@ -51,6 +51,7 @@ namespace Knapcode.NuGetTools.Logic
 
             // Load the assembly
             var assemblyName = context.Proxy.LoadAssembly(assemblyPath);
+
             context.LoadedAssemblies.Add(assemblyName);
 
             return assemblyName;

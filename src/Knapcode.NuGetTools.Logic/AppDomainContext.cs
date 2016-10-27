@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -11,12 +12,12 @@ namespace Knapcode.NuGetTools.Logic
             Id = id;
             AppDomain = appDomain;
             Proxy = proxy;
-            LoadedAssemblies = new List<AssemblyName>();
+            LoadedAssemblies = new LoadedAssemblies();
         }
 
         public string Id { get; }
         public AppDomain AppDomain { get; }
         public AssemblyLoaderProxy Proxy { get; }
-        public IList<AssemblyName> LoadedAssemblies { get; }
+        public LoadedAssemblies LoadedAssemblies { get; }
     }
 }

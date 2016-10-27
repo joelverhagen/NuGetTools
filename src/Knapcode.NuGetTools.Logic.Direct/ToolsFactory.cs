@@ -132,8 +132,8 @@ namespace Knapcode.NuGetTools.Logic.Direct
                 frameworksIdentity);
 
             // Find the framework names of the needed assemblies.
-            var versioningAssemblyName = context.LoadedAssemblies.First(x => x.Name == _versioningId);
-            var frameworksAssemblyName = context.LoadedAssemblies.First(x => x.Name == _frameworksId);
+            var versioningAssemblyName = context.LoadedAssemblies.GetByName(_versioningId);
+            var frameworksAssemblyName = context.LoadedAssemblies.GetByName(_frameworksId);
 
             // Load the logic implementations.
             var frameworkLogic = context.Proxy.GetFrameworkLogic(frameworksAssemblyName);
