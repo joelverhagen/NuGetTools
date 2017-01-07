@@ -5,6 +5,7 @@ using Knapcode.NuGetTools.Logic.Models;
 using Knapcode.NuGetTools.Logic.Models.Framework;
 using Knapcode.NuGetTools.Logic.Models.Version;
 using Knapcode.NuGetTools.Logic.Models.VersionRange;
+using NuGet.Common;
 using NuGet.Frameworks;
 using NuGet.Versioning;
 using Xunit;
@@ -1318,7 +1319,7 @@ namespace Knapcode.NuGetTools.Website.Tests
         private ToolsService<Framework, Version, VersionRange> GetToolsService()
         {
             return new ToolsService<Framework, Version, VersionRange>(
-                "3.5.0-beta2",
+                ClientVersionUtility.GetNuGetAssemblyVersion(),
                 new FrameworkLogic(),
                 new VersionLogic(),
                 new VersionRangeLogic());

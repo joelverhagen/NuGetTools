@@ -59,7 +59,7 @@ $dotnetCliUrl = "https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0-preview2
 $dotnetCliInstallScript = Join-Path $dotnetCliDir "dotnet-install.ps1"
 Invoke-WebRequest $dotnetCliUrl -OutFile $dotnetCliInstallScript
 
-& $dotnetCliInstallScript -InstallDir $dotnetCliDir -Version 1.0.0-preview2-003121
+& $dotnetCliInstallScript -InstallDir $dotnetCliDir -Version 1.0.0-preview2-003156
 Show-ErrorExitCode
 
 Trace-Information "Restoring projects..."
