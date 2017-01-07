@@ -6,6 +6,7 @@ using Knapcode.NuGetTools.Logic;
 using Knapcode.NuGetTools.Logic.Direct;
 using Knapcode.NuGetTools.Logic.Direct.Wrappers;
 using Knapcode.NuGetTools.Logic.Wrappers;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -116,6 +117,9 @@ namespace Knapcode.NuGetTools.Website
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            // Configure Application Insights
+            TelemetryConfiguration.Active.TelemetryInitializers.Add(new RequestSuccessInitializer());
+
             // Add Application Insights monitoring to the request pipeline as a very first middleware.
             app.UseApplicationInsightsRequestTelemetry();
 
