@@ -113,7 +113,7 @@ if (-Not $SkipTests) {
     $projectsToTest = Get-ChildItem (Join-Path $root "test") -Recurse -Include "project.json"
     foreach ($projectToTest in $projectsToTest)
     {
-       & $dotnet test $projectToTest
+       & $dotnet test $projectToTest -verbose
        Show-ErrorExitCode
     }
 } else {
