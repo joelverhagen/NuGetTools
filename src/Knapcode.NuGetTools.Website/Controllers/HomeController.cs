@@ -40,12 +40,12 @@ namespace Knapcode.NuGetTools.Website
         {
             var versions = await _toolsFactory.GetAvailableVersionsAsync(token);
 
-            var version = versions.First();
+            var nuGetVersion = versions.First();
 
             return new RedirectToActionResult(
                 nameof(SelectedVersionIndex),
                 ControllerContext.ActionDescriptor.ControllerName,
-                new { version },
+                new { nuGetVersion },
                 permanent: false);
         }
 
