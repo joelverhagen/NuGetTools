@@ -9,6 +9,7 @@ namespace Knapcode.NuGetTools.Logic
         Task<IEnumerable<string>> GetAvailableVersionsAsync(CancellationToken token);
 
         Task<IToolsService> GetServiceAsync(string version, CancellationToken token);
+
         Task<IFrameworkPrecedenceService> GetFrameworkPrecedenceServiceAsync(string version, CancellationToken token);
     }
 }
