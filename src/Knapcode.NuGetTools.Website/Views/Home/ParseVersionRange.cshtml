@@ -37,8 +37,10 @@
             <p>
                 @if (output.VersionRange.HasLowerBound)
                 {
-                    @:The version range has an <b>@(output.VersionRange.IsMinInclusive ? "inclusive" : "exclusive") lower bound</b> of
-                    @:<code>@output.VersionRange.MinVersion.NormalizedString</code>.
+                    <text>
+                        The version range has an <b>@(output.VersionRange.IsMinInclusive ? "inclusive" : "exclusive") lower bound</b> of
+                        <parse-version value="@output.VersionRange.MinVersion.NormalizedString"><code>@output.VersionRange.MinVersion.NormalizedString</code></parse-version>.
+                    </text>
                 }
                 else
                 {
@@ -48,8 +50,10 @@
             <p>
                 @if (output.VersionRange.HasUpperBound)
                 {
-                    @:The version range has an <b>@(output.VersionRange.IsMaxInclusive ? "inclusive" : "exclusive") upper bound</b> of
-                    @:<code>@output.VersionRange.MaxVersion.NormalizedString</code>.
+                    <text>
+                        The version range has an <b>@(output.VersionRange.IsMaxInclusive ? "inclusive" : "exclusive") upper bound</b> of
+                        <parse-version value="@output.VersionRange.MaxVersion.NormalizedString"><code>@output.VersionRange.MaxVersion.NormalizedString</code></parse-version>.
+                    </text>
                 }
                 else
                 {

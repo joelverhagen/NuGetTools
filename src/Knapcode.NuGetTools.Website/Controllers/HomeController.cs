@@ -17,9 +17,7 @@ namespace Knapcode.NuGetTools.Website
         {
             { "3.5.0-beta2", "3.5.0-beta2-1484" }
         };
-
-        private static readonly string _controllerName;
-
+        
         static HomeController()
         {
             var typeName = typeof(HomeController).Name;
@@ -51,8 +49,8 @@ namespace Knapcode.NuGetTools.Website
                 permanent: false);
         }
 
-        [HttpGet("/{version}")]
-        public async Task<IActionResult> SelectedVersionIndex([FromRoute]string version, CancellationToken token)
+        [HttpGet("/{nuGetVersion}")]
+        public async Task<IActionResult> SelectedVersionIndex([FromRoute]string nuGetVersion, CancellationToken token)
         {
             var redirect = GetVersionRedirect();
             if (redirect != null)
@@ -60,7 +58,7 @@ namespace Knapcode.NuGetTools.Website
                 return redirect;
             }
 
-            var toolsService = await _toolsFactory.GetServiceAsync(version, token);
+            var toolsService = await _toolsFactory.GetServiceAsync(nuGetVersion, token);
             if (toolsService == null)
             {
                 return NotFound();
@@ -71,8 +69,8 @@ namespace Knapcode.NuGetTools.Website
             return View(versionedOutput);
         }
 
-        [HttpGet("/{version}/parse-framework")]
-        public async Task<IActionResult> ParseFramework([FromRoute]string version, [FromQuery]ParseFrameworkInput input, CancellationToken token)
+        [HttpGet("/{nuGetVersion}/parse-framework")]
+        public async Task<IActionResult> ParseFramework([FromRoute]string nuGetVersion, [FromQuery]ParseFrameworkInput input, CancellationToken token)
         {
             var redirect = GetVersionRedirect();
             if (redirect != null)
@@ -80,7 +78,7 @@ namespace Knapcode.NuGetTools.Website
                 return redirect;
             }
 
-            var toolsService = await _toolsFactory.GetServiceAsync(version, token);
+            var toolsService = await _toolsFactory.GetServiceAsync(nuGetVersion, token);
             if (toolsService == null)
             {
                 return NotFound();
@@ -92,8 +90,8 @@ namespace Knapcode.NuGetTools.Website
             return View(versionedOutput);
         }
 
-        [HttpGet("/{version}/parse-version")]
-        public async Task<IActionResult> ParseVersion([FromRoute]string version, [FromQuery]ParseVersionInput input, CancellationToken token)
+        [HttpGet("/{nuGetVersion}/parse-version")]
+        public async Task<IActionResult> ParseVersion([FromRoute]string nuGetVersion, [FromQuery]ParseVersionInput input, CancellationToken token)
         {
             var redirect = GetVersionRedirect();
             if (redirect != null)
@@ -101,7 +99,7 @@ namespace Knapcode.NuGetTools.Website
                 return redirect;
             }
 
-            var toolsService = await _toolsFactory.GetServiceAsync(version, token);
+            var toolsService = await _toolsFactory.GetServiceAsync(nuGetVersion, token);
             if (toolsService == null)
             {
                 return NotFound();
@@ -113,8 +111,8 @@ namespace Knapcode.NuGetTools.Website
             return View(versionedOutput);
         }
 
-        [HttpGet("/{version}/parse-version-range")]
-        public async Task<IActionResult> ParseVersionRange([FromRoute]string version, [FromQuery]ParseVersionRangeInput input, CancellationToken token)
+        [HttpGet("/{nuGetVersion}/parse-version-range")]
+        public async Task<IActionResult> ParseVersionRange([FromRoute]string nuGetVersion, [FromQuery]ParseVersionRangeInput input, CancellationToken token)
         {
             var redirect = GetVersionRedirect();
             if (redirect != null)
@@ -122,7 +120,7 @@ namespace Knapcode.NuGetTools.Website
                 return redirect;
             }
 
-            var toolsService = await _toolsFactory.GetServiceAsync(version, token);
+            var toolsService = await _toolsFactory.GetServiceAsync(nuGetVersion, token);
             if (toolsService == null)
             {
                 return NotFound();
@@ -134,8 +132,8 @@ namespace Knapcode.NuGetTools.Website
             return View(versionedOutput);
         }
 
-        [HttpGet("/{version}/framework-compatibility")]
-        public async Task<IActionResult> FrameworkCompatibility([FromRoute]string version, [FromQuery]FrameworkCompatibilityInput input, bool swap, CancellationToken token)
+        [HttpGet("/{nuGetVersion}/framework-compatibility")]
+        public async Task<IActionResult> FrameworkCompatibility([FromRoute]string nuGetVersion, [FromQuery]FrameworkCompatibilityInput input, bool swap, CancellationToken token)
         {
             var redirect = GetVersionRedirect();
             if (redirect != null)
@@ -143,7 +141,7 @@ namespace Knapcode.NuGetTools.Website
                 return redirect;
             }
 
-            var toolsService = await _toolsFactory.GetServiceAsync(version, token);
+            var toolsService = await _toolsFactory.GetServiceAsync(nuGetVersion, token);
             if (toolsService == null)
             {
                 return NotFound();
@@ -167,8 +165,8 @@ namespace Knapcode.NuGetTools.Website
             return View(versionedOutput);
         }
 
-        [HttpGet("/{version}/version-comparison")]
-        public async Task<IActionResult> VersionComparison([FromRoute]string version, [FromQuery]VersionComparisonInput input, bool swap, CancellationToken token)
+        [HttpGet("/{nuGetVersion}/version-comparison")]
+        public async Task<IActionResult> VersionComparison([FromRoute]string nuGetVersion, [FromQuery]VersionComparisonInput input, bool swap, CancellationToken token)
         {
             var redirect = GetVersionRedirect();
             if (redirect != null)
@@ -176,7 +174,7 @@ namespace Knapcode.NuGetTools.Website
                 return redirect;
             }
 
-            var toolsService = await _toolsFactory.GetServiceAsync(version, token);
+            var toolsService = await _toolsFactory.GetServiceAsync(nuGetVersion, token);
             if (toolsService == null)
             {
                 return NotFound();
@@ -197,8 +195,8 @@ namespace Knapcode.NuGetTools.Website
             return View(versionedOutput);
         }
 
-        [HttpGet("/{version}/get-nearest-framework")]
-        public async Task<IActionResult> GetNearestFramework([FromRoute]string version, [FromQuery]GetNearestFrameworkInput input, CancellationToken token)
+        [HttpGet("/{nuGetVersion}/get-nearest-framework")]
+        public async Task<IActionResult> GetNearestFramework([FromRoute]string nuGetVersion, [FromQuery]GetNearestFrameworkInput input, CancellationToken token)
         {
             var redirect = GetVersionRedirect();
             if (redirect != null)
@@ -206,7 +204,7 @@ namespace Knapcode.NuGetTools.Website
                 return redirect;
             }
 
-            var toolsService = await _toolsFactory.GetServiceAsync(version, token);
+            var toolsService = await _toolsFactory.GetServiceAsync(nuGetVersion, token);
             if (toolsService == null)
             {
                 return NotFound();
@@ -218,8 +216,8 @@ namespace Knapcode.NuGetTools.Website
             return View(versionedOutput);
         }
 
-        [HttpGet("/{version}/version-satisfies")]
-        public async Task<IActionResult> VersionSatisfies([FromRoute]string version, [FromQuery]VersionSatisfiesInput input, CancellationToken token)
+        [HttpGet("/{nuGetVersion}/version-satisfies")]
+        public async Task<IActionResult> VersionSatisfies([FromRoute]string nuGetVersion, [FromQuery]VersionSatisfiesInput input, CancellationToken token)
         {
             var redirect = GetVersionRedirect();
             if (redirect != null)
@@ -227,7 +225,7 @@ namespace Knapcode.NuGetTools.Website
                 return redirect;
             }
 
-            var toolsService = await _toolsFactory.GetServiceAsync(version, token);
+            var toolsService = await _toolsFactory.GetServiceAsync(nuGetVersion, token);
             if (toolsService == null)
             {
                 return NotFound();
@@ -239,8 +237,8 @@ namespace Knapcode.NuGetTools.Website
             return View(versionedOutput);
         }
 
-        [HttpGet("/{version}/find-best-version-match")]
-        public async Task<IActionResult> FindBestVersionMatch([FromRoute]string version, [FromQuery]FindBestVersionMatchInput input, CancellationToken token)
+        [HttpGet("/{nuGetVersion}/find-best-version-match")]
+        public async Task<IActionResult> FindBestVersionMatch([FromRoute]string nuGetVersion, [FromQuery]FindBestVersionMatchInput input, CancellationToken token)
         {
             var redirect = GetVersionRedirect();
             if (redirect != null)
@@ -248,7 +246,7 @@ namespace Knapcode.NuGetTools.Website
                 return redirect;
             }
 
-            var toolsService = await _toolsFactory.GetServiceAsync(version, token);
+            var toolsService = await _toolsFactory.GetServiceAsync(nuGetVersion, token);
             if (toolsService == null)
             {
                 return NotFound();
@@ -260,8 +258,8 @@ namespace Knapcode.NuGetTools.Website
             return View(versionedOutput);
         }
 
-        [HttpGet("/{version}/framework-precedence")]
-        public async Task<IActionResult> FrameworkPrecedence([FromRoute]string version, [FromQuery]FrameworkPrecedenceInput input, CancellationToken token)
+        [HttpGet("/{nuGetVersion}/framework-precedence")]
+        public async Task<IActionResult> FrameworkPrecedence([FromRoute]string nuGetVersion, [FromQuery]FrameworkPrecedenceInput input, CancellationToken token)
         {
             var redirect = GetVersionRedirect();
             if (redirect != null)
@@ -269,7 +267,7 @@ namespace Knapcode.NuGetTools.Website
                 return redirect;
             }
 
-            var service = await _toolsFactory.GetFrameworkPrecedenceServiceAsync(version, token);
+            var service = await _toolsFactory.GetFrameworkPrecedenceServiceAsync(nuGetVersion, token);
             if (service == null)
             {
                 return NotFound();
@@ -304,17 +302,17 @@ namespace Knapcode.NuGetTools.Website
             };
         }
 
-        private IEnumerable<VersionUrl> GetVersionUrls(IEnumerable<string> versions)
+        private IEnumerable<VersionUrl> GetVersionUrls(IEnumerable<string> nuGetVersions)
         {
             var urlHelper = _urlHelperFactory.GetUrlHelper(ControllerContext);
 
-            foreach (var version in versions)
+            foreach (var nuGetVersion in nuGetVersions)
             {
-                var url = GetVersionUrl(version, urlHelper);
+                var url = GetVersionUrl(nuGetVersion, urlHelper);
 
                 yield return new VersionUrl
                 {
-                    Version = version,
+                    Version = nuGetVersion,
                     Url = url
                 };
             }
@@ -323,14 +321,14 @@ namespace Knapcode.NuGetTools.Website
         private IActionResult GetVersionRedirect()
         {
             // Get the current version.
-            var version = (string) ControllerContext.RouteData.Values["version"];
-             
+            var nuGetVersion = (string)ControllerContext.RouteData.Values["nuGetVersion"];
+
             // Determine if the current version needs a redirect.
-            string redirectVersion;
-            if (_versionRedirects.TryGetValue(version, out redirectVersion))
+            string redirectNuGetVersion;
+            if (_versionRedirects.TryGetValue(nuGetVersion, out redirectNuGetVersion))
             {
                 var urlHelper = _urlHelperFactory.GetUrlHelper(ControllerContext);
-                var redirect = GetVersionUrl(redirectVersion, urlHelper);
+                var redirect = GetVersionUrl(redirectNuGetVersion, urlHelper);
 
                 return new RedirectResult(redirect, permanent: false);
             }
@@ -338,12 +336,12 @@ namespace Knapcode.NuGetTools.Website
             return null;
         }
 
-        private string GetVersionUrl(string version, IUrlHelper urlHelper)
+        private string GetVersionUrl(string nuGetVersion, IUrlHelper urlHelper)
         {
             var url = urlHelper.Action(
                 ControllerContext.ActionDescriptor.ActionName,
                 ControllerContext.ActionDescriptor.ControllerName,
-                new { version });
+                new { nuGetVersion });
 
             if (Request.QueryString.HasValue)
             {

@@ -3,21 +3,21 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Knapcode.NuGetTools.Website
 {
-    [HtmlTargetElement("parse-framework")]
-    public class ParseFrameworkTagHelper : ActionTagHelper
+    [HtmlTargetElement("parse-version")]
+    public class ParseVersionTagHelper : ActionTagHelper
     {
         private readonly IUrlHelperFactory _urlHelperFactory;
 
-        public ParseFrameworkTagHelper(IUrlHelperFactory urlHelperFactory) : base(urlHelperFactory)
+        public ParseVersionTagHelper(IUrlHelperFactory urlHelperFactory) : base(urlHelperFactory)
         {
             _urlHelperFactory = urlHelperFactory;
         }
 
-        protected override string ActionName => nameof(HomeController.ParseFramework);
+        protected override string ActionName => nameof(HomeController.ParseVersion);
 
         protected override object GetRouteValues(string value)
         {
-            return new { framework = value };
+            return new { version = value };
         }
     }
 }
