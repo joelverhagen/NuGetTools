@@ -45,13 +45,15 @@
         if (!output.Precedence.Any())
         {
             <div class="alert alert-warning" role="alert">
-                The <code>@output.Framework.DotNetFrameworkName</code> (<b>@output.Input.Framework</b>) project framework does not have any well known compatible package frameworks.
+                The <code>@output.Framework.DotNetFrameworkName</code> (<b><parse-framework value="@output.Input.Framework" /></b>)
+                project framework does not have any well known compatible package frameworks.
             </div>
         }
         else
         {
             <p>
-                The <code>@output.Framework.DotNetFrameworkName</code> (<b>@output.Input.Framework</b>) project framework has the following package framework precedence list.
+                The <code>@output.Framework.DotNetFrameworkName</code> (<b><parse-framework value="@output.Input.Framework" /></b>)
+                project framework has the following package framework precedence list.
             </p>
             <table class="table">
                 <thead>

@@ -18,6 +18,14 @@ namespace Knapcode.NuGetTools.Website
             { "3.5.0-beta2", "3.5.0-beta2-1484" }
         };
 
+        private static readonly string _controllerName;
+
+        static HomeController()
+        {
+            var typeName = typeof(HomeController).Name;
+            ControllerName = typeName.Substring(0, typeName.Length - "Controller".Length);
+        }
+
         private readonly IToolsFactory _toolsFactory;
         private readonly IUrlHelperFactory _urlHelperFactory;
 
@@ -26,7 +34,9 @@ namespace Knapcode.NuGetTools.Website
             _toolsFactory = toolsFactory;
             _urlHelperFactory = urlHelperFactory;
         }
-        
+
+        public static string ControllerName { get; }
+
         [HttpGet("/")]
         public async Task<IActionResult> Index(CancellationToken token)
         {

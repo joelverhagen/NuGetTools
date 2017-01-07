@@ -30,13 +30,15 @@
         if (@output.IsCompatible)
         {
             <div class="alert alert-success" role="alert">
-                <code>@output.Project.ShortFolderName</code> (<b>@output.Input.Project</b>) projects support <code>@output.Package.ShortFolderName</code> (<b>@output.Input.Package</b>) packages.
+                <code>@output.Project.ShortFolderName</code> (<b><parse-framework value="@output.Input.Project" /></b>)
+                projects support <code>@output.Package.ShortFolderName</code> (<b><parse-framework value="@output.Input.Package" /></b>) packages.
             </div>
         }
         else
         {
             <div class="alert alert-warning" role="alert">
-                <code>@output.Project.ShortFolderName</code> (<b>@output.Input.Project</b>) projects do not support <code>@output.Package.ShortFolderName</code> (<b>@output.Input.Package</b>) packages.
+                <code>@output.Project.ShortFolderName</code> (<b><parse-framework value="@output.Input.Project" /></b>)
+                projects do not support <code>@output.Package.ShortFolderName</code> (<b><parse-framework value="@output.Input.Package" /></b>) packages.
             </div>
         }
     }
