@@ -123,7 +123,11 @@ namespace Knapcode.NuGetTools.Website
             // Add Application Insights monitoring to the request pipeline as a very first middleware.
             app.UseApplicationInsightsRequestTelemetry();
 
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+            if (!env.IsAutomation())
+            {
+                loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+            }
+
             loggerFactory.AddDebug();
 
             if (env.IsDevelopment())

@@ -1,4 +1,4 @@
-﻿{
+{
   "dependencies": {
     "Knapcode.NuGetTools.Website": {
       "target": "project"
@@ -8,7 +8,9 @@
     },
     "xunit": "2.1.0",
     "Microsoft.DotNet.InternalAbstractions": "1.0.0",
-    "dotnet-test-xunit": "1.0.0-*"
+    "dotnet-test-xunit": "1.0.0-*",
+    "Microsoft.AspNetCore.TestHost": "1.1.0",
+    "AngleSharp": "0.9.9"
   },
   "frameworks": {
     "net46": {}

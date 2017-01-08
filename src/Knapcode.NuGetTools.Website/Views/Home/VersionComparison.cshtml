@@ -28,7 +28,7 @@
     @if (@output.InputStatus == InputStatus.Valid)
     {
         <div class="alert alert-success" role="alert">
-            <code>@output.VersionA.FullString</code> (<b><parse-version value="@output.Input.VersionA" /></b>)
+            <code>@output.VersionA.NormalizedString</code> (<b><parse-version value="@output.Input.VersionA" /></b>)
             @switch (output.Result)
             {
                 case ComparisonResult.LessThan:
@@ -41,7 +41,7 @@
                     @:is greater than
                     break;
             }
-            <code>@output.VersionB.FullString</code> (<b><parse-version value="@output.Input.VersionB" /></b>).
+            <code>@output.VersionB.NormalizedString</code> (<b><parse-version value="@output.Input.VersionB" /></b>).
         </div>
     }
     else if (@output.InputStatus == InputStatus.Invalid)
