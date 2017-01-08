@@ -12,12 +12,12 @@
 <form method="GET" action="">
     <div class="form-group">
         <label for="project">Project Framework</label>
-        <input type="text" class="form-control" name="project" id="project"
+        <input type="text" class="form-control monospace" name="project" id="project"
                placeholder="net45" value="@output.Input.Project">
     </div>
     <div class="form-group">
         <label for="package">Package Frameworks</label>
-        <textarea class="form-control" rows="5" name="package" id="package" placeholder="netstandard1.0">@output.Input.Package</textarea>
+        <textarea class="form-control monospace" rows="5" name="package" id="package" placeholder="netstandard1.0">@output.Input.Package</textarea>
     </div>
     <button type="submit" class="btn btn-default">Submit</button>
 </form>

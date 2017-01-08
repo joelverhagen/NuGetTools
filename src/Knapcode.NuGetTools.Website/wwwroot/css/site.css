@@ -26,3 +26,7 @@ ul, ol {
 li {
     padding: 2px 0px;
 }
+
+.monospace {
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+}
