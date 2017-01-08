@@ -12,13 +12,13 @@
 <form method="GET" action="">
     <div class="form-group">
         <label for="project">Project Framework</label>
-        <input type="text" class="form-control monospace" name="project" id="project"
-               placeholder="net45" value="@output.Input.Project">
+        <input type="text" class="form-control framework-short-folder-name-typeahead monospace" name="project" id="project"
+               autocomplete="off" placeholder="net45" value="@output.Input.Project">
     </div>
     <div class="form-group">
         <label for="package">Package Framework</label>
-        <input type="text" class="form-control monospace" name="package" id="package"
-               placeholder="netstandard1.0" value="@output.Input.Package">
+        <input type="text" class="form-control framework-short-folder-name-typeahead monospace" name="package" id="package"
+               autocomplete="off" placeholder="netstandard1.0" value="@output.Input.Package">
     </div>
     <button type="submit" class="btn btn-default">Submit</button>
     <button type="submit" name="swap" id="swap" value="true" class="btn btn-default">Swap</button>

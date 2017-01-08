@@ -14,13 +14,13 @@
 <form method="GET" action="">
     <div class="form-group">
         <label for="project">Project Framework</label>
-        <input type="text" class="form-control monospace" name="framework" id="framework"
-               placeholder="net45" value="@output.Input.Framework">
+        <input type="text" class="form-control framework-short-folder-name-typeahead monospace" name="framework" id="framework"
+               autocomplete="off" placeholder="net45" value="@output.Input.Framework">
     </div>
     <div class="form-group">
         <label for="project">Excluded Identifiers</label>
-        <input type="text" class="form-control monospace" name="exludedIdentifiers" id="exludedIdentifiers"
-               placeholder=".NETPlatform, DNXCore, DNX" value="@output.Input.ExludedIdentifiers">
+        <input type="text" class="form-control framework-identifier-typeahead monospace" name="exludedIdentifiers" id="exludedIdentifiers"
+               autocomplete="off" placeholder=".NETPlatform, DNXCore, DNX" value="@output.Input.ExludedIdentifiers">
     </div>
     <div class="checkbox">
         <label>

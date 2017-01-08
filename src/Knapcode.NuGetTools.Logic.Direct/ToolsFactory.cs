@@ -118,6 +118,11 @@ namespace Knapcode.NuGetTools.Logic.Direct
                 });
         }
 
+        public Task<IFrameworkList> GetFrameworkListAsync(CancellationToken token)
+        {
+            return Task.FromResult(_frameworkList);
+        }
+
         private Logic GetLogic(NuGetVersion version)
         {
             return _logic.GetOrAdd(version, GetLogicWithoutCaching);
