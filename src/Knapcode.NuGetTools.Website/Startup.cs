@@ -25,8 +25,8 @@ namespace Knapcode.NuGetTools.Website
 
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables();
 
             if (env.IsDevelopment())
@@ -133,7 +133,7 @@ namespace Knapcode.NuGetTools.Website
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/error");
             }
 
             // Add Application Insights exceptions handling to the request pipeline.

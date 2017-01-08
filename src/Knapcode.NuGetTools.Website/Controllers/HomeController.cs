@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,6 +48,17 @@ namespace Knapcode.NuGetTools.Website
                 ControllerContext.ActionDescriptor.ControllerName,
                 new { nuGetVersion },
                 permanent: false);
+        }
+
+        [Route("/error")]
+        public IActionResult Error()
+        {
+            return new ContentResult
+            {
+                Content = "An internal server error has occurred.",
+                ContentType = "text/plain",
+                StatusCode = 500
+            };
         }
 
         [HttpGet("/{nuGetVersion}")]
