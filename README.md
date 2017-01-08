@@ -24,6 +24,5 @@ I'd like to add the following features in the future:
 
 - Interacting with real NuGet packages (either uploaded or from a source)
 - Better copy-pasting so you can easily get a snippet to drop in an email or document
-- End-to-end tests
 - REST API
 - CI
