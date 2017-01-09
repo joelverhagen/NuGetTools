@@ -16,7 +16,7 @@ namespace Knapcode.NuGetTools.Build
 [assembly: AssemblyMetadata(""CommitHash"", ""{3}"")]
 ";
 
-        public static AssemblyInfo DiscoverAssemblyInfo(string repositoryDirectory)
+        public static AssemblyInfo DiscoverAssemblyInfo(string repositoryDirectory, string versionSuffix)
         {
             var rawAssemblyVersion = GetGitOutput("describe --abbrev=0");
 
@@ -32,6 +32,8 @@ namespace Knapcode.NuGetTools.Build
             var version = new Version(rawAssemblyVersion);
 
             var informationalVersion = GetGitOutput("describe --long --dirty");
+            informationalVersion += versionSuffix;
+
             var commitHash = GetGitOutput("rev-parse HEAD");
 
             var assemblyInfo = new AssemblyInfo(

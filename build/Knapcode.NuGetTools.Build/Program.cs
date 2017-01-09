@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Microsoft.Extensions.CommandLineUtils;
 
 namespace Knapcode.NuGetTools.Build
@@ -10,19 +11,25 @@ namespace Knapcode.NuGetTools.Build
             var app = new CommandLineApplication();
 
             app.Command(
-                name: "assemblyInfo",
-                configuration: assemblyInfoApp =>
+                name: "assembly-info",
+                configuration: commandApp =>
                 {
-                    var baseDirectoryOption = assemblyInfoApp.Option(
-                        "--baseDirectory",
+                    var baseDirectoryOption = commandApp.Option(
+                        "--base-directory",
                         "The base directory of the NuGetTools repository.",
                         CommandOptionType.SingleValue);
 
-                    assemblyInfoApp.OnExecute(() =>
+                    var versionSuffixOption = commandApp.Option(
+                        "--version-suffix",
+                        "The suffix to add to the information version.",
+                        CommandOptionType.SingleValue);
+
+                    commandApp.OnExecute(() =>
                     {
                         var baseDirectory = baseDirectoryOption.Value();
+                        var versionSuffix = versionSuffixOption.Value();
 
-                        ExecuteAssemblyInfo(baseDirectory);
+                        ExecuteAssemblyInfo(baseDirectory, versionSuffix);
 
                         return 0;
                     });
@@ -31,10 +38,16 @@ namespace Knapcode.NuGetTools.Build
             return app.Execute(args);
         }
 
-        private static void ExecuteAssemblyInfo(string baseDirectory)
+        private static void ExecuteAssemblyInfo(string baseDirectory, string versionSuffix)
         {
             // Discover the assembly info from Git.
-            var assemblyInfo = AssemblyInfoWriter.DiscoverAssemblyInfo(baseDirectory);
+            var assemblyInfo = AssemblyInfoWriter.DiscoverAssemblyInfo(baseDirectory, versionSuffix);
+
+            Console.WriteLine("AssemblyInfo:");
+            Console.WriteLine($"  FileVersion:          {assemblyInfo.FileVersion}");
+            Console.WriteLine($"  Version:              {assemblyInfo.Version}");
+            Console.WriteLine($"  InformationalVersion: {assemblyInfo.InformationalVersion}");
+            Console.WriteLine($"  CommitHash:           {assemblyInfo.CommitHash}");
 
             // Discover all project.json files.
             var projects = Directory.EnumerateFiles(
@@ -43,15 +56,26 @@ namespace Knapcode.NuGetTools.Build
                 SearchOption.AllDirectories);
 
             // Write assembly info for each project.json.
+            Console.WriteLine("Paths:");
             foreach (var project in projects)
             {
                 var projectDirectory = Path.GetDirectoryName(project);
                 var propertiesDirectory = Path.Combine(projectDirectory, "Properties");
-                Directory.CreateDirectory(propertiesDirectory);
-
                 var assemblyInfoPath = Path.Combine(propertiesDirectory, "AssemblyInfo.cs");
+                Console.WriteLine($"- {MakeRelativePath(baseDirectory, assemblyInfoPath)}");
+
+                Directory.CreateDirectory(propertiesDirectory);
                 AssemblyInfoWriter.WriteAssemblyInfo(assemblyInfoPath, assemblyInfo);
             }
+        }
+
+        private static string MakeRelativePath(string baseDirectory, string path)
+        {
+            var baseDirectoryUri = new Uri(baseDirectory + Path.DirectorySeparatorChar);
+            var pathUri = new Uri(path);
+            var relativeUri = baseDirectoryUri.MakeRelativeUri(pathUri);
+            var relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+            return relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
         }
     }
 }

@@ -4,7 +4,8 @@ param (
     [switch] $SkipBuild,
     [switch] $SkipPackageDownload,
     [switch] $SkipTests,
-    [switch] $SkipPublish
+    [switch] $SkipPublish,
+    [switch] $IsAppVeyor
 )
 
 $root = $PSScriptRoot
@@ -61,6 +62,11 @@ function Show-ErrorExitCode
 }
 
 if (-Not $SkipPrepare) {
+    if ($IsAppVeyor) {
+        # & npm cache clean
+        # & npm install -g "bower@1.8.0" "gulp@3.9.1"
+    }
+
     Trace-Information "Preparing build environment..."
     $dotnetCliDir = Join-Path $root "cli"
     $dotnet = Join-Path $dotnetCliDir "dotnet.exe"
@@ -86,9 +92,26 @@ if (-Not $SkipRestore) {
 
 if (-Not $SkipBuild) {
     Trace-Information "Generating assembly info..."
-    & $dotnet run -p (Get-BuildProject -Name "Knapcode.NuGetTools.Build") -- assemblyInfo --baseDirectory $root
+    $versionSuffix = @()
+    if ($IsAppVeyor) {
+        $buildNumber = $env:APPVEYOR_BUILD_NUMBER
+        $versionSuffix = @("--version-suffix", "-$buildNumber")
+    }
+
+    $assemblyInfo = & $dotnet run -p (Get-BuildProject -Name "Knapcode.NuGetTools.Build") -- assembly-info --base-directory $root $versionSuffix
     Show-ErrorExitCode
 
+    if ($IsAppVeyor) {
+        Trace-Information "Setting AppVeyor build version..."
+        $match = $assemblyInfo -match 'InformationalVersion:\s*([^\s]+)'
+        if (-Not $match.Success) {
+            throw "No version found in the assembly info output."
+        }
+
+        $version = $match.Groups[1].Value
+        Update-AppveyorBuild -Version $version
+    }
+    
     Trace-Information "Building..."
     $projectsToBuild = Get-ChildItem $root -Recurse -Include "project.json"
     foreach ($projectToBuild in $projectsToBuild)
