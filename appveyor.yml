@@ -1,0 +1,6 @@
+before_build:
+- npm cache clean
+- npm install -g bower gulp
+build_script:
+- ps: .\build.ps1
+test: off
