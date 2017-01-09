@@ -8,6 +8,7 @@ param (
     [switch] $IsAppVeyor
 )
 
+$ErrorActionPreference = "Stop"
 $root = $PSScriptRoot
 $lastTraceTime = Get-Date
 
@@ -62,12 +63,12 @@ function Show-ErrorExitCode
 }
 
 if (-Not $SkipPrepare) {
+    Trace-Information "Preparing build environment..."
     if ($IsAppVeyor) {
         & npm cache clean
         & npm install -g "bower@1.8.0" "gulp@3.9.1"
     }
 
-    Trace-Information "Preparing build environment..."
     $dotnetCliDir = Join-Path $root "cli"
     $dotnet = Join-Path $dotnetCliDir "dotnet.exe"
 
@@ -103,7 +104,7 @@ if (-Not $SkipBuild) {
 
     if ($IsAppVeyor) {
         Trace-Information "Setting AppVeyor build version..."
-        $match = $assemblyInfo -match 'InformationalVersion:\s*([^\s]+)'
+        $match = [regex]::Match($assemblyInfo, 'InformationalVersion:\s*([^\s]+)')
         if (-Not $match.Success) {
             throw "No version found in the assembly info output."
         }
