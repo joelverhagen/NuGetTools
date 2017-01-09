@@ -8,7 +8,6 @@ param (
     [switch] $IsAppVeyor
 )
 
-$ErrorActionPreference = "Stop"
 $root = $PSScriptRoot
 $lastTraceTime = Get-Date
 
