@@ -63,8 +63,8 @@ function Show-ErrorExitCode
 
 if (-Not $SkipPrepare) {
     if ($IsAppVeyor) {
-        # & npm cache clean
-        # & npm install -g "bower@1.8.0" "gulp@3.9.1"
+        & npm cache clean
+        & npm install -g "bower@1.8.0" "gulp@3.9.1"
     }
 
     Trace-Information "Preparing build environment..."
