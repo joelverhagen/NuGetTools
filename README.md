@@ -2,6 +2,8 @@
 
 A website containing some various tools to help understand NuGet.
 
+[![Build status](https://ci.appveyor.com/api/projects/status/yp3cnmxwng4yr0ll?svg=true)](https://ci.appveyor.com/project/joelverhagen/nugettools)
+
 ## Live Website
 
 You can visit NuGet Tools at http://nugettoolsdev.azurewebsites.net/.
@@ -25,4 +27,3 @@ I'd like to add the following features in the future:
 - Interacting with real NuGet packages (either uploaded or from a source)
 - Better copy-pasting so you can easily get a snippet to drop in an email or document
 - REST API
-- CI
