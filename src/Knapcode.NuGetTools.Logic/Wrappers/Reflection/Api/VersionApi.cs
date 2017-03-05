@@ -87,6 +87,11 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
 
         public string GetFullString(object nuGetVersion)
         {
+            if (!_getFullStringAvailable)
+            {
+                throw new NotSupportedException();
+            }
+
             return (string)_getFullString.Invoke(nuGetVersion, new object[0]);
         }
 

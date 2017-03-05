@@ -11,5 +11,9 @@
         bool IsMaxInclusive { get; }
         IVersion MinVersion { get; }
         IVersion MaxVersion { get; }
+        string LegacyShortString { get; }
+        string LegacyString { get; }
+        string OriginalString { get; }
+        bool LegacyShortStringAvailable { get; }
     }
 }

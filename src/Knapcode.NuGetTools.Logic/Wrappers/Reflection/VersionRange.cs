@@ -23,6 +23,10 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection
         public bool IsMinInclusive => _api.IsMinInclusive(NuGetVersionRange);
         public string NormalizedString => _api.GetNormalizedString(NuGetVersionRange);
         public string PrettyPrint => _api.PrettyPrint(NuGetVersionRange);
+        public string LegacyShortString => _api.GetLegacyShortString(NuGetVersionRange);
+        public string LegacyString => _api.GetLegacyString(NuGetVersionRange);
+        public string OriginalString => _api.GetOriginalString(NuGetVersionRange);
+        public bool LegacyShortStringAvailable => _api.GetLegacyShortStringAvailable();
 
         public IVersion MaxVersion
         {

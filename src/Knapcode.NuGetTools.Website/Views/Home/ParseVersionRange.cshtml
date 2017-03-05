@@ -35,6 +35,22 @@
                 The pretty printed version range is <code>@output.VersionRange.PrettyPrint</code>.
             </p>
             <p>
+                The legacy string is <code>@output.VersionRange.LegacyString</code>.
+            </p>
+            <p>
+            @if (output.VersionRange.LegacyShortStringAvailable)
+            {
+                @:The legacy short string is <code>@output.VersionRange.LegacyShortString</code>.
+            }
+            else
+            {
+                @:The legacy short string is only available in NuGet 3.4.3 or later.
+            }
+            </p>
+            <p>
+                The original string is <code>@output.VersionRange.OriginalString</code>.
+            </p>
+            <p>
                 @if (output.VersionRange.HasLowerBound)
                 {
                     <text>

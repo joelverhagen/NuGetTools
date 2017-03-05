@@ -21,6 +21,10 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
         private readonly MethodInfo _prettyPrint;
         private readonly MethodInfo _satisfies;
         private readonly MethodInfo _findBestMatch;
+        private readonly MethodInfo _getLegacyShortString;
+        private readonly MethodInfo _getLegacyString;
+        private readonly MethodInfo _getOriginalString;
+        public readonly bool _getLegacyShortStringAvailable;
 
         public VersionRangeApi(AssemblyName assemblyName)
         {
@@ -77,6 +81,17 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
 
             _findBestMatch = nuGetVersionRangeType
                 .GetMethod("FindBestMatch");
+
+            _getLegacyShortString = nuGetVersionRangeType
+                .GetMethod("ToLegacyShortString");
+            _getLegacyShortStringAvailable = _getLegacyShortString != null;
+
+            _getLegacyString = nuGetVersionRangeType
+                .GetMethod("ToLegacyString");
+
+            _getOriginalString = nuGetVersionRangeType
+                .GetProperty("OriginalString")
+                .GetGetMethod();
 
             // List<NuGetVersion>
             var listType = typeof(List<>);
@@ -150,6 +165,31 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
         public bool Satisfies(object nuGetVersionRange, object nuGetVersion)
         {
             return (bool)_satisfies.Invoke(nuGetVersionRange, new[] { nuGetVersion });
+        }
+
+        public string GetOriginalString(object nuGetVersionRange)
+        {
+            return (string)_getOriginalString.Invoke(nuGetVersionRange, new object[0]);
+        }
+
+        public string GetLegacyString(object nuGetVersionRange)
+        {
+            return (string)_getLegacyString.Invoke(nuGetVersionRange, new object[0]);
+        }
+
+        public string GetLegacyShortString(object nuGetVersionRange)
+        {
+            if (!_getLegacyShortStringAvailable)
+            {
+                throw new NotSupportedException();
+            }
+
+            return (string)_getLegacyShortString.Invoke(nuGetVersionRange, new object[0]);
+        }
+
+        public bool GetLegacyShortStringAvailable()
+        {
+            return _getLegacyShortStringAvailable;
         }
     }
 }

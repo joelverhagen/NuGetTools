@@ -1,4 +1,5 @@
-﻿using Knapcode.NuGetTools.Logic.Wrappers;
+﻿using System;
+using Knapcode.NuGetTools.Logic.Wrappers;
 using NuGetVersionRange = NuGet.Versioning.VersionRange;
 
 namespace Knapcode.NuGetTools.Logic.Direct.Wrappers
@@ -22,5 +23,9 @@ namespace Knapcode.NuGetTools.Logic.Direct.Wrappers
         public IVersion MinVersion { get; }
         public string NormalizedString => NuGetVersionRange.ToNormalizedString();
         public string PrettyPrint => NuGetVersionRange.PrettyPrint();
+        public string LegacyShortString => NuGetVersionRange.ToLegacyShortString();
+        public string LegacyString => NuGetVersionRange.ToLegacyString();
+        public string OriginalString => NuGetVersionRange.OriginalString;
+        public bool LegacyShortStringAvailable => true;
     }
 }
