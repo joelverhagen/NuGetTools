@@ -15,5 +15,8 @@
         string LegacyString { get; }
         string OriginalString { get; }
         bool LegacyShortStringAvailable { get; }
+        bool IsFloatingAvailable { get; }
+        bool OriginalStringAvailable { get; }
+        bool LegacyStringAvailable { get; }
     }
 }

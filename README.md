@@ -24,6 +24,7 @@ You can visit NuGet Tools at http://nugettoolsdev.azurewebsites.net/.
 
 I'd like to add the following features in the future:
 
+- Determine first available version dynamically -- it's hard coded today
 - Interacting with real NuGet packages (either uploaded or from a source)
 - Better copy-pasting so you can easily get a snippet to drop in an email or document
 - REST API

@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
 {
-    public class VersionApi
+    public class VersionApi3x : IVersionApi
     {
         private readonly MethodInfo _parse;
         private readonly MethodInfo _getRevision;
@@ -14,13 +14,14 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
         private readonly MethodInfo _compare;
         private readonly bool _isSemVer2Available;
         private readonly bool _getFullStringAvailable;
+        private readonly MethodInfo _getToString;
 
-        public VersionApi(Assembly assembly)
+        public VersionApi3x(AssemblyName assemblyName)
         {
-            Assembly = assembly;
+            var assembly = assemblyName.GetAssembly();
 
             // SemanticVersion
-            var semanticVersionType = Assembly.GetType("NuGet.Versioning.SemanticVersion");
+            var semanticVersionType = assembly.GetType("NuGet.Versioning.SemanticVersion");
 
             _isPrerelease = semanticVersionType
                 .GetProperty("IsPrerelease")
@@ -33,7 +34,7 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
                 .GetMethod("CompareTo", new[] { semanticVersionType });
 
             // NuGetVersion
-            var nuGetVersionType = Assembly.GetType("NuGet.Versioning.NuGetVersion");
+            var nuGetVersionType = assembly.GetType("NuGet.Versioning.NuGetVersion");
 
             _getRevision = nuGetVersionType
                 .GetProperty("Revision")
@@ -41,6 +42,9 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
 
             _parse = nuGetVersionType
                 .GetMethod("Parse", new[] { typeof(string) });
+
+            _getToString = nuGetVersionType
+                .GetMethod("ToString", new Type[0]);
 
             // NuGetVersion (3.4.3+)
             _isSemVer2 = nuGetVersionType
@@ -53,12 +57,6 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
                 .GetMethod("ToFullString");
             _getFullStringAvailable = _getFullString != null;
         }
-
-        public VersionApi(AssemblyName assemblyName) : this(assemblyName.GetAssembly())
-        {
-        }
-
-        public Assembly Assembly { get; }
 
         public object Parse(string input)
         {
@@ -113,6 +111,16 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
         public bool IsSemVer2Available()
         {
             return _isSemVer2Available;
+        }
+
+        public string GetToStringResult(object nuGetVersion)
+        {
+            return (string)_getToString.Invoke(nuGetVersion, new object[0]);
+        }
+
+        public bool GetNormalizedStringAvailable()
+        {
+            return true;
         }
     }
 }

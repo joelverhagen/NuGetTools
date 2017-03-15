@@ -5,9 +5,9 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection
 {
     public class Framework : MarshalByRefObject, IFramework
     {
-        private readonly FrameworkApi _api;
+        private readonly IFrameworkApi _api;
 
-        public Framework(object nuGetFramework, FrameworkApi api)
+        public Framework(object nuGetFramework, IFrameworkApi api)
         {
             NuGetFramework = nuGetFramework;
             _api = api;

@@ -7,23 +7,68 @@ namespace Knapcode.NuGetTools.Logic
 {
     public class AssemblyLoaderProxy : MarshalByRefObject
     {
-        public FrameworkLogic GetFrameworkLogic(AssemblyName assemblyName)
+        public FrameworkLogic GetFrameworkLogic(NuGetRelease release, AssemblyName assemblyName)
         {
-            var frameworkApi = new FrameworkApi(assemblyName);
+            var frameworkApi = GetFrameworkApi(release, assemblyName);
             return new FrameworkLogic(frameworkApi);
         }
 
-        public VersionLogic GetVersionLogic(AssemblyName assemblyName)
+        public VersionLogic GetVersionLogic(NuGetRelease release, AssemblyName assemblyName)
         {
-            var versionApi = new VersionApi(assemblyName);
+            var versionApi = GetVersionApi(release, assemblyName);
             return new VersionLogic(versionApi);
         }
 
-        public VersionRangeLogic GetVersionRangeLogic(AssemblyName assemblyName)
+        public VersionRangeLogic GetVersionRangeLogic(NuGetRelease release, AssemblyName versionAssemblyName, AssemblyName versionRangeAssemblyName)
         {
-            var versionApi = new VersionApi(assemblyName);
-            var versionRangeApi = new VersionRangeApi(assemblyName);
+            var versionApi = GetVersionApi(release, versionAssemblyName);
+            var versionRangeApi = GetVersionRangeApi(release, versionRangeAssemblyName);
             return new VersionRangeLogic(versionApi, versionRangeApi);
+        }
+
+        private IFrameworkApi GetFrameworkApi(NuGetRelease release, AssemblyName assemblyName)
+        {
+            switch (release)
+            {
+                case NuGetRelease.Version2x:
+                    return new FrameworkApi2x(assemblyName);
+
+                case NuGetRelease.Version3x:
+                    return new FrameworkApi3x(assemblyName);
+
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        private IVersionApi GetVersionApi(NuGetRelease release, AssemblyName assemblyName)
+        {
+            switch (release)
+            {
+                case NuGetRelease.Version2x:
+                    return new VersionApi2x(assemblyName);
+
+                case NuGetRelease.Version3x:
+                    return new VersionApi3x(assemblyName);
+
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        private IVersionRangeApi GetVersionRangeApi(NuGetRelease release, AssemblyName assemblyName)
+        {
+            switch (release)
+            {
+                case NuGetRelease.Version2x:
+                    return new VersionRangeApi2x(assemblyName);
+
+                case NuGetRelease.Version3x:
+                    return new VersionRangeApi3x(assemblyName);
+
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         public AssemblyName LoadAssembly(string assemblyPath)

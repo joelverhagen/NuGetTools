@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,7 +47,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
                 .Where(x => versionRange.Satisfies(x));
 
             var identities = ids
-                .SelectMany(id => versions.Select(version => new PackageIdentity(id, version)));
+                .SelectMany(id => limitedVersions.Select(version => new PackageIdentity(id, version)));
 
             await _packageRangeDownloader.DownloadPackagesAsync(sources, identities, log, token);
 

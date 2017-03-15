@@ -5,9 +5,9 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection
 {
     public class Version : MarshalByRefObject, IVersion
     {
-        private readonly VersionApi _api;
+        private readonly IVersionApi _api;
 
-        public Version(object nuGetVersion, VersionApi api)
+        public Version(object nuGetVersion, IVersionApi api)
         {
             NuGetVersion = nuGetVersion;
             _api = api;
@@ -21,5 +21,7 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection
         public string FullString => _api.GetFullString(NuGetVersion);
         public bool IsSemVer2Available => _api.IsSemVer2Available();
         public bool FullStringAvailable => _api.GetFullStringAvailable();
+        public string ToStringResult => _api.GetToStringResult(NuGetVersion);
+        public bool NormalizedStringAvailable => _api.GetNormalizedStringAvailable();
     }
 }

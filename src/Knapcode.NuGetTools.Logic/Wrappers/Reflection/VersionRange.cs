@@ -5,10 +5,10 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection
 {
     public class VersionRange : MarshalByRefObject, IVersionRange
     {
-        private readonly VersionRangeApi _api;
-        private readonly VersionApi _versionApi;
+        private readonly IVersionRangeApi _api;
+        private readonly IVersionApi _versionApi;
 
-        public VersionRange(object nuGetVersionRange, VersionApi versionApi, VersionRangeApi api)
+        public VersionRange(object nuGetVersionRange, IVersionApi versionApi, IVersionRangeApi api)
         {
             NuGetVersionRange = nuGetVersionRange;
             _versionApi = versionApi;
@@ -27,6 +27,9 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection
         public string LegacyString => _api.GetLegacyString(NuGetVersionRange);
         public string OriginalString => _api.GetOriginalString(NuGetVersionRange);
         public bool LegacyShortStringAvailable => _api.GetLegacyShortStringAvailable();
+        public bool IsFloatingAvailable => _api.IsFloatingAvailable();
+        public bool OriginalStringAvailable => _api.GetOriginalStringAvailable();
+        public bool LegacyStringAvailable => _api.GetLegacyStringAvailable();
 
         public IVersion MaxVersion
         {

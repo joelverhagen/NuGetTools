@@ -25,8 +25,19 @@
             <p>
                 The input value is <b>@output.Input.Version</b>.
             </p>
+
             <p>
-                The normalized version is <code>@output.Version.NormalizedString</code>.
+            @if (output.Version.NormalizedStringAvailable)
+            {
+                @:The normalized version is <code>@output.Version.NormalizedString</code>.
+            }
+            else
+            {
+                @:The normalized version is only available in NuGet 2.14.0 or later.
+            }
+            </p>
+            <p>
+                The result of <code>ToString()</code> is <code>@output.Version.ToStringResult</code>.
             </p>
             <p>
             @if (output.Version.FullStringAvailable)

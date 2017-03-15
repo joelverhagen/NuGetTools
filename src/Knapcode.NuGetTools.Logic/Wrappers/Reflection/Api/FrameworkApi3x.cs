@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
 {
-    public class FrameworkApi
+    public class FrameworkApi3x : IFrameworkApi
     {
         private readonly MethodInfo _getDotNetFrameworkName;
         private readonly MethodInfo _getShortFolderName;
@@ -20,7 +20,7 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
         private readonly MethodInfo _getVersion;
         private readonly MethodInfo _getProfile;
 
-        public FrameworkApi(AssemblyName assemblyName)
+        public FrameworkApi3x(AssemblyName assemblyName)
         {
             var assembly = assemblyName.GetAssembly();
 

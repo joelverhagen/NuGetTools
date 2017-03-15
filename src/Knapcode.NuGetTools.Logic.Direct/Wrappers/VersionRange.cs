@@ -27,5 +27,8 @@ namespace Knapcode.NuGetTools.Logic.Direct.Wrappers
         public string LegacyString => NuGetVersionRange.ToLegacyString();
         public string OriginalString => NuGetVersionRange.OriginalString;
         public bool LegacyShortStringAvailable => true;
+        public bool IsFloatingAvailable => true;
+        public bool OriginalStringAvailable => true;
+        public bool LegacyStringAvailable => true;
     }
 }

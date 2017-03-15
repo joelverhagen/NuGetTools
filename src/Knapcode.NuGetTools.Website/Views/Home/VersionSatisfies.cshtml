@@ -29,7 +29,7 @@
         @if (output.Satisfies)
         {
             <div class="alert alert-success" role="alert">
-                <code>@output.Version.NormalizedString</code> (<b><parse-version value="@output.Input.Version" /></b>)
+                <code>@output.Version.ToStringResult</code> (<b><parse-version value="@output.Input.Version" /></b>)
                 satisfies
                 <code>@output.VersionRange.NormalizedString</code> (<b><parse-version-range value="@output.Input.VersionRange" /></b>).
             </div>
@@ -37,7 +37,7 @@
         else
         {
             <div class="alert alert-warning" role="alert">
-                <code>@output.Version.NormalizedString</code> (<b><parse-version value="@output.Input.Version" /></b>)
+                <code>@output.Version.ToStringResult</code> (<b><parse-version value="@output.Input.Version" /></b>)
                 does not satisfy
                 <code>@output.VersionRange.NormalizedString</code> (<b><parse-version-range value="@output.Input.VersionRange" /></b>).
             </div>

@@ -13,5 +13,6 @@ namespace Knapcode.NuGetTools.Logic.Models.VersionRange
         public IReadOnlyList<OutputVersion> Versions { get; set; }
         public OutputVersion BestMatch { get; set; }
         public IReadOnlyList<string> Invalid { get; set; }
+        public bool IsOperationSupported { get; set; }
     }
 }

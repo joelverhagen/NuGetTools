@@ -347,7 +347,7 @@ namespace Knapcode.NuGetTools.Logic
             var output = new VersionSatisfiesOutput
             {
                 InputStatus = InputStatus.Missing,
-                Input = input
+                Input = input,
             };
 
             if (input == null)
@@ -413,7 +413,8 @@ namespace Knapcode.NuGetTools.Logic
                 InputStatus = InputStatus.Missing,
                 Versions = outputVersions,
                 Invalid = invalid,
-                Input = input
+                Input = input,
+                IsOperationSupported = _versionRangeLogic.FindBestMatchAvailable,
             };
 
             if (input == null)
@@ -484,11 +485,14 @@ namespace Knapcode.NuGetTools.Logic
                 {
                     output.InputStatus = InputStatus.Valid;
                     
-                    var versions = output.Versions.Select(x => (TVersion)x.Version).ToArray();
-                    var bestMatch = _versionRangeLogic.FindBestMatch(versionRange, versions);
-                    if (bestMatch != null)
+                    if (output.IsOperationSupported)
                     {
-                        output.BestMatch = output.Versions.First(x => x.Version.Equals(bestMatch));
+                        var versions = output.Versions.Select(x => (TVersion)x.Version).ToArray();
+                        var bestMatch = _versionRangeLogic.FindBestMatch(versionRange, versions);
+                        if (bestMatch != null)
+                        {
+                            output.BestMatch = output.Versions.First(x => x.Version.Equals(bestMatch));
+                        }
                     }
                 }
                 else

@@ -9,5 +9,6 @@ namespace Knapcode.NuGetTools.Logic.Wrappers
         TVersionRange Parse(string input);
         bool Satisfies(TVersionRange versionRange, TVersion version);
         TVersion FindBestMatch(TVersionRange versionRange, IEnumerable<TVersion> versions);
+        bool FindBestMatchAvailable { get; }
     }
 }

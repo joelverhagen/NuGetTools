@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
 {
-    public class VersionRangeApi
+    public class VersionRangeApi3x : IVersionRangeApi
     {
         private readonly MethodInfo _parse;
         private readonly Type _nuGetVersionListType;
@@ -26,7 +25,7 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
         private readonly MethodInfo _getOriginalString;
         public readonly bool _getLegacyShortStringAvailable;
 
-        public VersionRangeApi(AssemblyName assemblyName)
+        public VersionRangeApi3x(AssemblyName assemblyName)
         {
             var assembly = assemblyName.GetAssembly();
 
@@ -190,6 +189,26 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
         public bool GetLegacyShortStringAvailable()
         {
             return _getLegacyShortStringAvailable;
+        }
+
+        public bool GetLegacyStringAvailable()
+        {
+            return true;
+        }
+
+        public bool GetOriginalStringAvailable()
+        {
+            return true;
+        }
+
+        public bool IsFloatingAvailable()
+        {
+            return true;
+        }
+
+        public bool FindBestMatchAvailable()
+        {
+            return true;
         }
     }
 }

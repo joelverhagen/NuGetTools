@@ -7,9 +7,9 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection
 {
     public class FrameworkLogic : MarshalByRefObject, IFrameworkLogic<Framework>
     {
-        private readonly FrameworkApi _api;
+        private readonly IFrameworkApi _api;
 
-        public FrameworkLogic(FrameworkApi api)
+        public FrameworkLogic(IFrameworkApi api)
         {
             _api = api;
         }

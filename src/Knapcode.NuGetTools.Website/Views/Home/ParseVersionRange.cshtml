@@ -26,7 +26,14 @@
                 The input value is <b>@output.Input.VersionRange</b>.
             </p>
             <p>
-                The version range is <b>@(output.VersionRange.IsFloating ? "floating" : "not floating")</b>.
+            @if (output.VersionRange.IsFloatingAvailable)
+            {
+                @:The version range is <b>@(output.VersionRange.IsFloating ? "floating" : "not floating")</b>.
+            }
+            else
+            {
+                @:Floating versions are only available in NuGet 3.x.
+            }
             </p>
             <p>
                 The normalized version range is <code>@output.VersionRange.NormalizedString</code>.
@@ -34,8 +41,16 @@
             <p>
                 The pretty printed version range is <code>@output.VersionRange.PrettyPrint</code>.
             </p>
+
             <p>
-                The legacy string is <code>@output.VersionRange.LegacyString</code>.
+            @if (output.VersionRange.LegacyStringAvailable)
+            {
+                @:The legacy string is <code>@output.VersionRange.LegacyString</code>.
+            }
+            else
+            {
+                @:The legacy string is only available in NuGet 3.x.
+            }
             </p>
             <p>
             @if (output.VersionRange.LegacyShortStringAvailable)
@@ -48,14 +63,21 @@
             }
             </p>
             <p>
-                The original string is <code>@output.VersionRange.OriginalString</code>.
+            @if (output.VersionRange.LegacyShortStringAvailable)
+            {
+                @:The original string is <code>@output.VersionRange.OriginalString</code>.
+            }
+            else
+            {
+                @:The original string is only available in NuGet 3.x.
+            }
             </p>
             <p>
                 @if (output.VersionRange.HasLowerBound)
                 {
                     <text>
                         The version range has an <b>@(output.VersionRange.IsMinInclusive ? "inclusive" : "exclusive") lower bound</b> of
-                        <parse-version value="@output.VersionRange.MinVersion.NormalizedString"><code>@output.VersionRange.MinVersion.NormalizedString</code></parse-version>.
+                        <parse-version value="@output.VersionRange.MinVersion.ToStringResult"><code>@output.VersionRange.MinVersion.ToStringResult</code></parse-version>.
                     </text>
                 }
                 else
@@ -68,7 +90,7 @@
                 {
                     <text>
                         The version range has an <b>@(output.VersionRange.IsMaxInclusive ? "inclusive" : "exclusive") upper bound</b> of
-                        <parse-version value="@output.VersionRange.MaxVersion.NormalizedString"><code>@output.VersionRange.MaxVersion.NormalizedString</code></parse-version>.
+                        <parse-version value="@output.VersionRange.MaxVersion.ToStringResult"><code>@output.VersionRange.MaxVersion.ToStringResult</code></parse-version>.
                     </text>
                 }
                 else

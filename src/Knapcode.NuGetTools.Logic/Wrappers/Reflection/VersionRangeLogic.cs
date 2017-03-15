@@ -7,10 +7,12 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection
 {
     public class VersionRangeLogic : MarshalByRefObject, IVersionRangeLogic<Version, VersionRange>
     {
-        private readonly VersionRangeApi _api;
-        private readonly VersionApi _versionApi;
+        private readonly IVersionRangeApi _api;
+        private readonly IVersionApi _versionApi;
 
-        public VersionRangeLogic(VersionApi versionApi, VersionRangeApi api)
+        public bool FindBestMatchAvailable => _api.FindBestMatchAvailable();
+
+        public VersionRangeLogic(IVersionApi versionApi, IVersionRangeApi api)
         {
             _versionApi = versionApi;
             _api = api;

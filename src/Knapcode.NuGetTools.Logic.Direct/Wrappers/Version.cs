@@ -1,4 +1,5 @@
-﻿using Knapcode.NuGetTools.Logic.Wrappers;
+﻿using System;
+using Knapcode.NuGetTools.Logic.Wrappers;
 using NuGet.Versioning;
 
 namespace Knapcode.NuGetTools.Logic.Direct.Wrappers
@@ -18,5 +19,7 @@ namespace Knapcode.NuGetTools.Logic.Direct.Wrappers
         public int Revision => NuGetVersion.Revision;
         public bool IsSemVer2Available => true;
         public bool FullStringAvailable => true;
+        public string ToStringResult => NuGetVersion.ToString();
+        public bool NormalizedStringAvailable => true;
     }
 }

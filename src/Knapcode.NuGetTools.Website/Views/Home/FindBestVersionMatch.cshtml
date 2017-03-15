@@ -29,14 +29,20 @@
         if (output.BestMatch != null)
         {
             <div class="alert alert-success" role="alert">
-                The <code>@output.BestMatch.Version.NormalizedString</code> (<b><parse-version value="@output.BestMatch.Input" /></b>) version
+                The <code>@output.BestMatch.Version.ToStringResult</code> (<b><parse-version value="@output.BestMatch.Input" /></b>) version
                 is the best match to the <code>@output.VersionRange.NormalizedString</code> (<b><parse-version-range value="@output.Input.VersionRange" /></b>) version range.
+            </div>
+        }
+        else if (output.IsOperationSupported)
+        {
+            <div class="alert alert-warning" role="alert">
+                None of the recognized versions satisfied the <code>@output.VersionRange.NormalizedString</code> (<b><parse-version-range value="@output.Input.VersionRange" /></b>) version range.
             </div>
         }
         else
         {
             <div class="alert alert-warning" role="alert">
-                None of the recognized versions satisfied the <code>@output.VersionRange.NormalizedString</code> (<b><parse-version-range value="@output.Input.VersionRange" /></b>) version range.
+                Finding the best version match is only supported in NuGet 3.x and greater.
             </div>
         }
 
@@ -54,7 +60,7 @@
                         {
                             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                         }
-                        <code>@input.Version.NormalizedString</code>
+                        <code>@input.Version.ToStringResult</code>
                         (<b><parse-version value="@input.Input" /></b>)
                     </li>
                 }

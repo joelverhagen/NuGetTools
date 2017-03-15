@@ -5,9 +5,9 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection
 {
     public class VersionLogic : MarshalByRefObject, IVersionLogic<Version>
     {
-        private readonly VersionApi _api;
+        private readonly IVersionApi _api;
 
-        public VersionLogic(VersionApi api)
+        public VersionLogic(IVersionApi api)
         {
             _api = api;
         }

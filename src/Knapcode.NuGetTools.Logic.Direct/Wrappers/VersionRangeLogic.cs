@@ -7,6 +7,8 @@ namespace Knapcode.NuGetTools.Logic.Direct.Wrappers
 {
     public class VersionRangeLogic : IVersionRangeLogic<Version, VersionRange>
     {
+        public bool FindBestMatchAvailable => true;
+
         public Version FindBestMatch(VersionRange versionRange, IEnumerable<Version> versions)
         {
             var bestMatch = versionRange.NuGetVersionRange.FindBestMatch(

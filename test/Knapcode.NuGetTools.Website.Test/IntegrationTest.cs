@@ -127,7 +127,7 @@ namespace Knapcode.NuGetTools.Website.Tests
             // Arrange
             using (var tc = new TestContext())
             {
-                var requestUri = $"/{version}/parse-version?version=1.0.0-beta.1";
+                var requestUri = $"/{version}/parse-version?version=1.0.0-beta01";
 
                 // Act
                 var response = await tc.Client.GetAsync(requestUri);
@@ -135,7 +135,7 @@ namespace Knapcode.NuGetTools.Website.Tests
                 // Assert
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
                 var text = await tc.GetFlattenedTextAsync(response);
-                Assert.Contains("The normalized version is 1.0.0-beta.1.", text);
+                Assert.Contains("The result of ToString() is 1.0.0-beta01.", text);
             }
         }
 
@@ -211,7 +211,14 @@ namespace Knapcode.NuGetTools.Website.Tests
                 // Assert
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
                 var text = await tc.GetFlattenedTextAsync(response);
-                Assert.Contains("The 1.5.0 (1.5.0) version is the best match to the [1.0.0, 2.0.0] ([1.0.0, 2.0.0]) version range.", text);
+                if (version.Major >= 3)
+                {
+                    Assert.Contains("The 1.5.0 (1.5.0) version is the best match to the [1.0.0, 2.0.0] ([1.0.0, 2.0.0]) version range.", text);
+                }
+                else
+                {
+                    Assert.Contains("Finding the best version match is only supported in NuGet 3.x and greater.", text);
+                }
             }
         }
 

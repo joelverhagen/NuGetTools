@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Knapcode.NuGetTools.Logic.Wrappers.Reflection;
@@ -17,6 +18,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
     {
         private const string _versioningId = "NuGet.Versioning";
         private const string _frameworksId = "NuGet.Frameworks";
+        private const string _coreId = "NuGet.Core";
         private static NuGetFramework _framework = FrameworkConstants.CommonFrameworks.Net46;
 
         private readonly IAlignedVersionsDownloader _downloader;
@@ -25,15 +27,16 @@ namespace Knapcode.NuGetTools.Logic.Direct
 
         private readonly Lazy<Task<Dictionary<string, NuGetVersion>>> _versions;
         private readonly Lazy<Task<List<string>>> _versionStrings;
+        private readonly Lazy<Task<Dictionary<NuGetVersion, NuGetRelease>>> _releases;
 
-        private readonly ConcurrentDictionary<NuGetVersion, Logic> _logic
-            = new ConcurrentDictionary<NuGetVersion, Logic>();
+        private readonly ConcurrentDictionary<NuGetVersion, Task<Logic>> _logic
+            = new ConcurrentDictionary<NuGetVersion, Task<Logic>>();
 
-        private readonly ConcurrentDictionary<NuGetVersion, IToolsService> _toolServices
-            = new ConcurrentDictionary<NuGetVersion, IToolsService>();
+        private readonly ConcurrentDictionary<NuGetVersion, Task<IToolsService>> _toolServices
+            = new ConcurrentDictionary<NuGetVersion, Task<IToolsService>>();
 
-        private readonly ConcurrentDictionary<NuGetVersion, IFrameworkPrecedenceService> _frameworkPrecendenceServices
-            = new ConcurrentDictionary<NuGetVersion, IFrameworkPrecedenceService>();
+        private readonly ConcurrentDictionary<NuGetVersion, Task<IFrameworkPrecedenceService>> _frameworkPrecendenceServices
+            = new ConcurrentDictionary<NuGetVersion, Task<IFrameworkPrecedenceService>>();
         
         public ToolsFactory(IPackageLoader packageLoader, IAlignedVersionsDownloader downloader, IFrameworkList frameworkList)
         {
@@ -41,14 +44,34 @@ namespace Knapcode.NuGetTools.Logic.Direct
             _downloader = downloader;
             _frameworkList = frameworkList;
 
+            _releases = new Lazy<Task<Dictionary<NuGetVersion, NuGetRelease>>>(async () =>
+            {
+                var versions2x = await _downloader.GetDownloadedVersionsAsync(
+                    PackageIds2x,
+                    CancellationToken.None);
+                var pairs2x = versions2x
+                    .Select(x => new KeyValuePair<NuGetVersion, NuGetRelease>(x, NuGetRelease.Version2x));
+
+                var versions3x = await _downloader.GetDownloadedVersionsAsync(
+                    PackageIds3x,
+                    CancellationToken.None);
+                var pairs3x = versions3x
+                    .Select(x => new KeyValuePair<NuGetVersion, NuGetRelease>(x, NuGetRelease.Version3x));
+
+                return pairs2x
+                    .Concat(pairs3x)
+                    .ToDictionary(x => x.Key, x => x.Value);
+            });
+
             _versions = new Lazy<Task<Dictionary<string, NuGetVersion>>>(async () =>
             {
-                var versions = await _downloader.GetDownloadedVersionsAsync(
-                    PackageIds,
-                    CancellationToken.None);
+                var releases = await _releases.Value;
 
-                return versions
-                    .ToDictionary(x => x.ToNormalizedString(), StringComparer.OrdinalIgnoreCase);
+                return releases
+                    .ToDictionary(
+                        x => x.Key.ToNormalizedString(),
+                        x => x.Key,
+                        StringComparer.OrdinalIgnoreCase);
             });
 
             _versionStrings = new Lazy<Task<List<string>>>(async () =>
@@ -62,10 +85,15 @@ namespace Knapcode.NuGetTools.Logic.Direct
             });
         }
 
-        public static IEnumerable<string> PackageIds { get; } = new[]
+        public static IEnumerable<string> PackageIds3x { get; } = new[]
         {
             _versioningId,
             _frameworksId
+        };
+
+        public static IEnumerable<string> PackageIds2x { get; } = new[]
+        {
+            _coreId
         };
 
         public async Task<IEnumerable<string>> GetAvailableVersionsAsync(CancellationToken token)
@@ -82,11 +110,11 @@ namespace Knapcode.NuGetTools.Logic.Direct
                 return null;
             }
 
-            return _toolServices.GetOrAdd(
+            return await _toolServices.GetOrAdd(
                 matchingVersion,
-                key =>
+                async key =>
                 {
-                    var logic = GetLogic(key);
+                    var logic = await GetLogicAsync(key);
 
                     return new ToolsService<Framework, Version, VersionRange>(
                         version,
@@ -105,11 +133,11 @@ namespace Knapcode.NuGetTools.Logic.Direct
                 return null;
             }
             
-            return _frameworkPrecendenceServices.GetOrAdd(
+            return await _frameworkPrecendenceServices.GetOrAdd(
                 matchingVersion,
-                key =>
+                async key =>
                 {
-                    var logic = GetLogic(key);
+                    var logic = await GetLogicAsync(key);
 
                     return new FrameworkPrecedenceService<Framework>(
                         version,
@@ -123,9 +151,9 @@ namespace Knapcode.NuGetTools.Logic.Direct
             return Task.FromResult(_frameworkList);
         }
 
-        private Logic GetLogic(NuGetVersion version)
+        private async Task<Logic> GetLogicAsync(NuGetVersion version)
         {
-            return _logic.GetOrAdd(version, GetLogicWithoutCaching);
+            return await _logic.GetOrAdd(version, GetLogicWithoutCachingAsync);
         }
 
         private async Task<NuGetVersion> GetMatchingVersionAsync(string version)
@@ -140,9 +168,55 @@ namespace Knapcode.NuGetTools.Logic.Direct
             return matchedVersion;
         }
 
-        private Logic GetLogicWithoutCaching(NuGetVersion version)
+        private async Task<Logic> GetLogicWithoutCachingAsync(NuGetVersion version)
         {
-            // Load the needed assemblies.
+            var releases = await _releases.Value;
+            NuGetRelease release;
+            if (!releases.TryGetValue(version, out release))
+            {
+                throw new ArgumentException($"The provided version '{version}' is not supported");
+            }
+
+            LoadedAssemblies loadedAssemblies;
+            switch (release)
+            {
+                case NuGetRelease.Version2x:
+                    loadedAssemblies = LoadV2Assemblies(version);
+                    break;
+
+                case NuGetRelease.Version3x:
+                    loadedAssemblies = LoadV3Assemblies(version);
+                    break;
+
+                default:
+                    throw new NotImplementedException();
+            }
+            
+            return InitializeLogic(release, loadedAssemblies);
+        }
+
+        private LoadedAssemblies LoadV2Assemblies(NuGetVersion version)
+        {
+            var coreIdentity = new PackageIdentity(_coreId, version);
+            var context = _packageLoader.LoadPackageAssemblies(
+                version.ToNormalizedString(),
+                _framework,
+                coreIdentity);
+            
+            var coreAssemblyName = context.LoadedAssemblies.GetByName(_coreId);
+
+            var loaded = new LoadedAssemblies
+            {
+                Context = context,
+                Framework = coreAssemblyName,
+                Version = coreAssemblyName,
+                VersionRange = coreAssemblyName,
+            };
+            return loaded;
+        }
+
+        private LoadedAssemblies LoadV3Assemblies(NuGetVersion version)
+        {
             var versioningIdentity = new PackageIdentity(_versioningId, version);
             _packageLoader.LoadPackageAssemblies(
                 version.ToNormalizedString(),
@@ -154,15 +228,25 @@ namespace Knapcode.NuGetTools.Logic.Direct
                 version.ToNormalizedString(),
                 _framework,
                 frameworksIdentity);
-
-            // Find the framework names of the needed assemblies.
+            
             var versioningAssemblyName = context.LoadedAssemblies.GetByName(_versioningId);
             var frameworksAssemblyName = context.LoadedAssemblies.GetByName(_frameworksId);
 
-            // Load the logic implementations.
-            var frameworkLogic = context.Proxy.GetFrameworkLogic(frameworksAssemblyName);
-            var versionLogic = context.Proxy.GetVersionLogic(versioningAssemblyName);
-            var versionRangeLogic = context.Proxy.GetVersionRangeLogic(versioningAssemblyName);
+            var loaded = new LoadedAssemblies
+            {
+                Context = context,
+                Framework = frameworksAssemblyName,
+                Version = versioningAssemblyName,
+                VersionRange = versioningAssemblyName,
+            };
+            return loaded;
+        }
+
+        private static Logic InitializeLogic(NuGetRelease release, LoadedAssemblies loaded)
+        {
+            var frameworkLogic = loaded.Context.Proxy.GetFrameworkLogic(release, loaded.Framework);
+            var versionLogic = loaded.Context.Proxy.GetVersionLogic(release, loaded.Version);
+            var versionRangeLogic = loaded.Context.Proxy.GetVersionRangeLogic(release, loaded.Version, loaded.VersionRange);
 
             return new Logic
             {
@@ -177,6 +261,14 @@ namespace Knapcode.NuGetTools.Logic.Direct
             public FrameworkLogic Framework { get; set; }
             public VersionLogic Version { get; set; }
             public VersionRangeLogic VersionRange { get; set; }
+        }
+
+        private class LoadedAssemblies
+        {
+            public AppDomainContext Context { get; set; }
+            public AssemblyName Framework { get; set; }
+            public AssemblyName Version { get; set; }
+            public AssemblyName VersionRange { get; set; }
         }
     }
 }
