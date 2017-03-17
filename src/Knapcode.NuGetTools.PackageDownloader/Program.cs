@@ -4,6 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Knapcode.NuGetTools.Logic.Direct;
 using Microsoft.Extensions.CommandLineUtils;
+using NuGet.Common;
+using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 using VersionRange = NuGet.Versioning.VersionRange;
 
@@ -61,25 +63,38 @@ namespace Knapcode.NuGetTools.PackageDownloader
 
             var alignedVersionDownloader = new AlignedVersionsDownloader(packageRangeDownloader);
 
-            var downloadTask = DownloadAsync(sources, alignedVersionDownloader);
+            using (var sourceCacheContext = new SourceCacheContext())
+            {
+                var downloadTask = DownloadAsync(
+                    sources,
+                    alignedVersionDownloader,
+                    sourceCacheContext,
+                    new ConsoleLogger());
 
-            downloadTask.Wait();
+                downloadTask.Wait();
+            }
         }
 
-        private static async Task DownloadAsync(List<string> sources, AlignedVersionsDownloader alignedVersionDownloader)
+        private static async Task DownloadAsync(
+            List<string> sources,
+            AlignedVersionsDownloader alignedVersionDownloader,
+            SourceCacheContext sourceCacheContext,
+            ILogger log)
         {
             await alignedVersionDownloader.DownloadPackagesAsync(
                 sources,
                 ToolsFactory.PackageIds2x,
                 VersionRange.Parse("[2.5.0, )", allowFloating: false),
-                new ConsoleLogger(),
+                sourceCacheContext,
+                log,
                 CancellationToken.None);
 
             await alignedVersionDownloader.DownloadPackagesAsync(
                 sources,
                 ToolsFactory.PackageIds3x,
                 VersionRange.All,
-                new ConsoleLogger(),
+                sourceCacheContext,
+                log,
                 CancellationToken.None);
         }
     }

@@ -30,11 +30,15 @@ namespace Knapcode.NuGetTools.Logic.Direct
             _findPackageByIdResource = new Lazy<Task<FindPackageByIdResource>>(GetFindPackageByIdResourceAsync);
         }
 
-        public async Task<IEnumerable<PackageIdentity>> GetDownloadedVersionsAsync(string id, CancellationToken token)
+        public async Task<IEnumerable<PackageIdentity>> GetDownloadedVersionsAsync(
+            string id,
+            SourceCacheContext sourceCacheContext,
+            ILogger log,
+            CancellationToken token)
         {
             var findPackageByIdResource = await _findPackageByIdResource.Value;
 
-            var versions = await findPackageByIdResource.GetAllVersionsAsync(id, token);
+            var versions = await findPackageByIdResource.GetAllVersionsAsync(id, sourceCacheContext, log, token);
 
             return versions.Select(x => new PackageIdentity(id, x));
         }
@@ -72,13 +76,14 @@ namespace Knapcode.NuGetTools.Logic.Direct
         public async Task DownloadPackagesAsync(
             IEnumerable<string> sources,
             IEnumerable<PackageIdentity> packageIdentities,
+            SourceCacheContext sourceCacheContext,
             ILogger log,
             CancellationToken token)
         {
             var sourceRepositories = GetSourceRepositories(sources);
             
             var downloadTasks = packageIdentities
-                .Select(x => DownloadPackageAsync(sourceRepositories, x, log, token));
+                .Select(x => DownloadPackageAsync(sourceRepositories, x, sourceCacheContext, log, token));
 
             await Task.WhenAll(downloadTasks);
         }
@@ -118,13 +123,16 @@ namespace Knapcode.NuGetTools.Logic.Direct
         private async Task DownloadPackageAsync(
             List<SourceRepository> sourceRepositories,
             PackageIdentity identity,
+            SourceCacheContext sourceCacheContext,
             ILogger log,
             CancellationToken token)
         {
+            var packageDownloadContext = new PackageDownloadContext(sourceCacheContext);
             var result = await PackageDownloader.GetDownloadResourceResultAsync(
                 sourceRepositories,
                 packageIdentity: identity,
-                settings: _nuGetSettings.Settings,
+                downloadContext: packageDownloadContext,
+                globalPackagesFolder: _nuGetSettings.GlobalPackagesFolder,
                 logger: log,
                 token: token);
 

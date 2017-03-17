@@ -6,8 +6,10 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Knapcode.NuGetTools.Logic.Wrappers.Reflection;
+using Microsoft.Extensions.Logging;
 using NuGet.Frameworks;
 using NuGet.Packaging.Core;
+using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 using Version = Knapcode.NuGetTools.Logic.Wrappers.Reflection.Version;
 using VersionRange = Knapcode.NuGetTools.Logic.Wrappers.Reflection.VersionRange;
@@ -37,30 +39,39 @@ namespace Knapcode.NuGetTools.Logic.Direct
 
         private readonly ConcurrentDictionary<NuGetVersion, Task<IFrameworkPrecedenceService>> _frameworkPrecendenceServices
             = new ConcurrentDictionary<NuGetVersion, Task<IFrameworkPrecedenceService>>();
-        
-        public ToolsFactory(IPackageLoader packageLoader, IAlignedVersionsDownloader downloader, IFrameworkList frameworkList)
+        private readonly MicrosoftLogger _nuGetLog;
+
+        public ToolsFactory(IPackageLoader packageLoader, IAlignedVersionsDownloader downloader, IFrameworkList frameworkList, ILogger<ToolsFactory> log)
         {
             _packageLoader = packageLoader;
             _downloader = downloader;
             _frameworkList = frameworkList;
+            _nuGetLog = new MicrosoftLogger(log);
 
             _releases = new Lazy<Task<Dictionary<NuGetVersion, NuGetRelease>>>(async () =>
             {
-                var versions2x = await _downloader.GetDownloadedVersionsAsync(
-                    PackageIds2x,
-                    CancellationToken.None);
-                var pairs2x = versions2x
-                    .Select(x => new KeyValuePair<NuGetVersion, NuGetRelease>(x, NuGetRelease.Version2x));
+                using (var sourceCacheContext = new SourceCacheContext())
+                {
+                    var versions2x = await _downloader.GetDownloadedVersionsAsync(
+                        PackageIds2x,
+                        sourceCacheContext,
+                        _nuGetLog,
+                        CancellationToken.None);
+                    var pairs2x = versions2x
+                        .Select(x => new KeyValuePair<NuGetVersion, NuGetRelease>(x, NuGetRelease.Version2x));
 
-                var versions3x = await _downloader.GetDownloadedVersionsAsync(
-                    PackageIds3x,
-                    CancellationToken.None);
-                var pairs3x = versions3x
-                    .Select(x => new KeyValuePair<NuGetVersion, NuGetRelease>(x, NuGetRelease.Version3x));
+                    var versions3x = await _downloader.GetDownloadedVersionsAsync(
+                        PackageIds3x,
+                        sourceCacheContext,
+                        _nuGetLog,
+                        CancellationToken.None);
+                    var pairs3x = versions3x
+                        .Select(x => new KeyValuePair<NuGetVersion, NuGetRelease>(x, NuGetRelease.Version3x));
 
-                return pairs2x
-                    .Concat(pairs3x)
-                    .ToDictionary(x => x.Key, x => x.Value);
+                    return pairs2x
+                        .Concat(pairs3x)
+                        .ToDictionary(x => x.Key, x => x.Value);
+                }
             });
 
             _versions = new Lazy<Task<Dictionary<string, NuGetVersion>>>(async () =>

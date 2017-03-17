@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NuGet.Common;
 using NuGet.Packaging.Core;
+using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 using NuGetVersionRange = NuGet.Versioning.VersionRange;
 
@@ -22,13 +22,19 @@ namespace Knapcode.NuGetTools.Logic.Direct
 
         public async Task<IEnumerable<NuGetVersion>> GetDownloadedVersionsAsync(
             IEnumerable<string> ids,
+            SourceCacheContext sourceCacheContext,
+            ILogger log,
             CancellationToken token)
         {
             return await GetAlignedVersionsAsync(
                 ids,
                 async id =>
                 {
-                    var identities = await _packageRangeDownloader.GetDownloadedVersionsAsync(id, token);
+                    var identities = await _packageRangeDownloader.GetDownloadedVersionsAsync(
+                        id,
+                        sourceCacheContext,
+                        log,
+                        token);
 
                     return identities.Select(x => x.Version);
                 });
@@ -38,6 +44,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
             IEnumerable<string> sources,
             IEnumerable<string> ids,
             NuGetVersionRange versionRange,
+            SourceCacheContext sourceCacheContext,
             ILogger log,
             CancellationToken token)
         {
@@ -49,7 +56,12 @@ namespace Knapcode.NuGetTools.Logic.Direct
             var identities = ids
                 .SelectMany(id => limitedVersions.Select(version => new PackageIdentity(id, version)));
 
-            await _packageRangeDownloader.DownloadPackagesAsync(sources, identities, log, token);
+            await _packageRangeDownloader.DownloadPackagesAsync(
+                sources,
+                identities,
+                sourceCacheContext,
+                log,
+                token);
 
             return versions;
         }
