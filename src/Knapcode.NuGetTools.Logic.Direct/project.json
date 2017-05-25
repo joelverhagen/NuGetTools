@@ -4,7 +4,7 @@
       "target": "project"
     },
     "Microsoft.Extensions.Logging.Abstractions": "1.1.0",
-    "NuGet.PackageManagement": "4.0.0"
+    "NuGet.PackageManagement": "4.3.0-beta1-2418"
   },
 
   "frameworks": {
