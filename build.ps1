@@ -31,7 +31,7 @@ function Get-ProjectDir
 function Get-Project
 {
     param([string] $Dir, [string] $Name)
-    Join-Path (Get-ProjectDir -Dir $Dir -Name $Name) "project.json"
+    Join-Path (Get-ProjectDir -Dir $Dir -Name $Name) "$Name.csproj"
 }
 
 function Get-BuildProject
@@ -72,11 +72,11 @@ if (-Not $SkipPrepare) {
     $dotnet = Join-Path $dotnetCliDir "dotnet.exe"
 
     New-Item $dotnetCliDir -Force -Type Directory | Out-Null
-    $dotnetCliUrl = "https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0-preview2/scripts/obtain/dotnet-install.ps1"
+    $dotnetCliUrl = "https://raw.githubusercontent.com/dotnet/cli/b2059c434ec52ac45ab27bb5e4238ef354556055/scripts/obtain/dotnet-install.ps1"
     $dotnetCliInstallScript = Join-Path $dotnetCliDir "dotnet-install.ps1"
     Invoke-WebRequest $dotnetCliUrl -OutFile $dotnetCliInstallScript
 
-    & $dotnetCliInstallScript -InstallDir $dotnetCliDir -Version 1.0.0-preview2-003156
+    & $dotnetCliInstallScript -InstallDir $dotnetCliDir -Version 1.0.4
     Show-ErrorExitCode
 } else {
     Trace-Information "Skipped prepare."
@@ -113,7 +113,7 @@ if (-Not $SkipBuild) {
     }
     
     Trace-Information "Building..."
-    $projectsToBuild = Get-ChildItem $root -Recurse -Include "project.json"
+    $projectsToBuild = Get-ChildItem $root -Recurse -Include "*.csproj"
     foreach ($projectToBuild in $projectsToBuild)
     {
        & $dotnet build $projectToBuild
@@ -133,10 +133,10 @@ if (-Not $SkipPackageDownload) {
 
 if (-Not $SkipTests) {
     Trace-Information "Testing..."
-    $projectsToTest = Get-ChildItem (Join-Path $root "test") -Recurse -Include "project.json"
+    $projectsToTest = Get-ChildItem (Join-Path $root "test") -Recurse -Include "*.csproj"
     foreach ($projectToTest in $projectsToTest)
     {
-       & $dotnet test $projectToTest -verbose
+       & $dotnet test $projectToTest
        Show-ErrorExitCode
     }
 } else {
