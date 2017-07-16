@@ -9,6 +9,7 @@ param (
 )
 
 $root = $PSScriptRoot
+$solution = Join-Path $root "NuGetTools.sln"
 $lastTraceTime = Get-Date
 
 function Trace-Time() {
@@ -84,7 +85,7 @@ if (-Not $SkipPrepare) {
 
 if (-Not $SkipRestore) {
     Trace-Information "Restoring projects..."
-    & $dotnet restore $root
+    & $dotnet restore $solution
     Show-ErrorExitCode
 } else {
     Trace-Information "Skipped restore."
@@ -113,12 +114,8 @@ if (-Not $SkipBuild) {
     }
     
     Trace-Information "Building..."
-    $projectsToBuild = Get-ChildItem $root -Recurse -Include "*.csproj"
-    foreach ($projectToBuild in $projectsToBuild)
-    {
-       & $dotnet build $projectToBuild
-       Show-ErrorExitCode
-    }
+    & $dotnet build $solution
+    Show-ErrorExitCode
 } else {
     Trace-Information "Skipped build."
 }
@@ -136,8 +133,8 @@ if (-Not $SkipTests) {
     $projectsToTest = Get-ChildItem (Join-Path $root "test") -Recurse -Include "*.csproj"
     foreach ($projectToTest in $projectsToTest)
     {
-       & $dotnet test $projectToTest
-       Show-ErrorExitCode
+        & $dotnet test $projectToTest
+        Show-ErrorExitCode
     }
 } else {
     Trace-Information "Skipped tests."
