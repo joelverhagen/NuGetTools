@@ -52,7 +52,7 @@ namespace Knapcode.NuGetTools.Build
             // Discover all project.json files.
             var projects = Directory.EnumerateFiles(
                 baseDirectory,
-                "*project.json",
+                "*.csproj",
                 SearchOption.AllDirectories);
 
             // Write assembly info for each project.json.
