@@ -55,26 +55,26 @@
                 if (output.Version.Revision != 0)
                 {
                     @:The version has a revision (fourth integer in the version) so it is not strictly SemVer. However,
-                    @:NuGet considers the version to be
+                    @:NuGet considers the version to be a
                     if (output.Version.IsSemVer2)
                     {
-                        @:<b>SemVer 2.0.0</b>.
+                        @:<b>SemVer 2.0.0</b> version string.
                     }
                     else
                     {
-                        @:<b>SemVer 1.0.0</b>.
+                        @:<b>SemVer 1.0.0</b> version string.
                     }
                 }
                 else
                 {
-                    @:The version is
+                    @:The version is considered a
                     if (output.Version.IsSemVer2)
                     {
-                        @:<b>SemVer 2.0.0</b>.
+                        @:<b>SemVer 2.0.0</b> version string.
                     }
                     else
                     {
-                        @:<b>SemVer 1.0.0</b>.
+                        @:<b>SemVer 1.0.0</b> version string.
                     }
                 }
             }
