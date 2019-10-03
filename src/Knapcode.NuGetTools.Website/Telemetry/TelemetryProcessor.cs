@@ -32,7 +32,9 @@ namespace Knapcode.NuGetTools.Website
             if (SuccessResponseCodes.Contains(responseCode))
             {
                 requestTelemetry.Success = true;
-                requestTelemetry.Context.Properties[PropertyKey] = PropertyValue;
+
+                var itemTelemetry = (ISupportProperties)telemetry;
+                itemTelemetry.Properties[PropertyKey] = PropertyValue;
             }
         }
     }
