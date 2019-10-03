@@ -73,11 +73,11 @@ if (-Not $SkipPrepare) {
     $dotnet = Join-Path $dotnetCliDir "dotnet.exe"
 
     New-Item $dotnetCliDir -Force -Type Directory | Out-Null
-    $dotnetCliUrl = "https://raw.githubusercontent.com/dotnet/cli/b2059c434ec52ac45ab27bb5e4238ef354556055/scripts/obtain/dotnet-install.ps1"
+    $dotnetCliUrl = "https://raw.githubusercontent.com/dotnet/cli/90f7007f5ef54867b6d697d1320acf92c3850c45/scripts/obtain/dotnet-install.ps1"
     $dotnetCliInstallScript = Join-Path $dotnetCliDir "dotnet-install.ps1"
     Invoke-WebRequest $dotnetCliUrl -OutFile $dotnetCliInstallScript
 
-    & $dotnetCliInstallScript -InstallDir $dotnetCliDir -Version 1.0.4
+    & $dotnetCliInstallScript -InstallDir $dotnetCliDir -Version 2.2.402
     Show-ErrorExitCode
 } else {
     Trace-Information "Skipped prepare."
@@ -133,7 +133,7 @@ if (-Not $SkipTests) {
     $projectsToTest = Get-ChildItem (Join-Path $root "test") -Recurse -Include "*.csproj"
     foreach ($projectToTest in $projectsToTest)
     {
-        & $dotnet test $projectToTest
+        & $dotnet test $projectToTest --no-build --verbosity normal
         Show-ErrorExitCode
     }
 } else {

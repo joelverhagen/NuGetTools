@@ -110,14 +110,18 @@ namespace Knapcode.NuGetTools.Logic.Direct
                 sourceRepository,
                 key => key.GetResourceAsync<PackageMetadataResource>(token));
             
-            var allMetadata = await metadataResource.GetMetadataAsync(
-                id,
-                includePrerelease: true,
-                includeUnlisted: false,
-                log: log,
-                token: token);
+            using (var sourceCacheContext = new SourceCacheContext())
+            {
+                var allMetadata = await metadataResource.GetMetadataAsync(
+                   id,
+                   includePrerelease: true,
+                   includeUnlisted: false,
+                   sourceCacheContext: sourceCacheContext,
+                   log: log,
+                   token: token);
 
-            return allMetadata.Select(x => x.Identity);
+                return allMetadata.Select(x => x.Identity);
+            }
         }
 
         private async Task DownloadPackageAsync(

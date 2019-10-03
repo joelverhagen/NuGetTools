@@ -41,7 +41,6 @@ namespace Knapcode.NuGetTools.Website
 
         public IConfigurationRoot Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton(serviceProvider =>
@@ -54,6 +53,14 @@ namespace Knapcode.NuGetTools.Website
 
                 return nuGetSettings;
             });
+
+            services.AddLogging(builder =>
+            {
+                builder.AddConsole();
+                builder.AddDebug();
+            });
+
+            services.AddApplicationInsightsTelemetry();
 
             services.AddTransient<IAlignedVersionsDownloader, AlignedVersionsDownloader>();
             services.AddTransient<IAssemblyLoader, AssemblyLoader>();
@@ -87,7 +94,7 @@ namespace Knapcode.NuGetTools.Website
                 services.AddTransient<IVersionLogic<Version>, VersionLogic>();
                 services.AddTransient<IVersionRangeLogic<Version, VersionRange>, VersionRangeLogic>();
                 
-                var clientVersion = ClientVersionUtility.GetNuGetAssemblyVersion();
+                var clientVersion = NuGet.Versioning.NuGetVersion.Parse(ClientVersionUtility.GetNuGetAssemblyVersion()).ToNormalizedString();
 
                 services.AddTransient<IToolsService>(serviceProvider =>
                 {
@@ -109,26 +116,14 @@ namespace Knapcode.NuGetTools.Website
                 services.AddSingleton<IToolsFactory, SingletonToolsFactory>();
             }
 
-            services.AddApplicationInsightsTelemetry(Configuration);
-
             services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             // Configure Application Insights
             TelemetryConfiguration.Active.TelemetryInitializers.Add(new RequestSuccessInitializer());
-
-            // Add Application Insights monitoring to the request pipeline as a very first middleware.
-            app.UseApplicationInsightsRequestTelemetry();
-
-            if (!env.IsAutomation())
-            {
-                loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            }
-
-            loggerFactory.AddDebug();
 
             if (env.IsDevelopment())
             {
@@ -139,9 +134,6 @@ namespace Knapcode.NuGetTools.Website
             {
                 app.UseExceptionHandler("/error");
             }
-
-            // Add Application Insights exceptions handling to the request pipeline.
-            app.UseApplicationInsightsExceptionTelemetry();
 
             app.UseStaticFiles();
 

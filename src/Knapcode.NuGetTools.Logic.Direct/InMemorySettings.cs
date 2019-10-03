@@ -1,125 +1,60 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using NuGet.Configuration;
 
 namespace Knapcode.NuGetTools.Logic.Direct
 {
     public class InMemorySettings : ISettings
     {
-        private readonly Dictionary<string, Dictionary<string, string>> _sections
-            = new Dictionary<string, Dictionary<string, string>>();
+        private string _globalPackagesFolder;
+        private readonly Dictionary<string, InMemorySettingSection> _settings = new Dictionary<string, InMemorySettingSection>();
 
-        public string FileName
-        {
-            get
-            {
-                return Settings.DefaultSettingsFileName;
-            }
-        }
-
-        public IEnumerable<ISettings> Priority
-        {
-            get
-            {
-                yield return this;
-            }
-        }
-
-        public string Root
-        {
-            get
-            {
-                return ".";
-            }
-        }
+        public string FileName => throw new NotImplementedException();
+        public IEnumerable<ISettings> Priority => throw new NotImplementedException();
+        public string Root => throw new NotImplementedException();
 
         public event EventHandler SettingsChanged;
 
-        public bool DeleteSection(string section)
+        public bool DeleteSection(string section) => throw new NotImplementedException();
+        public bool DeleteValue(string section, string key) => throw new NotImplementedException();
+        public IList<KeyValuePair<string, string>> GetNestedValues(string section, string subSection) => throw new NotImplementedException();
+        public IList<SettingValue> GetSettingValues(string section, bool isPath = false) => throw new NotImplementedException();
+        public string GetValue(string section, string key, bool isPath = false) => throw new NotImplementedException();
+        public void SetNestedValues(string section, string subSection, IList<KeyValuePair<string, string>> values) => throw new NotImplementedException();
+        public void SetValue(string section, string key, string value) => throw new NotImplementedException();
+        public void SetValues(string section, IReadOnlyList<SettingValue> values) => throw new NotImplementedException();
+        public void UpdateSections(string section, IReadOnlyList<SettingValue> values) => throw new NotImplementedException();
+        public void Remove(string sectionName, SettingItem item) => throw new NotImplementedException();
+        public IList<string> GetConfigFilePaths() => throw new NotImplementedException();
+        public IList<string> GetConfigRoots() => throw new NotImplementedException();
+
+        public void AddOrUpdate(string sectionName, SettingItem item)
         {
-            var output = _sections.Remove(section);
-            EmitSettingsChanged();
-            return output;
+            var section = GetInMemorySettingSection(sectionName);
+            section.AddItem(item);
         }
 
-        public bool DeleteValue(string section, string key)
+        public SettingSection GetSection(string sectionName)
         {
-            Dictionary<string, string> values;
-            if (!_sections.TryGetValue(section, out values))
+            return GetInMemorySettingSection(sectionName);
+        }
+
+        private InMemorySettingSection GetInMemorySettingSection(string sectionName)
+        {
+            if (!_settings.TryGetValue(sectionName, out var section))
             {
-                return false;
+                section = new InMemorySettingSection(
+                    sectionName,
+                    new Dictionary<string, string>(),
+                    new List<SettingItem>());
+                _settings.Add(sectionName, section);
             }
 
-            var output = values.Remove(key);
-            EmitSettingsChanged();
-            return output;
+            return section;
         }
 
-        public IList<KeyValuePair<string, string>> GetNestedValues(string section, string subSection)
+        public void SaveToDisk()
         {
-            throw new NotImplementedException();
-        }
-
-        public IList<SettingValue> GetSettingValues(string section, bool isPath = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string GetValue(string section, string key, bool isPath = false)
-        {
-            Dictionary<string, string> values;
-            if (!_sections.TryGetValue(section, out values))
-            {
-                return null;
-            }
-
-            string value;
-            if (!values.TryGetValue(key, out value))
-            {
-                return null;
-            }
-
-            if (!isPath)
-            {
-                return value;
-            }
-
-            return Path.GetFullPath(value);
-        }
-
-        public void SetNestedValues(string section, string subSection, IList<KeyValuePair<string, string>> values)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetValue(string section, string key, string value)
-        {
-            Dictionary<string, string> values;
-            if (!_sections.TryGetValue(section, out values))
-            {
-                values = new Dictionary<string, string>();
-                _sections[section] = values;
-            }
-
-            values[key] = value;
-
-            EmitSettingsChanged();
-        }
-
-        private void EmitSettingsChanged()
-        {
-            SettingsChanged?.Invoke(this, new EventArgs());
-        }
-
-        public void SetValues(string section, IReadOnlyList<SettingValue> values)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void UpdateSections(string section, IReadOnlyList<SettingValue> values)
-        {
-            throw new NotImplementedException();
         }
     }
 }

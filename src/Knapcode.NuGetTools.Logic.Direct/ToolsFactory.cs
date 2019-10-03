@@ -21,7 +21,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
         private const string _versioningId = "NuGet.Versioning";
         private const string _frameworksId = "NuGet.Frameworks";
         private const string _coreId = "NuGet.Core";
-        private static NuGetFramework _framework = FrameworkConstants.CommonFrameworks.Net46;
+        private static NuGetFramework _framework = NuGetFramework.Parse("net472");
 
         private readonly IAlignedVersionsDownloader _downloader;
         private readonly IPackageLoader _packageLoader;
@@ -121,18 +121,26 @@ namespace Knapcode.NuGetTools.Logic.Direct
                 return null;
             }
 
-            return await _toolServices.GetOrAdd(
-                matchingVersion,
-                async key =>
-                {
-                    var logic = await GetLogicAsync(key);
+            try
+            {
+                return await _toolServices.GetOrAdd(
+                    matchingVersion,
+                    async key =>
+                    {
+                        var logic = await GetLogicAsync(key);
 
-                    return new ToolsService<Framework, Version, VersionRange>(
-                        version,
-                        logic.Framework,
-                        logic.Version,
-                        logic.VersionRange);
-                });
+                        return new ToolsService<Framework, Version, VersionRange>(
+                            version,
+                            logic.Framework,
+                            logic.Version,
+                            logic.VersionRange);
+                    });
+            }
+            catch
+            {
+                _toolServices.TryRemove(matchingVersion, out var _);
+                throw;
+            }
         }
 
         public async Task<IFrameworkPrecedenceService> GetFrameworkPrecedenceServiceAsync(string version, CancellationToken token)
@@ -144,17 +152,25 @@ namespace Knapcode.NuGetTools.Logic.Direct
                 return null;
             }
             
-            return await _frameworkPrecendenceServices.GetOrAdd(
-                matchingVersion,
-                async key =>
-                {
-                    var logic = await GetLogicAsync(key);
+            try
+            {
+                return await _frameworkPrecendenceServices.GetOrAdd(
+                    matchingVersion,
+                    async key =>
+                    {
+                        var logic = await GetLogicAsync(key);
 
-                    return new FrameworkPrecedenceService<Framework>(
-                        version,
-                        _frameworkList,
-                        logic.Framework);
-                });
+                        return new FrameworkPrecedenceService<Framework>(
+                            version,
+                            _frameworkList,
+                            logic.Framework);
+                    });
+            }
+            catch
+            {
+                _frameworkPrecendenceServices.TryRemove(matchingVersion, out var _);
+                throw;
+            }
         }
 
         public Task<IFrameworkList> GetFrameworkListAsync(CancellationToken token)
@@ -164,7 +180,15 @@ namespace Knapcode.NuGetTools.Logic.Direct
 
         private async Task<Logic> GetLogicAsync(NuGetVersion version)
         {
-            return await _logic.GetOrAdd(version, GetLogicWithoutCachingAsync);
+            try
+            {
+                return await _logic.GetOrAdd(version, GetLogicWithoutCachingAsync);
+            }
+            catch
+            {
+                _logic.TryRemove(version, out var _);
+                throw;
+            }
         }
 
         private async Task<NuGetVersion> GetMatchingVersionAsync(string version)
