@@ -69,7 +69,7 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
                 .GetProperty("Instance")
                 .GetGetMethod();
 
-            // CompatiblityProvider
+            // CompatibilityProvider
             var compatibilityProviderType = assembly.GetType("NuGet.Frameworks.CompatibilityProvider");
 
             _isCompatible = compatibilityProviderType
