@@ -464,7 +464,8 @@ namespace Knapcode.NuGetTools.Logic
 
                             if (output.VersionRange != null)
                             {
-                                pair.Satisfies = _versionRangeLogic.Satisfies(versionRange, version);
+                                var bestMatch = _versionRangeLogic.FindBestMatch(versionRange, new[] { version });
+                                pair.Satisfies = bestMatch != null;
                             }
 
                             outputVersions.Add(pair);
