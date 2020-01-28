@@ -122,7 +122,11 @@ if (-Not $SkipBuild) {
 
 if (-Not $SkipPackageDownload) {
     Trace-Information "Downloading NuGet packages for the website..."
-    & $dotnet run -p (Get-SrcProject -Name "Knapcode.NuGetTools.PackageDownloader") -- (Join-Path (Get-SrcDir -Name "Knapcode.NuGetTools.Website") "packages")
+    $packagesDir = Join-Path (Get-SrcDir -Name "Knapcode.NuGetTools.Website") "packages"
+    if (Test-Path $packagesDir) {
+        Remove-Item -Force -Recurse $packagesDir
+    }
+    & $dotnet run -p (Get-SrcProject -Name "Knapcode.NuGetTools.PackageDownloader") -- $packagesDir
     Show-ErrorExitCode
 } else {
     Trace-Information "Skipped package download."
