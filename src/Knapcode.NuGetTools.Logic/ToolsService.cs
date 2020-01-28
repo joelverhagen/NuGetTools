@@ -415,6 +415,7 @@ namespace Knapcode.NuGetTools.Logic
                 Invalid = invalid,
                 Input = input,
                 IsOperationSupported = _versionRangeLogic.FindBestMatchAvailable,
+                AreVersionsSorted = _versionRangeLogic.IsBetterAvailable,
             };
 
             if (input == null)
@@ -464,8 +465,15 @@ namespace Knapcode.NuGetTools.Logic
 
                             if (output.VersionRange != null)
                             {
-                                var bestMatch = _versionRangeLogic.FindBestMatch(versionRange, new[] { version });
-                                pair.Satisfies = bestMatch != null;
+                                if (output.IsOperationSupported)
+                                {
+                                    var bestMatch = _versionRangeLogic.FindBestMatch(versionRange, new[] { version });
+                                    pair.Satisfies = bestMatch != null;
+                                }
+                                else
+                                {
+                                    pair.Satisfies = _versionRangeLogic.Satisfies(versionRange, version);
+                                }
                             }
 
                             outputVersions.Add(pair);
@@ -475,6 +483,11 @@ namespace Knapcode.NuGetTools.Logic
                             invalid.Add(line);
                         }
                     }
+                }
+
+                if (_versionRangeLogic.IsBetterAvailable)
+                {
+                    outputVersions.Sort((a, b) => -1 * Compare(versionRange, a, b));
                 }
 
                 output.IsVersionValid = output.Versions.Any();
@@ -503,6 +516,27 @@ namespace Knapcode.NuGetTools.Logic
             }
 
             return output;
+        }
+
+        private int Compare(TVersionRange versionRange, OutputVersion a, OutputVersion b)
+        {
+            var satisfiesComparison = a.Satisfies.CompareTo(b.Satisfies);
+            if (satisfiesComparison != 0)
+            {
+                return satisfiesComparison;
+            }
+            else if (_versionRangeLogic.IsBetter(versionRange, (TVersion)a.Version, (TVersion)b.Version))
+            {
+                return -1;
+            }
+            else if (_versionRangeLogic.IsBetter(versionRange, (TVersion)b.Version, (TVersion)a.Version))
+            {
+                return 1;
+            }
+            else
+            {
+                return _versionLogic.Compare((TVersion)a.Version, (TVersion)b.Version);
+            }
         }
     }
 }

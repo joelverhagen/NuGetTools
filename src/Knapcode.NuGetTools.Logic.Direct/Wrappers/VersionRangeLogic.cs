@@ -9,6 +9,8 @@ namespace Knapcode.NuGetTools.Logic.Direct.Wrappers
     {
         public bool FindBestMatchAvailable => true;
 
+        public bool IsBetterAvailable => true;
+
         public Version FindBestMatch(VersionRange versionRange, IEnumerable<Version> versions)
         {
             var bestMatch = versionRange.NuGetVersionRange.FindBestMatch(
@@ -20,6 +22,11 @@ namespace Knapcode.NuGetTools.Logic.Direct.Wrappers
             }
 
             return versions.First(x => ReferenceEquals(x.NuGetVersion, bestMatch));
+        }
+
+        public bool IsBetter(VersionRange versionRange, Version current, Version considering)
+        {
+            return versionRange.NuGetVersionRange.IsBetter(current.NuGetVersion, considering.NuGetVersion);
         }
 
         public VersionRange Parse(string input)

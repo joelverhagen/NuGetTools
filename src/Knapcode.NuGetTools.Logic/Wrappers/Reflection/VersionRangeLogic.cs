@@ -12,6 +12,8 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection
 
         public bool FindBestMatchAvailable => _api.FindBestMatchAvailable();
 
+        public bool IsBetterAvailable => _api.IsBetterAvailable();
+
         public VersionRangeLogic(IVersionApi versionApi, IVersionRangeApi api)
         {
             _versionApi = versionApi;
@@ -32,6 +34,11 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection
             }
 
             return versions.First(x => ReferenceEquals(x.NuGetVersion, bestMatch));
+        }
+
+        public bool IsBetter(VersionRange versionRange, Version current, Version considering)
+        {
+            return _api.IsBetter(versionRange.NuGetVersionRange, current.NuGetVersion, considering.NuGetVersion);
         }
 
         public VersionRange Parse(string input)

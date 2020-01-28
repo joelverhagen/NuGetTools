@@ -156,5 +156,15 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
         {
             return false;
         }
+
+        public bool IsBetter(object nuGetVersionRange, object current, object considering)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsBetterAvailable()
+        {
+            return false;
+        }
     }
 }

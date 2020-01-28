@@ -24,5 +24,7 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
         object Parse(string input);
         string PrettyPrint(object nuGetVersionRange);
         bool Satisfies(object nuGetVersionRange, object nuGetVersion);
+        bool IsBetter(object nuGetVersionRange, object current, object considering);
+        bool IsBetterAvailable();
     }
 }

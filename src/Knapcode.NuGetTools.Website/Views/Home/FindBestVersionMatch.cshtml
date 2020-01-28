@@ -47,7 +47,15 @@
         }
 
         <div class="alert alert-info" role="alert">
-            <p>The versions that were considered were:</p>
+            @if (output.AreVersionsSorted)
+            {
+                <p>The following versions were considered, <b>displayed in the order of precedence</b>:</p>
+            }
+            else
+            {
+                <p>The following versions were considered, displayed in the order that they were provided:</p>
+            }
+
             <ul class="list-unstyled">
                 @foreach (var input in output.Versions)
                 {

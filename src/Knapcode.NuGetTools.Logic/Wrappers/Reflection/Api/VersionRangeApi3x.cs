@@ -20,6 +20,7 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
         private readonly MethodInfo _prettyPrint;
         private readonly MethodInfo _satisfies;
         private readonly MethodInfo _findBestMatch;
+        private readonly MethodInfo _isBetter;
         private readonly MethodInfo _getLegacyShortString;
         private readonly MethodInfo _getLegacyString;
         private readonly MethodInfo _getOriginalString;
@@ -80,6 +81,9 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
 
             _findBestMatch = nuGetVersionRangeType
                 .GetMethod("FindBestMatch");
+
+            _isBetter = nuGetVersionRangeType
+                .GetMethod("IsBetter");
 
             _getLegacyShortString = nuGetVersionRangeType
                 .GetMethod("ToLegacyShortString");
@@ -207,6 +211,16 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
         }
 
         public bool FindBestMatchAvailable()
+        {
+            return true;
+        }
+
+        public bool IsBetter(object nuGetVersionRange, object current, object considering)
+        {
+            return (bool)_isBetter.Invoke(nuGetVersionRange, new[] { current, considering });
+        }
+
+        public bool IsBetterAvailable()
         {
             return true;
         }
