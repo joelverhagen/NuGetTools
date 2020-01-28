@@ -27,18 +27,18 @@
 <div class="results">
     @if (@output.InputStatus == InputStatus.Valid)
     {
-        <div class="alert alert-success" role="alert">
+        <div class="alert alert-success cmp-output" role="alert">
             <code>@output.VersionA.ToStringResult</code> (<b><parse-version value="@output.Input.VersionA" /></b>)
             @switch (output.Result)
             {
                 case ComparisonResult.LessThan:
-                    @:is less than 
+                    @:<span class="cmp-symbol">&lt;</span>
                     break;
                 case ComparisonResult.Equal:
-                    @:is equal to
+                    @:<span class="cmp-symbol">=</span>
                     break;
                 case ComparisonResult.GreaterThan:
-                    @:is greater than
+                    @:<span class="cmp-symbol">&gt;</span>
                     break;
             }
             <code>@output.VersionB.ToStringResult</code> (<b><parse-version value="@output.Input.VersionB" /></b>).

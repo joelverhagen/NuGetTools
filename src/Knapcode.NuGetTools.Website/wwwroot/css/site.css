@@ -30,3 +30,14 @@ li {
 .monospace {
     font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }
+
+.cmp-output {
+    line-height: 2em;
+}
+
+.cmp-symbol {
+    font-size: 2em;
+    font-weight: bold;
+    vertical-align: middle;
+    padding: 0 5px 0 5px;
+}
