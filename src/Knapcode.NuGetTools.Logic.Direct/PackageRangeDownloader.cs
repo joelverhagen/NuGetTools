@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using NuGet.Common;
 using NuGet.PackageManagement;
 using NuGet.Packaging.Core;
+using NuGet.Packaging.Signing;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 
@@ -146,6 +147,16 @@ namespace Knapcode.NuGetTools.Logic.Direct
                 {
                     throw new InvalidOperationException($"The package '{identity}' is not available.");
                 }
+
+                await GlobalPackagesFolderUtility.AddPackageAsync(
+                    result.PackageSource,
+                    identity,
+                    result.PackageStream,
+                    _nuGetSettings.GlobalPackagesFolder,
+                    packageDownloadContext.ParentId,
+                    ClientPolicyContext.GetClientPolicy(_nuGetSettings.Settings, log),
+                    log,
+                    token);
             }
         }
     }
