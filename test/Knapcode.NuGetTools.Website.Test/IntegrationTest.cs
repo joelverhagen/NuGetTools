@@ -139,7 +139,7 @@ namespace Knapcode.NuGetTools.Website.Tests
                 // Assert
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
                 var text = await f.GetFlattenedTextAsync(response);
-                Assert.Contains("1.0.0-beta (1.0.0-beta) is less than 2.0.0 (2.0.0).", text);
+                Assert.Contains("1.0.0-beta (1.0.0-beta) < 2.0.0 (2.0.0).", text);
             }
         }
 
