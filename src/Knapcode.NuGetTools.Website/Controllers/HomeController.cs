@@ -14,9 +14,17 @@ namespace Knapcode.NuGetTools.Website
 {
     public class HomeController : Controller
     {
-        private static readonly Dictionary<string, string> _versionRedirects = new Dictionary<string, string>
+        /// <summary>
+        /// This is the canonical first version that supports "*-*" for version ranges. The specification is here:
+        /// https://github.com/NuGet/Home/pull/9104
+        /// </summary>
+        private const string StarDashStarVersion = "5.5.0-floating.7611";
+
+        private static readonly Dictionary<string, string> _versionRedirects = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { "3.5.0-beta2", "3.5.0-beta2-1484" }
+            { "3.5.0-beta2", "3.5.0-beta2-1484" },
+            { "5.5.0-floating.7018", StarDashStarVersion },
+            { "5.5.0-floating.7250", StarDashStarVersion },
         };
         
         static HomeController()
