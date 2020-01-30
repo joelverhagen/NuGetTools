@@ -485,7 +485,7 @@ namespace Knapcode.NuGetTools.Logic
                     }
                 }
 
-                if (_versionRangeLogic.IsBetterAvailable)
+                if (output.VersionRange != null && _versionRangeLogic.IsBetterAvailable)
                 {
                     outputVersions.Sort((a, b) => -1 * Compare(versionRange, a, b));
                 }

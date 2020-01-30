@@ -1200,6 +1200,41 @@ namespace Knapcode.NuGetTools.Website.Tests
         }
 
         [Fact]
+        public void FindBestVersionMatch_InvalidVersionRange()
+        {
+            // Arrange
+            var target = GetToolsService();
+            var inputVersions = new[] { "0.1.0", "0.2.0" };
+            var input = new FindBestVersionMatchInput
+            {
+                VersionRange = "foo",
+                Versions = string.Join("\n", inputVersions)
+            };
+
+            // Act
+            var output = target.FindBestVersionMatch(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Invalid, output.InputStatus);
+            Assert.Empty(output.Invalid);
+            Assert.False(output.IsVersionRangeValid);
+            Assert.True(output.IsVersionValid);
+            Assert.Null(output.VersionRange);
+            Assert.Equal(2, output.Versions.Count);
+
+            var outputVersionA = output.Versions.ElementAt(0);
+            Assert.Equal(inputVersions[0], outputVersionA.Input);
+            Assert.Equal(GetVersionNormalizedString(inputVersions[0]), outputVersionA.Version.NormalizedString);
+            Assert.False(outputVersionA.Satisfies);
+
+            var outputVersionB = output.Versions.ElementAt(1);
+            Assert.Equal(inputVersions[1], outputVersionB.Input);
+            Assert.Equal(GetVersionNormalizedString(inputVersions[1]), outputVersionB.Version.NormalizedString);
+            Assert.False(outputVersionB.Satisfies);
+        }
+
+        [Fact]
         public void FindBestVersionMatch_InvalidAndDoesNotSatisfy()
         {
             // Arrange
