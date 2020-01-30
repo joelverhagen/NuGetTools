@@ -25,9 +25,18 @@
             <p>
                 The input value is <b>@output.Input.Framework</b>.
             </p>
-            <p>
-                The short folder name is <code>@output.Framework.ShortFolderName</code>.
-            </p>
+            @try
+            {
+                string shortFolderName = output.Framework.ShortFolderName;
+                <p>The short folder name is <code>@shortFolderName</code>.</p>
+            }
+            catch
+            {
+                <p>
+                    <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
+                    While determining the short folder name, an exception was thrown.
+                </p>
+            }
             <p>
                 The .NET framework name is <code>@output.Framework.DotNetFrameworkName</code>.
             </p>
