@@ -78,7 +78,7 @@
                     <text>
                         The version range has an <b>@(output.VersionRange.IsMinInclusive ? "inclusive" : "exclusive") lower bound</b> of
                         <code>@output.VersionRange.MinVersion.GetPrettyString()</code>
-                        (<parse-version value="@output.VersionRange.MinVersion.ToStringResult"></parse-version>).
+                        (<parse-version value="@output.VersionRange.MinVersion.ToStringResult" />).
                     </text>
                 }
                 else
@@ -92,7 +92,7 @@
                     <text>
                         The version range has an <b>@(output.VersionRange.IsMaxInclusive ? "inclusive" : "exclusive") upper bound</b> of
                         <code>@output.VersionRange.MaxVersion.GetPrettyString()</code>
-                        (<parse-version value="@output.VersionRange.MaxVersion.ToStringResult"></parse-version>).
+                        (<parse-version value="@output.VersionRange.MaxVersion.ToStringResult" />).
                     </text>
                 }
                 else
