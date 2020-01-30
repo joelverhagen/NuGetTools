@@ -145,6 +145,23 @@ namespace Knapcode.NuGetTools.Website.Tests
 
         [Theory]
         [MemberData(nameof(AvailableVersionData))]
+        public async Task SortVersions(NuGetVersion version)
+        {
+            // Arrange
+            var requestUri = $"/{version}/sort-versions?versions=10.2.0-beta%0D%0A0.9.0%0D%0A2.0.0";
+
+            // Act
+            using (var response = await f.Client.GetAsync(requestUri))
+            {
+                // Assert
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                var text = await f.GetFlattenedTextAsync(response);
+                Assert.Contains("0.9.0 (0.9.0) 2.0.0 (2.0.0) 10.2.0-beta (10.2.0-beta)", text);
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(AvailableVersionData))]
         public async Task ParseVersionRange(NuGetVersion version)
         {
             // Arrange

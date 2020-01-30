@@ -518,6 +518,68 @@ namespace Knapcode.NuGetTools.Logic
             return output;
         }
 
+        public SortVersionsOutput SortVersions(SortVersionsInput input)
+        {
+            var outputVersions = new List<IVersion>();
+            var invalid = new List<string>();
+            var output = new SortVersionsOutput
+            {
+                InputStatus = InputStatus.Missing,
+                Versions = outputVersions,
+                Invalid = invalid,
+                Input = input,
+            };
+
+            if (input == null)
+            {
+                return output;
+            }
+
+            var versionsMissing = string.IsNullOrWhiteSpace(input.Versions);
+
+            if (!versionsMissing)
+            {
+                using (var reader = new StringReader(input.Versions))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        line = line.Trim();
+                        if (string.IsNullOrEmpty(line))
+                        {
+                            continue;
+                        }
+
+                        try
+                        {
+                            var version = _versionLogic.Parse(line);
+                            outputVersions.Add(version);
+                        }
+                        catch (Exception)
+                        {
+                            invalid.Add(line);
+                        }
+                    }
+                }
+
+                outputVersions.Sort((a, b) => _versionLogic.Compare((TVersion)a, (TVersion)b));
+            }
+
+            if (!versionsMissing)
+            {
+                if (outputVersions.Any())
+                {
+                    output.InputStatus = InputStatus.Valid;
+                }
+                else
+                {
+                    output.InputStatus = InputStatus.Invalid;
+                }
+            }
+
+            return output;
+        }
+
         private int Compare(TVersionRange versionRange, OutputVersion a, OutputVersion b)
         {
             var satisfiesComparison = a.Satisfies.CompareTo(b.Satisfies);

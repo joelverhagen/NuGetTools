@@ -1301,6 +1301,134 @@ namespace Knapcode.NuGetTools.Website.Tests
             Assert.Null(output.BestMatch);
         }
 
+        [Fact]
+        public void SortVersions_Empty()
+        {
+            // Arrange
+            var target = GetToolsService();
+            var input = new SortVersionsInput
+            {
+                Versions = "    \t",
+            };
+
+            // Act
+            var output = target.SortVersions(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Missing, output.InputStatus);
+            Assert.Empty(output.Invalid);
+            Assert.Empty(output.Versions);
+        }
+
+        [Fact]
+        public void SortVersions_NullInput()
+        {
+            // Arrange
+            var target = GetToolsService();
+            SortVersionsInput input = null;
+
+            // Act
+            var output = target.SortVersions(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Missing, output.InputStatus);
+            Assert.Empty(output.Invalid);
+            Assert.Empty(output.Versions);
+        }
+
+        [Fact]
+        public void SortVersions_Invalid()
+        {
+            // Arrange
+            var target = GetToolsService();
+            var inputVersions = new[] { "a", "b" };
+            var input = new SortVersionsInput
+            {
+                Versions = string.Join("\n", inputVersions)
+            };
+
+            // Act
+            var output = target.SortVersions(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Invalid, output.InputStatus);
+            Assert.Equal(2, output.Invalid.Count);
+            Assert.Equal(inputVersions[0], output.Invalid[0]);
+            Assert.Equal(inputVersions[1], output.Invalid[1]);
+            Assert.Empty(output.Versions);
+        }
+
+        [Fact]
+        public void SortVersions_SortsSingle()
+        {
+            // Arrange
+            var target = GetToolsService();
+            var inputVersions = new[] { "1.0.0" };
+            var input = new SortVersionsInput
+            {
+                Versions = string.Join("\n", inputVersions)
+            };
+
+            // Act
+            var output = target.SortVersions(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Valid, output.InputStatus);
+            Assert.Empty(output.Invalid);
+            Assert.Equal(GetVersionNormalizedString(inputVersions[0]), Assert.Single(output.Versions).NormalizedString);
+        }
+
+        [Fact]
+        public void SortVersions_SortsMultiple()
+        {
+            // Arrange
+            var target = GetToolsService();
+            var inputVersions = new[] { "2.0.0", "3.0-beta", "1.0.0" };
+            var input = new SortVersionsInput
+            {
+                Versions = string.Join("\n", inputVersions)
+            };
+
+            // Act
+            var output = target.SortVersions(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Valid, output.InputStatus);
+            Assert.Empty(output.Invalid);
+            Assert.Equal(3, output.Versions.Count);
+            Assert.Equal(GetVersionNormalizedString(inputVersions[2]), output.Versions[0].NormalizedString);
+            Assert.Equal(GetVersionNormalizedString(inputVersions[0]), output.Versions[1].NormalizedString);
+            Assert.Equal(GetVersionNormalizedString(inputVersions[1]), output.Versions[2].NormalizedString);
+        }
+
+        [Fact]
+        public void SortVersions_IgnoresInvalidWhenValidExist()
+        {
+            // Arrange
+            var target = GetToolsService();
+            var inputVersions = new[] { "2.0.0", "a", "1.0.0" };
+            var input = new SortVersionsInput
+            {
+                Versions = string.Join("\n", inputVersions)
+            };
+
+            // Act
+            var output = target.SortVersions(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Valid, output.InputStatus);
+            Assert.Equal(inputVersions[1], Assert.Single(output.Invalid));
+            Assert.Equal(2, output.Versions.Count);
+            Assert.Equal(GetVersionNormalizedString(inputVersions[2]), output.Versions[0].NormalizedString);
+            Assert.Equal(GetVersionNormalizedString(inputVersions[0]), output.Versions[1].NormalizedString);
+        }
+
         private string GetFrameworkShortFolderName(string input)
         {
             return NuGetFramework.Parse(input).GetShortFolderName();

@@ -1,0 +1,64 @@
+﻿@model SelectedVersionOutput<SortVersionsOutput>
+@{
+    ViewData["Title"] = "Sort Versions";
+    var output = Model.Output;
+}
+
+<h1>Sort versions</h1>
+<p>
+    Enter multiple NuGet package versions to sort them.
+</p>
+
+<form method="GET" action="">
+    <div class="form-group">
+        <label for="versions">Versions</label>
+        <textarea class="form-control monospace" rows="5" name="versions" id="versions" placeholder="1.1.0&#10;0.9.0">@output.Input.Versions</textarea>
+    </div>
+    <button type="submit" class="btn btn-default">Submit</button>
+</form>
+
+<div class="results">
+    @if (output.InputStatus == InputStatus.Valid)
+    {
+        <div class="alert alert-success" role="alert">
+            <p>The following versions are in ascending, SemVer order.</p>
+            <ol>
+                @foreach (var version in output.Versions)
+                {
+                    <li>
+                        <code>@version.GetPrettyString()</code> (<b><parse-version value="@version.ToStringResult" /></b>)
+                    </li>
+                }
+            </ol>
+        </div>
+
+        if (output.Invalid.Any())
+        {
+            <div class="alert alert-warning" role="alert">
+                <p>The following versions could not be parsed.</p>
+                <ol>
+                    @foreach (var version in output.Invalid)
+                    {
+                        <li>
+                            <code>@version</code>
+                        </li>
+                    }
+                </ol>
+            </div>
+        }
+    }
+    else if (output.InputStatus == InputStatus.Invalid)
+    {
+        <div class="alert alert-danger" role="alert">
+            <p>No valid versions were provided.The following versions could not be parsed.</p>
+            <ol>
+                @foreach (var version in output.Invalid)
+                {
+                    <li>
+                        <code>@version</code>
+                    </li>
+                }
+            </ol>
+        </div>
+    }
+</div>

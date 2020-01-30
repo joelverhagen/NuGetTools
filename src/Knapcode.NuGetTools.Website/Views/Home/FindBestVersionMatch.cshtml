@@ -29,7 +29,7 @@
         if (output.BestMatch != null)
         {
             <div class="alert alert-success" role="alert">
-                The <code>@output.BestMatch.Version.ToStringResult</code> (<b><parse-version value="@output.BestMatch.Input" /></b>) version
+                The <code>@output.BestMatch.Version.GetPrettyString()</code> (<b><parse-version value="@output.BestMatch.Input" /></b>) version
                 is the best match to the <code>@output.VersionRange.NormalizedString</code> (<b><parse-version-range value="@output.Input.VersionRange" /></b>) version range.
             </div>
         }
@@ -68,7 +68,7 @@
                         {
                             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                         }
-                        <code>@input.Version.ToStringResult</code>
+                        <code>@input.Version.GetPrettyString()</code>
                         (<b><parse-version value="@input.Input" /></b>)
                     </li>
                 }

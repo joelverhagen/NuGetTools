@@ -207,6 +207,27 @@ namespace Knapcode.NuGetTools.Website
             return View(versionedOutput);
         }
 
+        [HttpGet("/{nuGetVersion}/sort-versions")]
+        public async Task<IActionResult> SortVersions([FromRoute]string nuGetVersion, [FromQuery]SortVersionsInput input, CancellationToken token)
+        {
+            var redirect = GetVersionRedirect();
+            if (redirect != null)
+            {
+                return redirect;
+            }
+
+            var toolsService = await _toolsFactory.GetServiceAsync(nuGetVersion, token);
+            if (toolsService == null)
+            {
+                return NotFound();
+            }
+
+            var output = toolsService.SortVersions(input);
+            var versionedOutput = await GetSelectedVersionOutputAsync(toolsService, output, token);
+
+            return View(versionedOutput);
+        }
+
         [HttpGet("/{nuGetVersion}/get-nearest-framework")]
         public async Task<IActionResult> GetNearestFramework([FromRoute]string nuGetVersion, [FromQuery]GetNearestFrameworkInput input, CancellationToken token)
         {
