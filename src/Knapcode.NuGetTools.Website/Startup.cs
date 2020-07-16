@@ -27,7 +27,8 @@ namespace Knapcode.NuGetTools.Website
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddEnvironmentVariables();
+                .AddEnvironmentVariables()
+                .AddEnvironmentVariables("APPSETTING_");
 
             if (env.IsDevelopment())
             {
