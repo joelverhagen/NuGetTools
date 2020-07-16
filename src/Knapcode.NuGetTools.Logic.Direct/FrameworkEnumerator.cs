@@ -92,6 +92,31 @@ namespace Knapcode.NuGetTools.Logic.Direct
                     yield return added;
                 }
             }
+
+            if (options.HasFlag(FrameworkEnumerationOptions.Hardcoded))
+            {
+                foreach (var added in AddHardcodedFrameworks(existing))
+                {
+                    yield return added;
+                }
+            }
+        }
+
+        /// <summary>
+        /// These are frameworks that exist but are not explicitly mentioned in the NuGet client.
+        /// See https://github.com/joelverhagen/NuGetTools/issues/19
+        /// </summary>
+        private IEnumerable<FrameworkEnumeratorData> AddHardcodedFrameworks(HashSet<FrameworkEnumeratorData> existing)
+        {
+            var hardcodedFrameworks = new[]
+            {
+                "net48",
+                "net472",
+                "net471",
+                "net47",
+            }.Select(x => NuGetFramework.Parse(x)).Select(GetFrameworkEnumeratorData);
+
+            return AddFrameworks(existing, hardcodedFrameworks);
         }
 
         private IEnumerable<FrameworkEnumeratorData> AddSpecialFrameworks(HashSet<FrameworkEnumeratorData> existing)

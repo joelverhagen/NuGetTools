@@ -77,10 +77,6 @@ namespace Knapcode.NuGetTools.Logic
         {
             IEnumerable<TFramework> candidates = GetFrameworkList();
 
-            // Add the framework itself, for clarity.
-            // See: https://github.com/joelverhagen/NuGetTools/issues/19
-            candidates = candidates.Concat(new[] { framework });
-
             if (!output.Input.IncludeProfiles)
             {
                 candidates = candidates.Where(x => string.IsNullOrEmpty(x.Profile) || IsPortable(x));

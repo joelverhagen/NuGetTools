@@ -11,6 +11,7 @@ namespace Knapcode.NuGetTools.Logic
         FrameworkMappings = 1 << 3,
         PortableFrameworkMappings = 1 << 4,
         SpecialFrameworks = 1 << 5,
+        Hardcoded = 1 << 6,
         All = ~0
     }
 }
