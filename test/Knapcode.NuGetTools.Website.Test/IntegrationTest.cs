@@ -179,6 +179,30 @@ namespace Knapcode.NuGetTools.Website.Tests
 
         [Theory]
         [MemberData(nameof(AvailableVersionData))]
+        public async Task ParseStarDashStarVersionRange(NuGetVersion version)
+        {
+            // Arrange
+            var requestUri = $"/{version}/parse-version-range?versionRange=1.0.%2A-%2A";
+
+            // Act
+            using (var response = await f.Client.GetAsync(requestUri))
+            {
+                // Assert
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                var text = await f.GetFlattenedTextAsync(response);
+                if (version >= NuGetVersion.Parse("5.6.0-preview.3.6558"))
+                {
+                    Assert.Contains("The normalized version range is [1.0.*-*, ).", text);
+                }
+                else
+                {
+                    Assert.Contains("The version range 1.0.*-* could not be parsed.", text);
+                }
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(AvailableVersionData))]
         public async Task VersionSatisfies(NuGetVersion version)
         {
             // Arrange

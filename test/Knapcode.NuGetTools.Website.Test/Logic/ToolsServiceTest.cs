@@ -36,6 +36,25 @@ namespace Knapcode.NuGetTools.Website.Tests
         }
 
         [Fact]
+        public void ParseVersionRange_StarDashStar()
+        {
+            // Arrange
+            var target = GetToolsService();
+            var input = new ParseVersionRangeInput
+            {
+                VersionRange = "1.0.*-*"
+            };
+
+            // Act
+            var output = target.ParseVersionRange(input);
+
+            // Assert
+            Assert.Same(input, output.Input);
+            Assert.Equal(InputStatus.Valid, output.InputStatus);
+            Assert.Equal(GetVersionRangeNormalizedString(input.VersionRange), output.VersionRange.NormalizedString);
+        }
+
+        [Fact]
         public void ParseVersionRange_InvalidVersionRange()
         {
             // Arrange
