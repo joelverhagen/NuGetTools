@@ -37,9 +37,28 @@
                     While determining the short folder name, an exception was thrown.
                 </p>
             }
-            <p>
-                The .NET framework name is <code>@output.Framework.DotNetFrameworkName</code>.
-            </p>
+            <p>The .NET framework name is <code>@output.Framework.DotNetFrameworkName</code>.</p>
+            <p>The framework identifier is <code>@output.Framework.Identifier</code>.</p>
+            <p>The framework version is <code>@output.Framework.Version</code>.</p>
+            <br />
+            @if (output.Framework.HasProfile)
+            {
+                <p>The framework profile is <code>@output.Framework.Profile</code>.</p>
+            }
+            else
+            {
+                <p>There is no framework profile.</p>
+            }
+            <br />
+            @if (output.Framework.HasPlatform)
+            {
+                <p>The framework platform is <code>@output.Framework.Platform</code>.</p>
+                <p>The framework platform version is <code>@output.Framework.PlatformVersion</code>.</p>
+            }
+            else
+            {
+                <p>There is no framework platform.</p>
+            }
         </div>
     }
     else if (@output.InputStatus == InputStatus.Invalid)

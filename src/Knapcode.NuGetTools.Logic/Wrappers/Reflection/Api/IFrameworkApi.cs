@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
 {
@@ -13,5 +12,9 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
         System.Version GetVersion(object nuGetFramework);
         bool IsCompatible(object project, object package);
         object Parse(string input);
+        bool HasProfile(object nuGetFramework);
+        bool HasPlatform(object nuGetFramework);
+        string GetPlatform(object nuGetFramework);
+        System.Version GetPlatformVersion(object nuGetFramework);
     }
 }

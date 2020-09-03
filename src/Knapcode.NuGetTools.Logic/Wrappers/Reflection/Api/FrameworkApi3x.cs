@@ -18,7 +18,11 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
         private readonly MethodInfo _listAdd;
         private readonly MethodInfo _getIdentifier;
         private readonly MethodInfo _getVersion;
+        private readonly MethodInfo _hasProfile;
         private readonly MethodInfo _getProfile;
+        private readonly MethodInfo _hasPlatform;
+        private readonly MethodInfo _getPlatform;
+        private readonly MethodInfo _getPlatformVersion;
 
         public FrameworkApi3x(AssemblyName assemblyName)
         {
@@ -45,8 +49,24 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
                 .GetProperty("Version")
                 .GetGetMethod();
 
+            _hasProfile = _nuGetFrameworkType
+                .GetProperty("HasProfile")
+                .GetGetMethod();
+
             _getProfile = _nuGetFrameworkType
                 .GetProperty("Profile")
+                .GetGetMethod();
+
+            _hasPlatform = _nuGetFrameworkType
+                .GetProperty("HasPlatform")?
+                .GetGetMethod();
+
+            _getPlatform = _nuGetFrameworkType
+                .GetProperty("Platform")?
+                .GetGetMethod();
+
+            _getPlatformVersion = _nuGetFrameworkType
+                .GetProperty("PlatformVersion")?
                 .GetGetMethod();
 
             // List<NuGetFramework>
@@ -124,6 +144,41 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
             var compatibilityProvider = _getCompatibilityProviderInstance.Invoke(null, new object[0]);
 
             return (bool)_isCompatible.Invoke(compatibilityProvider, new[] { project, package });
+        }
+
+        public bool HasProfile(object nuGetFramework)
+        {
+            return (bool)_hasProfile.Invoke(nuGetFramework, new object[0]);
+        }
+
+        public bool HasPlatform(object nuGetFramework)
+        {
+            if (_hasPlatform == null)
+            {
+                return false;
+            }
+
+            return (bool)_hasPlatform.Invoke(nuGetFramework, new object[0]);
+        }
+
+        public string GetPlatform(object nuGetFramework)
+        {
+            if (_getPlatform == null)
+            {
+                throw new NotSupportedException();
+            }
+
+            return (string)_getPlatform.Invoke(nuGetFramework, new object[0]);
+        }
+
+        public System.Version GetPlatformVersion(object nuGetFramework)
+        {
+            if (_getPlatformVersion == null)
+            {
+                throw new NotSupportedException();
+            }
+
+            return (System.Version)_getPlatformVersion.Invoke(nuGetFramework, new object[0]);
         }
     }
 }

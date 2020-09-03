@@ -137,5 +137,25 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
                     }
                 });
         }
+
+        public bool HasProfile(object nuGetFramework)
+        {
+            return !string.IsNullOrEmpty(GetProfile(nuGetFramework));
+        }
+
+        public bool HasPlatform(object nuGetFramework)
+        {
+            return false;
+        }
+
+        public string GetPlatform(object nuGetFramework)
+        {
+            throw new NotSupportedException();
+        }
+
+        public System.Version GetPlatformVersion(object nuGetFramework)
+        {
+            throw new NotSupportedException();
+        }
     }
 }

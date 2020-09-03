@@ -15,6 +15,10 @@ namespace Knapcode.NuGetTools.Logic.Direct.Wrappers
         public string ShortFolderName => NuGetFramework.GetShortFolderName();
         public string Identifier => NuGetFramework.Framework;
         public System.Version Version => NuGetFramework.Version;
+        public bool HasProfile => NuGetFramework.HasProfile;
         public string Profile => NuGetFramework.Profile;
+        public bool HasPlatform => NuGetFramework.HasPlatform;
+        public string Platform => NuGetFramework.Platform;
+        public System.Version PlatformVersion => NuGetFramework.PlatformVersion;
     }
 }
