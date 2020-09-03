@@ -127,6 +127,11 @@ if (-Not $SkipPackageDownload) {
         Remove-Item -Force -Recurse $packagesDir
     }
     & $dotnet run -p (Get-SrcProject -Name "Knapcode.NuGetTools.PackageDownloader") -- $packagesDir
+    Get-ChildItem (Join-Path $packagesDir "*.nupkg") -Recurse | Remove-Item
+    Get-ChildItem (Join-Path $packagesDir "*.nuspec") -Recurse | Remove-Item
+    Get-ChildItem (Join-Path $packagesDir "*.xml") -Recurse | Remove-Item
+    Get-ChildItem (Join-Path $packagesDir ".signature.p7s") -Recurse | Remove-Item
+    Get-ChildItem (Join-Path $packagesDir ".nupkg.metadata") -Recurse | Remove-Item
     Show-ErrorExitCode
 } else {
     Trace-Information "Skipped package download."
