@@ -23,6 +23,7 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
         private readonly MethodInfo _hasPlatform;
         private readonly MethodInfo _getPlatform;
         private readonly MethodInfo _getPlatformVersion;
+        private readonly MethodInfo _getToString;
 
         public FrameworkApi3x(AssemblyName assemblyName)
         {
@@ -68,6 +69,9 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
             _getPlatformVersion = _nuGetFrameworkType
                 .GetProperty("PlatformVersion")?
                 .GetGetMethod();
+
+            _getToString = _nuGetFrameworkType
+                .GetMethod("ToString", new Type[0]);
 
             // List<NuGetFramework>
             var listType = typeof(List<>);
@@ -179,6 +183,11 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
             }
 
             return (System.Version)_getPlatformVersion.Invoke(nuGetFramework, new object[0]);
+        }
+
+        public string GetToStringResult(object nuGetFramework)
+        {
+            return (string)_getToString.Invoke(nuGetFramework, new object[0]);
         }
     }
 }

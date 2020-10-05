@@ -157,5 +157,10 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection.Api
         {
             throw new NotSupportedException();
         }
+
+        public string GetToStringResult(object nuGetFramework)
+        {
+            return ((FrameworkName)nuGetFramework).ToString();
+        }
     }
 }

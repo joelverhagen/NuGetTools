@@ -23,5 +23,6 @@ namespace Knapcode.NuGetTools.Logic.Wrappers.Reflection
         public bool HasPlatform => _api.HasPlatform(NuGetFramework);
         public string Platform => _api.GetPlatform(NuGetFramework);
         public System.Version PlatformVersion => _api.GetPlatformVersion(NuGetFramework);
+        public string ToStringResult => _api.GetToStringResult(NuGetFramework);
     }
 }

@@ -11,5 +11,6 @@
         bool HasPlatform { get; }
         string Platform { get; }
         System.Version PlatformVersion { get; }
+        string ToStringResult { get; }
     }
 }
