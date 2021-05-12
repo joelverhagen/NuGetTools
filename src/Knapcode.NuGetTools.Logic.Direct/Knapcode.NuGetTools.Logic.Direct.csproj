@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.2.0" />
-    <PackageReference Include="NuGet.PackageManagement" Version="5.8.0" />
+    <PackageReference Include="NuGet.PackageManagement" Version="5.10.0-preview.2.7185" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
