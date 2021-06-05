@@ -2,8 +2,6 @@
 
 A website containing some various tools to help understand NuGet.
 
-[![Build status](https://ci.appveyor.com/api/projects/status/yp3cnmxwng4yr0ll?svg=true)](https://ci.appveyor.com/project/joelverhagen/nugettools)
-
 ## Live Website
 
 You can visit NuGet Tools at http://nugettools.azurewebsites.net/.
