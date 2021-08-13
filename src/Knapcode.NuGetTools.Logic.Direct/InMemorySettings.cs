@@ -16,13 +16,6 @@ namespace Knapcode.NuGetTools.Logic.Direct
         public event EventHandler SettingsChanged;
 #pragma warning restore 0067
 
-        [Obsolete]
-        public IList<SettingValue> GetSettingValues(string section, bool isPath = false) => throw new NotImplementedException();
-        [Obsolete]
-        public void SetValues(string section, IReadOnlyList<SettingValue> values) => throw new NotImplementedException();
-        [Obsolete]
-        public void UpdateSections(string section, IReadOnlyList<SettingValue> values) => throw new NotImplementedException();
-
         public bool DeleteSection(string section) => throw new NotImplementedException();
         public bool DeleteValue(string section, string key) => throw new NotImplementedException();
         public IList<KeyValuePair<string, string>> GetNestedValues(string section, string subSection) => throw new NotImplementedException();
