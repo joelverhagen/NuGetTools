@@ -84,6 +84,7 @@
             <p>
                 Site by <a href="http://joelverhagen.com/">Joel Verhagen</a>,
                 version @(Configuration.AssemblyInformationalVersion) (<a href="@("https://github.com/joelverhagen/NuGetTools/commit/" + Configuration.AssemblyCommitHash)">commit</a>).
+                Last built on @Configuration.AssemblyBuildTimestamp.ToString("yyyy-MM-dd").
                 Visit the <a href="https://github.com/joelverhagen/NuGetTools">GitHub repository</a>.
             </p>
         </footer>

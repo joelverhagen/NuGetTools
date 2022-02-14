@@ -1,5 +1,4 @@
-﻿using System;
-using Knapcode.NuGetTools.Logic.Wrappers;
+﻿using Knapcode.NuGetTools.Logic.Wrappers;
 using NuGetVersionRange = NuGet.Versioning.VersionRange;
 
 namespace Knapcode.NuGetTools.Logic.Direct.Wrappers

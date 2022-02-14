@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Globalization;
+using System.Linq;
 using System.Reflection;
 
 namespace Knapcode.NuGetTools.Website
@@ -25,11 +27,17 @@ namespace Knapcode.NuGetTools.Website
                 .GetCustomAttributes<AssemblyMetadataAttribute>()
                 .FirstOrDefault(x => x.Key == "CommitHash")?
                 .Value;
+
+            AssemblyBuildTimestamp = DateTimeOffset.Parse(assembly
+                .GetCustomAttributes<AssemblyMetadataAttribute>()
+                .FirstOrDefault(x => x.Key == "BuildTimestamp")?
+                .Value, CultureInfo.InvariantCulture);
         }
 
         public static string AssemblyVersion { get; private set; }
         public static string AssemblyFileVersion { get; private set; }
         public static string AssemblyInformationalVersion { get; private set; }
         public static string AssemblyCommitHash { get; private set; }
+        public static DateTimeOffset AssemblyBuildTimestamp { get; private set; }
     }
 }

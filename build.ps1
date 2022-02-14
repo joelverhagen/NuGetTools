@@ -99,7 +99,7 @@ if (-Not $SkipBuild) {
         $versionSuffix = @("--version-suffix", "-$buildNumber")
     }
 
-    $assemblyInfo = & $dotnet run -p (Get-BuildProject -Name "Knapcode.NuGetTools.Build") -- assembly-info --base-directory $root $versionSuffix
+    $assemblyInfo = & $dotnet run --project (Get-BuildProject -Name "Knapcode.NuGetTools.Build") -- assembly-info --base-directory $root $versionSuffix
     Show-ErrorExitCode
 
     if ($IsAppVeyor) {
@@ -126,7 +126,7 @@ if (-Not $SkipPackageDownload) {
     if (Test-Path $packagesDir) {
         Remove-Item -Force -Recurse $packagesDir
     }
-    & $dotnet run -p (Get-SrcProject -Name "Knapcode.NuGetTools.PackageDownloader") -- $packagesDir
+    & $dotnet run --project (Get-SrcProject -Name "Knapcode.NuGetTools.PackageDownloader") -- $packagesDir
     Get-ChildItem (Join-Path $packagesDir "*.nupkg") -Recurse | Remove-Item
     Get-ChildItem (Join-Path $packagesDir "*.nuspec") -Recurse | Remove-Item
     Get-ChildItem (Join-Path $packagesDir "*.xml") -Recurse | Remove-Item

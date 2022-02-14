@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AngleSharp.Extensions;
-using AngleSharp.Parser.Html;
 using NuGet.Versioning;
 using Xunit;
 

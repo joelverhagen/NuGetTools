@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,6 +13,7 @@ namespace Knapcode.NuGetTools.Build
 [assembly: AssemblyVersion(""{1}"")]
 [assembly: AssemblyInformationalVersion(""{2}"")]
 [assembly: AssemblyMetadata(""CommitHash"", ""{3}"")]
+[assembly: AssemblyMetadata(""BuildTimestamp"", ""{4:O}"")]
 ";
 
         public static AssemblyInfo DiscoverAssemblyInfo(string repositoryDirectory, string versionSuffix)
@@ -40,7 +40,8 @@ namespace Knapcode.NuGetTools.Build
                 version,
                 version,
                 informationalVersion,
-                commitHash);
+                commitHash,
+                DateTimeOffset.UtcNow);
 
             return assemblyInfo;
         }
@@ -80,7 +81,8 @@ namespace Knapcode.NuGetTools.Build
                 assemblyInfo.FileVersion,
                 assemblyInfo.Version,
                 assemblyInfo.InformationalVersion,
-                assemblyInfo.CommitHash);
+                assemblyInfo.CommitHash,
+                assemblyInfo.BuildTimestamp);
 
             return Encoding.UTF8.GetBytes(content);
         }

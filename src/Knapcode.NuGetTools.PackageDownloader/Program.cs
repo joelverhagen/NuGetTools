@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Knapcode.NuGetTools.Logic.Direct;
 using Microsoft.Extensions.CommandLineUtils;
 using NuGet.Common;
 using NuGet.Protocol.Core.Types;
-using NuGet.Versioning;
 using VersionRange = NuGet.Versioning.VersionRange;
 
 namespace Knapcode.NuGetTools.PackageDownloader
