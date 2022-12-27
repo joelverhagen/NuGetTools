@@ -116,7 +116,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
                 var allMetadata = await metadataResource.GetMetadataAsync(
                    id,
                    includePrerelease: true,
-                   includeUnlisted: false,
+                   includeUnlisted: true,
                    sourceCacheContext: sourceCacheContext,
                    log: log,
                    token: token);
