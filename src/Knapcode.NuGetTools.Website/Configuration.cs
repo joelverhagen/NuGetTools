@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using NuGet.Versioning;
 
 namespace Knapcode.NuGetTools.Website
 {
@@ -23,15 +24,17 @@ namespace Knapcode.NuGetTools.Website
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
                 .InformationalVersion;
 
-            AssemblyCommitHash = assembly
-                .GetCustomAttributes<AssemblyMetadataAttribute>()
-                .FirstOrDefault(x => x.Key == "CommitHash")?
-                .Value;
+            if (SemanticVersion.TryParse(AssemblyInformationalVersion, out var version))
+            {
+                AssemblyCommitHash = version.Metadata;
+                var shortCommitHash = version.Metadata.Length > 8 ? version.Metadata.Substring(0, 8) : version.Metadata;
+                AssemblyInformationalVersion = new SemanticVersion(version.Major, version.Minor, version.Patch, version.ReleaseLabels, shortCommitHash).ToFullString();
+            }
 
             AssemblyBuildTimestamp = DateTimeOffset.Parse(assembly
                 .GetCustomAttributes<AssemblyMetadataAttribute>()
                 .FirstOrDefault(x => x.Key == "BuildTimestamp")?
-                .Value, CultureInfo.InvariantCulture);
+                .Value ?? "2001-01-01", CultureInfo.InvariantCulture);
         }
 
         public static string AssemblyVersion { get; private set; }

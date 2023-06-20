@@ -4,9 +4,6 @@
     <TargetFramework>net472</TargetFramework>
     <AssemblyName>Knapcode.NuGetTools.Logic</AssemblyName>
     <PackageId>Knapcode.NuGetTools.Logic</PackageId>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
