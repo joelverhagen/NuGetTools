@@ -6,9 +6,6 @@
     <AssemblyName>Knapcode.NuGetTools.Website</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>Knapcode.NuGetTools.Website</PackageId>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
   </PropertyGroup>
 
   <ItemGroup>

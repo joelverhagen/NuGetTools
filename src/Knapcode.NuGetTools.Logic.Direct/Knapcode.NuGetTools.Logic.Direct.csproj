@@ -4,9 +4,6 @@
     <TargetFramework>net472</TargetFramework>
     <AssemblyName>Knapcode.NuGetTools.Logic.Direct</AssemblyName>
     <PackageId>Knapcode.NuGetTools.Logic.Direct</PackageId>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
   </PropertyGroup>
 
   <ItemGroup>

@@ -5,9 +5,6 @@
     <AssemblyName>Knapcode.NuGetTools.Sandbox</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>Knapcode.NuGetTools.Sandbox</PackageId>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
   </PropertyGroup>
 
   <ItemGroup>
