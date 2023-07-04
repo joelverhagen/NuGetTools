@@ -100,7 +100,7 @@ if (-Not $SkipTests) {
     $projectsToTest = Get-ChildItem (Join-Path $root "test") -Recurse -Include "*.csproj"
     foreach ($projectToTest in $projectsToTest)
     {
-        & dotnet test $projectToTest --no-build --verbosity normal
+        & dotnet test $projectToTest --logger "console;verbosity=normal" --no-build
         Show-ErrorExitCode
     }
 } else {
@@ -109,7 +109,7 @@ if (-Not $SkipTests) {
 
 if (-Not $SkipPublish) {
     Trace-Information "Publishing the website..."
-    & dotnet publish (Get-SrcProject -Name "Knapcode.NuGetTools.Website")
+    & dotnet publish (Get-SrcProject -Name "Knapcode.NuGetTools.Website") --configuration Release
     Show-ErrorExitCode
 } else {
     Trace-Information "Skipped publish."

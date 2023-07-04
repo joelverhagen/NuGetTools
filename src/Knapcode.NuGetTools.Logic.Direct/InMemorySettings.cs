@@ -6,6 +6,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
 {
     public class InMemorySettings : ISettings
     {
+        private readonly object _lock = new object();
         private readonly Dictionary<string, InMemorySettingSection> _settings = new Dictionary<string, InMemorySettingSection>();
 
         public string FileName => throw new NotImplementedException();
@@ -39,16 +40,19 @@ namespace Knapcode.NuGetTools.Logic.Direct
 
         private InMemorySettingSection GetInMemorySettingSection(string sectionName)
         {
-            if (!_settings.TryGetValue(sectionName, out var section))
+            lock (_lock)
             {
-                section = new InMemorySettingSection(
-                    sectionName,
-                    new Dictionary<string, string>(),
-                    new List<SettingItem>());
-                _settings.Add(sectionName, section);
-            }
+                if (!_settings.TryGetValue(sectionName, out var section))
+                {
+                    section = new InMemorySettingSection(
+                        sectionName,
+                        new Dictionary<string, string>(),
+                        new List<SettingItem>());
+                    _settings.Add(sectionName, section);
+                }
 
-            return section;
+                return section;
+            }
         }
 
         public void SaveToDisk()

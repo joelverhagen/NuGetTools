@@ -19,6 +19,8 @@ namespace Knapcode.NuGetTools.Website.Tests
 {
     public class TestServerFixture : IDisposable
     {
+        public static Uri BaseAddress { get; set; }
+
         private readonly HtmlParser _htmlParser;
 
         public TestServerFixture()
@@ -29,7 +31,23 @@ namespace Knapcode.NuGetTools.Website.Tests
                 .UseContentRoot(GetContentRoot())
                 .UseEnvironment("Automation");
             Server = new TestServer(webHostBuilder);
-            Client = Server.CreateClient();
+
+            if (BaseAddress == null)
+            {
+                Client = Server.CreateClient();
+            }
+            else
+            {
+                var handler = new HttpClientHandler
+                {
+                    AllowAutoRedirect = false,
+                };
+                Client = new HttpClient(handler)
+                {
+                    BaseAddress = BaseAddress,
+                };
+            }
+
             _htmlParser = new HtmlParser();
         }
 

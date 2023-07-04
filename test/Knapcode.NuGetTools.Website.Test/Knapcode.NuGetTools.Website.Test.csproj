@@ -26,11 +26,6 @@
     <PackageReference Include="AngleSharp" Version="0.9.9" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-  
   <!-- Solves Problem#1 (binding error) https://github.com/Microsoft/vstest/issues/428. -->
   <PropertyGroup>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

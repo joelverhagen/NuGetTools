@@ -6,7 +6,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
 {
     public class InMemorySettingSection : SettingSection
     {
-        public readonly List<SettingItem> _items = new List<SettingItem>();
+        private readonly object _lock = new object();
 
         public InMemorySettingSection(
             string name,
@@ -15,7 +15,13 @@ namespace Knapcode.NuGetTools.Logic.Direct
         {
         }
 
-        public void AddItem(SettingItem item) => Children.Add(item);
+        public void AddItem(SettingItem item)
+        {
+            lock (_lock)
+            {
+                Children.Add(item);
+            }
+        }
 
         public override SettingBase Clone() => throw new NotImplementedException();
     }

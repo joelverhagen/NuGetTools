@@ -1,0 +1,122 @@
+name: Deploy
+
+on:
+  push:
+    branches: ["main"]
+    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Build
+        run: .\build.ps1
+
+      - name: Zip publish directory
+        run: Compress-Archive -Path .\src\Knapcode.NuGetTools.Website\bin\Release\net472\publish\* -DestinationPath website.zip
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v3
+        with:
+          name: website
+          path: .\website.zip
+
+  deploy-to-dev:
+    concurrency:
+      group: deploy-to-dev
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: windows-latest
+    needs: build
+    environment:
+      name: DEV
+      url: ${{ steps.deploy.outputs.webapp-url }}
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: website
+          path: .
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy
+        id: deploy
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: NuGetToolsDev
+          package: .\website.zip
+
+  deploy-to-prod:
+    concurrency:
+      group: deploy-to-prod
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: windows-latest
+    needs: build
+    environment:
+      name: PROD
+      url: ${{ steps.deploy.outputs.webapp-url }}
+
+    env:
+      RESOURCE_GROUP: Knapcode.NuGetTools
+      WEBAPP_NAME: NuGetTools
+      SLOT_NAME: staging
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v3
+
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: website
+          path: .
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy
+        id: deploy
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.WEBAPP_NAME }}
+          slot-name: ${{ env.SLOT_NAME }}
+          package: .\website.zip
+
+      - name: Copy packages for tests
+        run: |
+          Expand-Archive -Path .\website.zip -DestinationPath .\website
+          Copy-Item .\website\packages .\src\Knapcode.NuGetTools.Website -Recurse
+
+      - name: Run integration tests
+        run: dotnet test --logger "console;verbosity=normal" --filter "FullyQualifiedName~Knapcode.NuGetTools.Website.Tests.IntegrationTest"
+        env:
+          NUGETTOOLS_BASE_URL: ${{ steps.deploy.outputs.webapp-url }}
+
+      - name: Swap slots
+        run: az webapp deployment slot swap -s ${{ env.SLOT_NAME }} -n ${{ env.WEBAPP_NAME }} -g ${{ env.RESOURCE_GROUP }}

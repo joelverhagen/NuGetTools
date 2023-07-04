@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -15,11 +16,32 @@ namespace Knapcode.NuGetTools.Website.Tests
 
         static IntegrationTest()
         {
+            var baseUrl = Environment.GetEnvironmentVariable("NUGETTOOLS_BASE_URL");
+            if (Uri.TryCreate(baseUrl, UriKind.Absolute, out var parsedBaseAddress))
+            {
+                Console.WriteLine("Using base URL for integration tests: " + parsedBaseAddress.AbsoluteUri);
+                TestServerFixture.BaseAddress = parsedBaseAddress;
+            }
+            else
+            {
+                Console.WriteLine("Using in-memory server for integration tests.");
+            }
+
             using (var tsf = new TestServerFixture())
             {
                 AvailableVersions = tsf
                     .GetAvailableVersionsAsync()
                     .Result
+                    .OrderBy(x => x)
+                    .ToList();
+            }
+
+            // If we're testing a real URL, limit the test versions to the latest per major version.
+            if (parsedBaseAddress != null)
+            {
+                AvailableVersions = AvailableVersions
+                    .GroupBy(x => x.Major)
+                    .Select(g => g.Max())
                     .OrderBy(x => x)
                     .ToList();
             }
