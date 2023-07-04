@@ -261,3 +261,4 @@ cli
 **/Properties/AssemblyInfo.cs
 *Web Deploy*
 **/.config/*
+profile.arm.json
