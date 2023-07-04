@@ -86,6 +86,8 @@ if (-Not $SkipPackageDownload) {
     Get-ChildItem (Join-Path $packagesDir "*.nupkg") -Recurse | Remove-Item
     Get-ChildItem (Join-Path $packagesDir "*.nuspec") -Recurse | Remove-Item
     Get-ChildItem (Join-Path $packagesDir "*.xml") -Recurse | Remove-Item
+    Get-ChildItem (Join-Path $packagesDir "*.png") -Recurse | Remove-Item
+    Get-ChildItem (Join-Path $packagesDir "*.md") -Recurse | Remove-Item
     Get-ChildItem (Join-Path $packagesDir ".signature.p7s") -Recurse | Remove-Item
     Get-ChildItem (Join-Path $packagesDir ".nupkg.metadata") -Recurse | Remove-Item
     Show-ErrorExitCode

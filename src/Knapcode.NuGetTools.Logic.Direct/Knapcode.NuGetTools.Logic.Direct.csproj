@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFrameworks>net472;net6.0</TargetFrameworks>
     <AssemblyName>Knapcode.NuGetTools.Logic.Direct</AssemblyName>
     <PackageId>Knapcode.NuGetTools.Logic.Direct</PackageId>
   </PropertyGroup>
@@ -12,12 +12,20 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.2.0" />
-    <PackageReference Include="NuGet.PackageManagement" Version="6.6.1" />
   </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
+	
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+	<PackageReference Include="NuGet.Protocol" Version="$(NuGetPackageVersion)" />
+  </ItemGroup>
+	
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+	<PackageReference Include="NuGet.PackageManagement" Version="$(NuGetPackageVersion)" />
+  </ItemGroup>
+	
+  <ItemGroup Condition="'$(TargetFramework)' != 'net472'">
+	<Compile Remove="PackageLoader.cs" />
+	<Compile Remove="IPackageLoader.cs" />
+	<Compile Remove="ToolsFactory.cs" />
   </ItemGroup>
 
 </Project>

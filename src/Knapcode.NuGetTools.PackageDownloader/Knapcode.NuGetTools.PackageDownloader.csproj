@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>Knapcode.NuGetTools.PackageDownloader</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>Knapcode.NuGetTools.PackageDownloader</PackageId>
@@ -13,11 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
+    <PackageReference Include="NuGet.PackageManagement" Version="6.6.1" />
   </ItemGroup>
 
 </Project>

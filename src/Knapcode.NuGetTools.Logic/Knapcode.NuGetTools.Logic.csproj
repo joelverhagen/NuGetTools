@@ -1,18 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFrameworks>net472;net6.0</TargetFrameworks>
     <AssemblyName>Knapcode.NuGetTools.Logic</AssemblyName>
     <PackageId>Knapcode.NuGetTools.Logic</PackageId>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+  <ItemGroup Condition="'$(TargetFramework)' != 'net472'">
+	<Compile Remove="AssemblyLoader.cs" />
+	<Compile Remove="AssemblyLoaderProxy.cs" />
+	<Compile Remove="AppDomainContext.cs" />
+	<Compile Remove="IAssemblyLoader.cs" />
+	<Compile Remove="Wrappers\Reflection\FrameworkLogic.cs" />
+	<Compile Remove="Wrappers\Reflection\VersionLogic.cs" />
+	<Compile Remove="Wrappers\Reflection\VersionRangeLogic.cs" />
   </ItemGroup>
 
 </Project>

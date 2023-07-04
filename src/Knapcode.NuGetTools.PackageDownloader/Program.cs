@@ -81,7 +81,7 @@ namespace Knapcode.NuGetTools.PackageDownloader
         {
             await alignedVersionDownloader.DownloadPackagesAsync(
                 sources,
-                ToolsFactory.PackageIds2x,
+                Constants.PackageIds2x,
                 VersionRange.Parse("[2.5.0, )", allowFloating: false),
                 sourceCacheContext,
                 log,
@@ -89,7 +89,7 @@ namespace Knapcode.NuGetTools.PackageDownloader
 
             await alignedVersionDownloader.DownloadPackagesAsync(
                 sources,
-                ToolsFactory.PackageIds3x,
+                Constants.PackageIds3x,
                 VersionRange.All,
                 sourceCacheContext,
                 log,

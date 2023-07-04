@@ -18,9 +18,6 @@ namespace Knapcode.NuGetTools.Logic.Direct
 {
     public class ToolsFactory : IToolsFactory
     {
-        private const string _versioningId = "NuGet.Versioning";
-        private const string _frameworksId = "NuGet.Frameworks";
-        private const string _coreId = "NuGet.Core";
         private static NuGetFramework _framework = NuGetFramework.Parse("net472");
 
         private readonly IAlignedVersionsDownloader _downloader;
@@ -53,7 +50,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
                 using (var sourceCacheContext = new SourceCacheContext())
                 {
                     var versions2x = await _downloader.GetDownloadedVersionsAsync(
-                        PackageIds2x,
+                        Constants.PackageIds2x,
                         sourceCacheContext,
                         _nuGetLog,
                         CancellationToken.None);
@@ -61,7 +58,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
                         .Select(x => new KeyValuePair<NuGetVersion, NuGetRelease>(x, NuGetRelease.Version2x));
 
                     var versions3x = await _downloader.GetDownloadedVersionsAsync(
-                        PackageIds3x,
+                        Constants.PackageIds3x,
                         sourceCacheContext,
                         _nuGetLog,
                         CancellationToken.None);
@@ -95,17 +92,6 @@ namespace Knapcode.NuGetTools.Logic.Direct
                     .ToList();
             });
         }
-
-        public static IEnumerable<string> PackageIds3x { get; } = new[]
-        {
-            _versioningId,
-            _frameworksId
-        };
-
-        public static IEnumerable<string> PackageIds2x { get; } = new[]
-        {
-            _coreId
-        };
 
         public async Task<IEnumerable<string>> GetAvailableVersionsAsync(CancellationToken token)
         {
@@ -232,13 +218,13 @@ namespace Knapcode.NuGetTools.Logic.Direct
 
         private LoadedAssemblies LoadV2Assemblies(NuGetVersion version)
         {
-            var coreIdentity = new PackageIdentity(_coreId, version);
+            var coreIdentity = new PackageIdentity(Constants.CoreId, version);
             var context = _packageLoader.LoadPackageAssemblies(
                 version.ToNormalizedString(),
                 _framework,
                 coreIdentity);
             
-            var coreAssemblyName = context.LoadedAssemblies.GetByName(_coreId);
+            var coreAssemblyName = context.LoadedAssemblies.GetByName(Constants.CoreId);
 
             var loaded = new LoadedAssemblies
             {
@@ -252,20 +238,20 @@ namespace Knapcode.NuGetTools.Logic.Direct
 
         private LoadedAssemblies LoadV3Assemblies(NuGetVersion version)
         {
-            var versioningIdentity = new PackageIdentity(_versioningId, version);
+            var versioningIdentity = new PackageIdentity(Constants.VersioningId, version);
             _packageLoader.LoadPackageAssemblies(
                 version.ToNormalizedString(),
                 _framework,
                 versioningIdentity);
 
-            var frameworksIdentity = new PackageIdentity(_frameworksId, version);
+            var frameworksIdentity = new PackageIdentity(Constants.FrameworksId, version);
             var context = _packageLoader.LoadPackageAssemblies(
                 version.ToNormalizedString(),
                 _framework,
                 frameworksIdentity);
             
-            var versioningAssemblyName = context.LoadedAssemblies.GetByName(_versioningId);
-            var frameworksAssemblyName = context.LoadedAssemblies.GetByName(_frameworksId);
+            var versioningAssemblyName = context.LoadedAssemblies.GetByName(Constants.VersioningId);
+            var frameworksAssemblyName = context.LoadedAssemblies.GetByName(Constants.FrameworksId);
 
             var loaded = new LoadedAssemblies
             {

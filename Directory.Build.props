@@ -1,0 +1,17 @@
+<Project>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
+    <PackageReference Include="MinVer" Version="4.3.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyMetadata Include="BuildTimestamp" Condition="'$(Configuration)' == 'Debug'">
+      <Value>$([System.DateTime]::Today.ToString("O"))</Value>
+    </AssemblyMetadata>
+    <AssemblyMetadata Include="BuildTimestamp" Condition="'$(Configuration)' != 'Debug'">
+      <Value>$([System.DateTime]::UtcNow.ToString("O"))</Value>
+    </AssemblyMetadata>
+  </ItemGroup>
+
+</Project>

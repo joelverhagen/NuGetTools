@@ -11,6 +11,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A4ECEBC3-81BD-4BE4-80E7-D4011B729DA2}"
 	ProjectSection(SolutionItems) = preProject
 		build.ps1 = build.ps1
+		src\Directory.Build.props = src\Directory.Build.props
 		NuGet.Config = NuGet.Config
 		README.md = README.md
 	EndProjectSection
@@ -96,5 +97,8 @@ Global
 		{07C73F45-3DF8-428F-AC91-58654E18BA24} = {C65B2136-1245-4F2D-950F-55187D51FEC0}
 		{D7F487E6-9A50-4F7B-A6AE-E323408136F4} = {C65B2136-1245-4F2D-950F-55187D51FEC0}
 		{2EE6D448-3E19-432C-A25B-E21474D8D8E3} = {C65B2136-1245-4F2D-950F-55187D51FEC0}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {22DC91EB-7A5F-46AA-992C-9C28049612AD}
 	EndGlobalSection
 EndGlobal

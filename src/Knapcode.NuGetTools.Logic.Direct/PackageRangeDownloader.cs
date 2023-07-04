@@ -5,7 +5,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NuGet.Common;
+#if NETCOREAPP
 using NuGet.PackageManagement;
+#endif
 using NuGet.Packaging.Core;
 using NuGet.Packaging.Signing;
 using NuGet.Protocol;
@@ -74,6 +76,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
                 .ToArray();
         }
 
+#if NETCOREAPP
         public async Task DownloadPackagesAsync(
             IEnumerable<string> sources,
             IEnumerable<PackageIdentity> packageIdentities,
@@ -88,6 +91,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
 
             await Task.WhenAll(downloadTasks);
         }
+#endif
 
         private List<SourceRepository> GetSourceRepositories(IEnumerable<string> sources)
         {
@@ -125,6 +129,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
             }
         }
 
+#if NETCOREAPP
         private async Task DownloadPackageAsync(
             List<SourceRepository> sourceRepositories,
             PackageIdentity identity,
@@ -159,5 +164,6 @@ namespace Knapcode.NuGetTools.Logic.Direct
                     token);
             }
         }
+#endif
     }
 }
