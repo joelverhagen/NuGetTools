@@ -48,6 +48,13 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+	  <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+		  <_Parameter1>BuildTimestamp</_Parameter1>
+		  <_Parameter2>$([System.DateTime]::UtcNow.ToString('yyyy-MM-dd'))</_Parameter2>
+	  </AssemblyAttribute>
+  </ItemGroup>
+
   <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
     <Exec Command="bower install" />
   </Target>
