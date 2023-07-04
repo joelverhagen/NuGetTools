@@ -10,7 +10,7 @@
       <Value>$([System.DateTime]::Today.ToString("O"))</Value>
     </AssemblyMetadata>
     <AssemblyMetadata Include="BuildTimestamp" Condition="$(Configuration) != 'Debug'">
-      <Value>$([System.DateTime]::Now.ToString("O"))</Value>
+      <Value>$([System.DateTime]::UtcNow.ToString("O"))</Value>
     </AssemblyMetadata>
   </ItemGroup>
 
