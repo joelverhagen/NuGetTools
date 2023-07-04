@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <NuGetPackageVersion>6.6.1</NuGetPackageVersion>
+	<MinVerTagPrefix>v</MinVerTagPrefix>
   </PropertyGroup>
 
   <ItemGroup>
