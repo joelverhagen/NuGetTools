@@ -59,6 +59,13 @@ namespace Knapcode.NuGetTools.Website
                 permanent: false);
         }
 
+        [HttpGet("/api/versions")]
+        public async Task<IActionResult> Versions(CancellationToken token)
+        {
+            var versions = await _toolsFactory.GetAvailableVersionsAsync(token);
+            return new JsonResult(versions);
+        }
+
         [Route("/error")]
         public IActionResult Error()
         {

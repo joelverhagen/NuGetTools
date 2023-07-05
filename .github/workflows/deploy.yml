@@ -25,13 +25,13 @@ jobs:
         run: .\build.ps1
 
       - name: Zip publish directory
-        run: Compress-Archive -Path .\src\Knapcode.NuGetTools.Website\bin\Release\net472\publish\* -DestinationPath website.zip
+        run: Compress-Archive -Path .\src\Knapcode.NuGetTools.Website\bin\Release\net472\publish\* -DestinationPath .\src\Knapcode.NuGetTools.Website\bin\website.zip
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
           name: website
-          path: .\website.zip
+          path: .\src\Knapcode.NuGetTools.Website\bin\website.zip
 
   deploy-to-dev:
     concurrency:
