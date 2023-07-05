@@ -262,3 +262,4 @@ cli
 *Web Deploy*
 **/.config/*
 profile.arm.json
+package-versions.txt
