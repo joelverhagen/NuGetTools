@@ -79,7 +79,7 @@ jobs:
     needs: build
     environment:
       name: PROD
-      url: ${{ env.WEBAPP_URL }}
+      url: ${{ steps.set-environment-url.outputs.url }}
 
     env:
       RESOURCE_GROUP: Knapcode.NuGetTools
@@ -123,10 +123,14 @@ jobs:
 
       - name: Swap slots and set production URL
         if: startsWith(github.ref, 'refs/tags/v')
-        run: |
-          az webapp deployment slot swap -s ${{ env.SLOT_NAME }} -n ${{ env.WEBAPP_NAME }} -g ${{ env.RESOURCE_GROUP }}
-          echo "WEBAPP_URL=${{ env.PRODUCTION_URL }}" >> "$GITHUB_ENV"
+        id: swap-slots
+        run: az webapp deployment slot swap -s ${{ env.SLOT_NAME }} -n ${{ env.WEBAPP_NAME }} -g ${{ env.RESOURCE_GROUP }}
 
-      - name: Set staging URL
-        if: startsWith(github.ref, 'refs/tags/v') != true
-        run: echo "WEBAPP_URL=${{ steps.deploy.outputs.webapp-url }}" >> "$GITHUB_ENV"
+      - name: Set environment URL
+        id: set-environment-url
+        run: |
+          if ("${{ steps.swap-slots.outcome }}" -eq "success") {
+            Write-Output "url=${{ env.PRODUCTION_URL }}" >> $Env:GITHUB_OUTPUT
+          } else {
+            Write-Output "url=${{ steps.deploy.outputs.webapp-url }}" >> $Env:GITHUB_OUTPUT
+          }
