@@ -47,7 +47,6 @@ jobs:
           Write-Output "versions-changed=$(($notMatching.Length -ne 0).ToString().ToLowerInvariant())" >> $Env:GITHUB_OUTPUT
 
   deploy-to-dev:
-    if: ${{ needs.build.outputs.versions-changed || github.event_name == 'workflow_dispatch' }}
     concurrency:
       group: deploy-to-dev
     permissions:
@@ -81,7 +80,6 @@ jobs:
           package: .\website.zip
 
   deploy-to-prod:
-    if: ${{ needs.build.outputs.versions-changed || github.event_name == 'workflow_dispatch' }}
     concurrency:
       group: deploy-to-prod
     permissions:
@@ -134,7 +132,7 @@ jobs:
           NUGETTOOLS_BASE_URL: ${{ steps.deploy.outputs.webapp-url }}
 
       - name: Swap slots
-        if: ${{ startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch' }}
+        if: ${{ needs.build.outputs.versions-changed == 'true' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v') }}
         id: swap-slots
         run: az webapp deployment slot swap -s ${{ env.SLOT_NAME }} -n ${{ env.WEBAPP_NAME }} -g ${{ env.RESOURCE_GROUP }}
 

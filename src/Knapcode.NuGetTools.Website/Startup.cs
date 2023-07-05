@@ -57,7 +57,6 @@ namespace Knapcode.NuGetTools.Website
 
             services.AddLogging(builder =>
             {
-                builder.AddConsole();
                 builder.AddDebug();
             });
 
