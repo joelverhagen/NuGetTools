@@ -119,4 +119,5 @@ jobs:
           NUGETTOOLS_BASE_URL: ${{ steps.deploy.outputs.webapp-url }}
 
       - name: Swap slots
+        if: startsWith(github.ref, 'refs/tags/v')
         run: az webapp deployment slot swap -s ${{ env.SLOT_NAME }} -n ${{ env.WEBAPP_NAME }} -g ${{ env.RESOURCE_GROUP }}
