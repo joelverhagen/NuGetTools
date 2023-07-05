@@ -82,8 +82,7 @@ if (-Not $SkipPackageDownload) {
     if (Test-Path $packagesDir) {
         Remove-Item -Force -Recurse $packagesDir
     }
-    $versionFile = Join-Path $root "package-versions.txt";
-    & dotnet run --project (Get-SrcProject -Name "Knapcode.NuGetTools.PackageDownloader") -- $packagesDir --version-file $versionFile
+    & dotnet run --project (Get-SrcProject -Name "Knapcode.NuGetTools.PackageDownloader") -- download $packagesDir
     Get-ChildItem (Join-Path $packagesDir "*.nupkg") -Recurse | Remove-Item
     Get-ChildItem (Join-Path $packagesDir "*.nuspec") -Recurse | Remove-Item
     Get-ChildItem (Join-Path $packagesDir "*.xml") -Recurse | Remove-Item
