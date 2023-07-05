@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Knapcode.NuGetTools.Logic.Direct;
 using Microsoft.Extensions.CommandLineUtils;
 using NuGet.Common;
 using NuGet.Protocol.Core.Types;
+using NuGet.Versioning;
 using VersionRange = NuGet.Versioning.VersionRange;
 
 namespace Knapcode.NuGetTools.PackageDownloader
@@ -23,6 +26,11 @@ namespace Knapcode.NuGetTools.PackageDownloader
                 "--source",
                 "The source to download packages from.",
                 CommandOptionType.MultipleValue);
+
+            var versionFileOption = app.Option(
+                "--version-file",
+                "A text file to write all package version to after completion.",
+                CommandOptionType.SingleValue);
 
             app.OnExecute(() =>
             {
@@ -43,7 +51,13 @@ namespace Knapcode.NuGetTools.PackageDownloader
                     sources = new List<string> { "https://api.nuget.org/v3/index.json" };
                 }
 
-                DownloadPackages(packagesDirectory, sources);
+                var downloadTask = DownloadPackagesAsync(packagesDirectory, sources, CancellationToken.None);
+                var versions = downloadTask.GetAwaiter().GetResult();
+
+                if (versionFileOption.HasValue())
+                {
+                    File.WriteAllLines(versionFileOption.Value(), versions.Select(x => x.ToNormalizedString()));
+                }
 
                 return 0;
             });
@@ -51,25 +65,38 @@ namespace Knapcode.NuGetTools.PackageDownloader
             return app.Execute(args);
         }
 
-        private static void DownloadPackages(string packagesDirectory, List<string> sources)
+        private static async Task<List<NuGetVersion>> DownloadPackagesAsync(string packagesDirectory, List<string> sources, CancellationToken token)
         {
             var settings = new InMemorySettings();
             var nuGetSettings = new NuGetSettings(settings);
             nuGetSettings.GlobalPackagesFolder = packagesDirectory;
 
             var packageRangeDownloader = new PackageRangeDownloader(nuGetSettings);
+            var downloader = new AlignedVersionsDownloader(packageRangeDownloader);
 
-            var alignedVersionDownloader = new AlignedVersionsDownloader(packageRangeDownloader);
-
-            using (var sourceCacheContext = new SourceCacheContext())
+            using (var cacheContext = new SourceCacheContext())
             {
-                var downloadTask = DownloadAsync(
-                    sources,
-                    alignedVersionDownloader,
-                    sourceCacheContext,
-                    new ConsoleLogger());
+                var logger = new ConsoleLogger();
 
-                downloadTask.Wait();
+                await DownloadAsync(sources, downloader, cacheContext, logger, token);
+
+                var versions2x = await downloader.GetDownloadedVersionsAsync(
+                    Constants.PackageIds2x,
+                    cacheContext,
+                    logger,
+                    token);
+
+                var versions3x = await downloader.GetDownloadedVersionsAsync(
+                    Constants.PackageIds3x,
+                    cacheContext,
+                    logger,
+                    token);
+
+                return versions2x
+                    .Concat(versions3x)
+                    .Distinct()
+                    .OrderBy(v => v)
+                    .ToList();
             }
         }
 
@@ -77,7 +104,8 @@ namespace Knapcode.NuGetTools.PackageDownloader
             List<string> sources,
             AlignedVersionsDownloader alignedVersionDownloader,
             SourceCacheContext sourceCacheContext,
-            ILogger log)
+            ILogger log,
+            CancellationToken token)
         {
             await alignedVersionDownloader.DownloadPackagesAsync(
                 sources,
@@ -85,7 +113,7 @@ namespace Knapcode.NuGetTools.PackageDownloader
                 VersionRange.Parse("[2.5.0, )", allowFloating: false),
                 sourceCacheContext,
                 log,
-                CancellationToken.None);
+                token);
 
             await alignedVersionDownloader.DownloadPackagesAsync(
                 sources,
@@ -93,7 +121,7 @@ namespace Knapcode.NuGetTools.PackageDownloader
                 VersionRange.All,
                 sourceCacheContext,
                 log,
-                CancellationToken.None);
+                token);
         }
     }
 }
