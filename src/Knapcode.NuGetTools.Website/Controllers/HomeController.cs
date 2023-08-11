@@ -27,8 +27,6 @@ namespace Knapcode.NuGetTools.Website
             { "5.5.0-floating.7250", StarDashStarVersion },
             { "5.5.0-floating.7611", StarDashStarVersion }
         };
-
-        private static string LatestVersion;
         
         static HomeController()
         {
