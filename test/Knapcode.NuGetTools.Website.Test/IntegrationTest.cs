@@ -277,5 +277,20 @@ namespace Knapcode.NuGetTools.Website.Tests
                 Assert.EndsWith($"/{maxVersion}", response.Headers.Location.ToString());
             }
         }
+
+        [Fact]
+        public async Task LatestPlaceholderRedirectToLatest()
+        {
+            // Arrange
+            var maxVersion = AvailableVersions.Max();
+
+            // Act
+            using (var response = await f.Client.GetAsync("/latest/parse-version?version=1.0.0-beta01"))
+            {
+                // Assert
+                Assert.Equal(HttpStatusCode.Found, response.StatusCode);
+                Assert.EndsWith($"/{maxVersion}/parse-version?version=1.0.0-beta01", response.Headers.Location.ToString());
+            }
+        }
     }
 }

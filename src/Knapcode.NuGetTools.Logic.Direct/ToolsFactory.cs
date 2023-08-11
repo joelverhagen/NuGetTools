@@ -26,6 +26,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
 
         private readonly Lazy<Task<Dictionary<string, NuGetVersion>>> _versions;
         private readonly Lazy<Task<List<string>>> _versionStrings;
+        private readonly Lazy<Task<string>> _latestVersion;
         private readonly Lazy<Task<Dictionary<NuGetVersion, NuGetRelease>>> _releases;
 
         private readonly ConcurrentDictionary<NuGetVersion, Task<Logic>> _logic
@@ -90,6 +91,16 @@ namespace Knapcode.NuGetTools.Logic.Direct
                     .OrderByDescending(x => x.Value)
                     .Select(x => x.Key)
                     .ToList();
+            });
+
+            _latestVersion = new Lazy<Task<string>>(async () =>
+            {
+                var versions = await _versions.Value;
+
+                return versions
+                    .OrderByDescending(x => x.Value)
+                    .First()
+                    .Key;
             });
         }
 
@@ -162,6 +173,11 @@ namespace Knapcode.NuGetTools.Logic.Direct
         public Task<IFrameworkList> GetFrameworkListAsync(CancellationToken token)
         {
             return Task.FromResult(_frameworkList);
+        }
+
+        public Task<string> GetLatestVersionAsync(CancellationToken token)
+        {
+            return _latestVersion.Value;
         }
 
         private async Task<Logic> GetLogicAsync(NuGetVersion version)

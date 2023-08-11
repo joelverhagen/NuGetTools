@@ -27,6 +27,8 @@ namespace Knapcode.NuGetTools.Website
             { "5.5.0-floating.7250", StarDashStarVersion },
             { "5.5.0-floating.7611", StarDashStarVersion }
         };
+
+        private static string LatestVersion;
         
         static HomeController()
         {
@@ -48,9 +50,7 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/")]
         public async Task<IActionResult> Index(CancellationToken token)
         {
-            var versions = await _toolsFactory.GetAvailableVersionsAsync(token);
-
-            var nuGetVersion = versions.First();
+            var nuGetVersion = await _toolsFactory.GetLatestVersionAsync(token);
 
             return new RedirectToActionResult(
                 nameof(SelectedVersionIndex),
@@ -80,7 +80,7 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/{nuGetVersion}")]
         public async Task<IActionResult> SelectedVersionIndex([FromRoute]string nuGetVersion, CancellationToken token)
         {
-            var redirect = GetVersionRedirect();
+            var redirect = await GetVersionRedirectAsync(token);
             if (redirect != null)
             {
                 return redirect;
@@ -100,7 +100,7 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/{nuGetVersion}/parse-framework")]
         public async Task<IActionResult> ParseFramework([FromRoute]string nuGetVersion, [FromQuery]ParseFrameworkInput input, CancellationToken token)
         {
-            var redirect = GetVersionRedirect();
+            var redirect = await GetVersionRedirectAsync(token);
             if (redirect != null)
             {
                 return redirect;
@@ -121,7 +121,7 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/{nuGetVersion}/parse-version")]
         public async Task<IActionResult> ParseVersion([FromRoute]string nuGetVersion, [FromQuery]ParseVersionInput input, CancellationToken token)
         {
-            var redirect = GetVersionRedirect();
+            var redirect = await GetVersionRedirectAsync(token);
             if (redirect != null)
             {
                 return redirect;
@@ -142,7 +142,7 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/{nuGetVersion}/parse-version-range")]
         public async Task<IActionResult> ParseVersionRange([FromRoute]string nuGetVersion, [FromQuery]ParseVersionRangeInput input, CancellationToken token)
         {
-            var redirect = GetVersionRedirect();
+            var redirect = await GetVersionRedirectAsync(token);
             if (redirect != null)
             {
                 return redirect;
@@ -163,7 +163,7 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/{nuGetVersion}/framework-compatibility")]
         public async Task<IActionResult> FrameworkCompatibility([FromRoute]string nuGetVersion, [FromQuery]FrameworkCompatibilityInput input, bool swap, CancellationToken token)
         {
-            var redirect = GetVersionRedirect();
+            var redirect = await GetVersionRedirectAsync(token);
             if (redirect != null)
             {
                 return redirect;
@@ -196,7 +196,7 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/{nuGetVersion}/version-comparison")]
         public async Task<IActionResult> VersionComparison([FromRoute]string nuGetVersion, [FromQuery]VersionComparisonInput input, bool swap, CancellationToken token)
         {
-            var redirect = GetVersionRedirect();
+            var redirect = await GetVersionRedirectAsync(token);
             if (redirect != null)
             {
                 return redirect;
@@ -226,7 +226,7 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/{nuGetVersion}/sort-versions")]
         public async Task<IActionResult> SortVersions([FromRoute]string nuGetVersion, [FromQuery]SortVersionsInput input, CancellationToken token)
         {
-            var redirect = GetVersionRedirect();
+            var redirect = await GetVersionRedirectAsync(token);
             if (redirect != null)
             {
                 return redirect;
@@ -247,7 +247,7 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/{nuGetVersion}/get-nearest-framework")]
         public async Task<IActionResult> GetNearestFramework([FromRoute]string nuGetVersion, [FromQuery]GetNearestFrameworkInput input, CancellationToken token)
         {
-            var redirect = GetVersionRedirect();
+            var redirect = await GetVersionRedirectAsync(token);
             if (redirect != null)
             {
                 return redirect;
@@ -268,7 +268,7 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/{nuGetVersion}/version-satisfies")]
         public async Task<IActionResult> VersionSatisfies([FromRoute]string nuGetVersion, [FromQuery]VersionSatisfiesInput input, CancellationToken token)
         {
-            var redirect = GetVersionRedirect();
+            var redirect = await GetVersionRedirectAsync(token);
             if (redirect != null)
             {
                 return redirect;
@@ -289,7 +289,7 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/{nuGetVersion}/find-best-version-match")]
         public async Task<IActionResult> FindBestVersionMatch([FromRoute]string nuGetVersion, [FromQuery]FindBestVersionMatchInput input, CancellationToken token)
         {
-            var redirect = GetVersionRedirect();
+            var redirect = await GetVersionRedirectAsync(token);
             if (redirect != null)
             {
                 return redirect;
@@ -310,7 +310,7 @@ namespace Knapcode.NuGetTools.Website
         [HttpGet("/{nuGetVersion}/framework-precedence")]
         public async Task<IActionResult> FrameworkPrecedence([FromRoute]string nuGetVersion, [FromQuery]FrameworkPrecedenceInput input, CancellationToken token)
         {
-            var redirect = GetVersionRedirect();
+            var redirect = await GetVersionRedirectAsync(token);
             if (redirect != null)
             {
                 return redirect;
@@ -367,14 +367,23 @@ namespace Knapcode.NuGetTools.Website
             }
         }
 
-        private IActionResult GetVersionRedirect()
+        private async Task<IActionResult> GetVersionRedirectAsync(CancellationToken token)
         {
             // Get the current version.
             var nuGetVersion = (string)ControllerContext.RouteData.Values["nuGetVersion"];
 
             // Determine if the current version needs a redirect.
-            string redirectNuGetVersion;
-            if (_versionRedirects.TryGetValue(nuGetVersion, out redirectNuGetVersion))
+            string redirectNuGetVersion = null;
+            if (_versionRedirects.TryGetValue(nuGetVersion, out var knownRedirect))
+            {
+                redirectNuGetVersion = knownRedirect;
+            }
+            else if (nuGetVersion == "latest")
+            {
+                redirectNuGetVersion = await _toolsFactory.GetLatestVersionAsync(token);
+            }
+            
+            if (redirectNuGetVersion != null)
             {
                 var urlHelper = _urlHelperFactory.GetUrlHelper(ControllerContext);
                 var redirect = GetVersionUrl(redirectNuGetVersion, urlHelper);

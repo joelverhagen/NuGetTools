@@ -14,6 +14,8 @@ namespace Knapcode.NuGetTools.Logic
         /// <returns>The sequence of versions.</returns>
         Task<IEnumerable<string>> GetAvailableVersionsAsync(CancellationToken token);
 
+        Task<string> GetLatestVersionAsync(CancellationToken token);
+
         Task<IToolsService> GetServiceAsync(string version, CancellationToken token);
 
         Task<IFrameworkPrecedenceService> GetFrameworkPrecedenceServiceAsync(string version, CancellationToken token);

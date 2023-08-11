@@ -72,5 +72,10 @@ namespace Knapcode.NuGetTools.Logic
         {
             return Task.FromResult(_frameworkList);
         }
+
+        public Task<string> GetLatestVersionAsync(CancellationToken token)
+        {
+            return Task.FromResult(_version);
+        }
     }
 }
