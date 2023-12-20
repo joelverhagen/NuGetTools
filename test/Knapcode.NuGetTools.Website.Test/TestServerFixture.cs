@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 using AngleSharp.Dom.Html;
 using AngleSharp.Extensions;
 using AngleSharp.Parser.Html;
 using Knapcode.NuGetTools.Logic;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using NuGet.Versioning;
@@ -19,18 +13,18 @@ namespace Knapcode.NuGetTools.Website.Tests
 {
     public class TestServerFixture : IDisposable
     {
-        public static Uri BaseAddress { get; set; }
+        public static Uri? BaseAddress { get; set; }
 
         private readonly HtmlParser _htmlParser;
 
         public TestServerFixture()
         {
-            var webHostBuilder = new WebHostBuilder()
-                .UseStartup<Startup>()
+            Factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder => builder
                 .UseWebRoot(GetWebRoot())
                 .UseContentRoot(GetContentRoot())
-                .UseEnvironment("Automation");
-            Server = new TestServer(webHostBuilder);
+                .UseEnvironment("Automation"));
+            Server = Factory.Server;
 
             if (BaseAddress == null)
             {
@@ -51,6 +45,7 @@ namespace Knapcode.NuGetTools.Website.Tests
             _htmlParser = new HtmlParser();
         }
 
+        internal WebApplicationFactory<Program> Factory { get; }
         public TestServer Server { get; }
         public HttpClient Client { get; }
 
@@ -61,18 +56,21 @@ namespace Knapcode.NuGetTools.Website.Tests
 
         private static string GetContentRoot()
         {
-            return Enumerable.Empty<string>()
+            return Enumerable
+                .Empty<string>()
                 .Concat(new[]
                 {
-                        Path.GetDirectoryName(typeof(IntegrationTest).Assembly.Location),
-                        Directory.GetCurrentDirectory(),
+                    Path.GetDirectoryName(typeof(IntegrationTest).Assembly.Location),
+                    Directory.GetCurrentDirectory(),
                 })
-                .Select(x => GetContentRoot(x))
-                .FirstOrDefault(x => x != null);
+                .Where(x => x is not null)
+                .Select(x => GetContentRoot(x!))
+                .First(x => x is not null)!;
         }
 
-        private static string GetContentRoot(string currentDirectory)
+        private static string? GetContentRoot(string startingDirectory)
         {
+            string? currentDirectory = startingDirectory;
             while (currentDirectory != null && !Directory
                     .GetFiles(currentDirectory)
                     .Select(p => Path.GetFileName(p))
@@ -81,7 +79,7 @@ namespace Knapcode.NuGetTools.Website.Tests
                 currentDirectory = Path.GetDirectoryName(currentDirectory);
             }
 
-            if (currentDirectory == null)
+            if (currentDirectory is null)
             {
                 return null;
             }
@@ -91,7 +89,7 @@ namespace Knapcode.NuGetTools.Website.Tests
 
         public async Task<List<NuGetVersion>> GetAvailableVersionsAsync()
         {
-            var toolsFactory = Server.Host.Services.GetRequiredService<IToolsFactory>();
+            var toolsFactory = Factory.Services.GetRequiredService<IToolsFactory>();
             var versionStrings = await toolsFactory.GetAvailableVersionsAsync(CancellationToken.None);
             return versionStrings
                 .Select(x => new NuGetVersion(x))

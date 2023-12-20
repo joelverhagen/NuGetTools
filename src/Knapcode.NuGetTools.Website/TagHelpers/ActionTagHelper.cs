@@ -16,24 +16,30 @@ namespace Knapcode.NuGetTools.Website
         }
 
         [ViewContext]
-        public ViewContext ViewContext { get; set; }
+        public ViewContext? ViewContext { get; set; }
 
-        public string Value { get; set; }
+        public string? Value { get; set; }
 
         protected abstract string ActionName { get; }
         protected abstract object GetRouteValues(string value);
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
+            // build the output
+            output.TagName = "a";
+
+            if (Value is null || ViewContext is null)
+            {
+                return;
+            }
+
             // get the action URL
             var urlHelper = _urlHelperFactory.GetUrlHelper(ViewContext);
             var href = urlHelper.Action(
                 ActionName,
-                HomeController.ControllerName,
+                nameof(HomeController),
                 GetRouteValues(Value));
 
-            // build the output
-            output.TagName = "a";
             output.Attributes.Add("href", href);
 
             if (output.TagMode != TagMode.StartTagAndEndTag)

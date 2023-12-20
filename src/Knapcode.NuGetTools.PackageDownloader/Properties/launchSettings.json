@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Knapcode.NuGetTools.PackageDownloader": {
+      "commandName": "Project",
+      "commandLineArgs": "download"
+    }
+  }
+}

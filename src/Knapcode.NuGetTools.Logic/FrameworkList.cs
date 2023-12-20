@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Knapcode.NuGetTools.Logic.Wrappers;
-
-namespace Knapcode.NuGetTools.Logic
+﻿namespace Knapcode.NuGetTools.Logic
 {
-    public class FrameworkList<TFramework> : IFrameworkList where TFramework : IFramework
+    public class FrameworkList : IFrameworkList
     {
-        private readonly IFrameworkEnumerator<TFramework> _enumerator;
+        private readonly IFrameworkEnumerator _enumerator;
         private readonly Lazy<IReadOnlyList<FrameworkListItem>> _items;
         private readonly Lazy<IReadOnlyList<string>> _dotNetFrameworkNames;
         private readonly Lazy<IReadOnlyList<string>> _shortFolderNames;
         private readonly Lazy<IReadOnlyList<string>> _identifiers;
 
-        public FrameworkList(IFrameworkEnumerator<TFramework> enumerator)
+        public FrameworkList(IFrameworkEnumerator enumerator)
         {
             _enumerator = enumerator;
             _items = new Lazy<IReadOnlyList<FrameworkListItem>>(GetItems);

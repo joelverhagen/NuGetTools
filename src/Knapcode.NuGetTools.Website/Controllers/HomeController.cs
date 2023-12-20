@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Knapcode.NuGetTools.Logic;
+﻿using Knapcode.NuGetTools.Logic;
 using Knapcode.NuGetTools.Logic.Models.Framework;
 using Knapcode.NuGetTools.Logic.Models.Version;
 using Knapcode.NuGetTools.Logic.Models.VersionRange;
@@ -27,12 +22,6 @@ namespace Knapcode.NuGetTools.Website
             { "5.5.0-floating.7250", StarDashStarVersion },
             { "5.5.0-floating.7611", StarDashStarVersion }
         };
-        
-        static HomeController()
-        {
-            var typeName = typeof(HomeController).Name;
-            ControllerName = typeName.Substring(0, typeName.Length - "Controller".Length);
-        }
 
         private readonly IToolsFactory _toolsFactory;
         private readonly IUrlHelperFactory _urlHelperFactory;
@@ -42,8 +31,6 @@ namespace Knapcode.NuGetTools.Website
             _toolsFactory = toolsFactory;
             _urlHelperFactory = urlHelperFactory;
         }
-
-        public static string ControllerName { get; }
 
         [HttpGet("/")]
         public async Task<IActionResult> Index(CancellationToken token)
@@ -65,6 +52,7 @@ namespace Knapcode.NuGetTools.Website
         }
 
         [Route("/error")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return new ContentResult
@@ -328,7 +316,7 @@ namespace Knapcode.NuGetTools.Website
 
         private async Task<SelectedVersionOutput> GetSelectedVersionOutputAsync(IVersionedService service, CancellationToken token)
         {
-            return await GetSelectedVersionOutputAsync(service.Version, (object)null, token);
+            return await GetSelectedVersionOutputAsync(service.Version, (object?)null, token);
         }
 
         private async Task<SelectedVersionOutput<T>> GetSelectedVersionOutputAsync<T>(IVersionedService service, T value, CancellationToken token)
@@ -336,7 +324,10 @@ namespace Knapcode.NuGetTools.Website
             return await GetSelectedVersionOutputAsync(service.Version, value, token);
         }
 
-        private async Task<SelectedVersionOutput<T>> GetSelectedVersionOutputAsync<T>(string currentVersion, T value, CancellationToken token)
+        private async Task<SelectedVersionOutput<T>> GetSelectedVersionOutputAsync<T>(
+            string currentVersion,
+            T value,
+            CancellationToken token)
         {
             var availableVersions = await _toolsFactory.GetAvailableVersionsAsync(token);
             var versionUrls = GetVersionUrls(availableVersions);
@@ -365,14 +356,14 @@ namespace Knapcode.NuGetTools.Website
             }
         }
 
-        private async Task<IActionResult> GetVersionRedirectAsync(CancellationToken token)
+        private async Task<IActionResult?> GetVersionRedirectAsync(CancellationToken token)
         {
             // Get the current version.
-            var nuGetVersion = (string)ControllerContext.RouteData.Values["nuGetVersion"];
+            var nuGetVersion = (string?)ControllerContext.RouteData.Values["nuGetVersion"];
 
             // Determine if the current version needs a redirect.
-            string redirectNuGetVersion = null;
-            if (_versionRedirects.TryGetValue(nuGetVersion, out var knownRedirect))
+            string? redirectNuGetVersion = null;
+            if (nuGetVersion is not null && _versionRedirects.TryGetValue(nuGetVersion, out var knownRedirect))
             {
                 redirectNuGetVersion = knownRedirect;
             }
@@ -398,6 +389,11 @@ namespace Knapcode.NuGetTools.Website
                 ControllerContext.ActionDescriptor.ActionName,
                 ControllerContext.ActionDescriptor.ControllerName,
                 new { nuGetVersion });
+
+            if (url is null)
+            {
+                throw new InvalidOperationException("Could not construct a URL.");
+            }
 
             if (Request.QueryString.HasValue)
             {

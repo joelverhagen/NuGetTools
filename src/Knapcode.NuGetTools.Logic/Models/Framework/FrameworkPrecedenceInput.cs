@@ -4,7 +4,7 @@ namespace Knapcode.NuGetTools.Logic.Models.Framework
     {
         public bool IncludeProfiles { get; set; }
         public bool ExcludePortable { get; set; }
-        public string ExludedIdentifiers { get; set; }
-        public string Framework { get; set; }
+        public string? ExcludedIdentifiers { get; set; }
+        public string? Framework { get; set; }
     }
 }

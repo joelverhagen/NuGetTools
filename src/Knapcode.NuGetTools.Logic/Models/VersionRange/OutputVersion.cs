@@ -4,8 +4,8 @@ namespace Knapcode.NuGetTools.Logic.Models.VersionRange
 {
     public class OutputVersion
     {
-        public string Input { get; set; }
-        public IVersion Version { get; set; }
+        public required string Input { get; set; }
+        public required IVersion Version { get; set; }
         public bool Satisfies { get; set; }
     }
 }

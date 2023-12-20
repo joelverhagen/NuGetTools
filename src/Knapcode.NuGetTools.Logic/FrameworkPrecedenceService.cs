@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Knapcode.NuGetTools.Logic.Models;
+﻿using Knapcode.NuGetTools.Logic.Models;
 using Knapcode.NuGetTools.Logic.Models.Framework;
 using Knapcode.NuGetTools.Logic.Wrappers;
 
 namespace Knapcode.NuGetTools.Logic
 {
-    public class FrameworkPrecedenceService<TFramework> : IFrameworkPrecedenceService
-        where TFramework : IFramework
+    public class FrameworkPrecedenceService : IFrameworkPrecedenceService
     {
         private readonly IFrameworkList _frameworkList;
-        private readonly IFrameworkLogic<TFramework> _logic;
+        private readonly IFrameworkLogic _logic;
 
-        public FrameworkPrecedenceService(string version, IFrameworkList frameworkList, IFrameworkLogic<TFramework> logic)
+        public FrameworkPrecedenceService(string version, IFrameworkList frameworkList, IFrameworkLogic logic)
         {
             Version = version;
             _frameworkList = frameworkList;
@@ -27,17 +23,16 @@ namespace Knapcode.NuGetTools.Logic
             var output = new FrameworkPrecedenceOutput
             {
                 InputStatus = InputStatus.Missing,
-                Input = input
+                Input = input,
+                Precedence = Array.Empty<IFramework>(),
             };
 
-            TFramework framework = default(TFramework);
             if (input != null &&
                 !string.IsNullOrWhiteSpace(input.Framework))
             {
                 try
                 {
-                    framework = _logic.Parse(input.Framework);
-                    output.Framework = framework;
+                    output.Framework = _logic.Parse(input.Framework);
                     output.InputStatus = InputStatus.Valid;
                 }
                 catch (Exception)
@@ -46,18 +41,18 @@ namespace Knapcode.NuGetTools.Logic
                 }
             }
 
-            if (output.InputStatus == InputStatus.Valid)
+            if (output.Framework is not null)
             {
-                output.Precedence = GetPrecendence(output, framework);
+                output.Precedence = GetPrecendence(output, output.Framework);
             }
 
             return output;
         }
 
-        private IReadOnlyList<IFramework> GetPrecendence(FrameworkPrecedenceOutput output, TFramework framework)
+        private IReadOnlyList<IFramework> GetPrecendence(FrameworkPrecedenceOutput output, IFramework framework)
         {
             // Get the initial set of candidates.
-            var remainingCandidates = new HashSet<TFramework>(
+            var remainingCandidates = new HashSet<IFramework>(
                 GetCandidates(output, framework),
                 new FrameworkEqualityComparer());
 
@@ -66,6 +61,11 @@ namespace Knapcode.NuGetTools.Logic
             while (remainingCandidates.Count > 0)
             {
                 var nearest = _logic.GetNearest(framework, remainingCandidates);
+                if (nearest is null)
+                {
+                    continue;
+                }
+
                 precedence.Add(nearest);
                 remainingCandidates.Remove(nearest);
             }
@@ -73,9 +73,9 @@ namespace Knapcode.NuGetTools.Logic
             return precedence;
         }
 
-        private IEnumerable<TFramework> GetCandidates(FrameworkPrecedenceOutput output, TFramework framework)
+        private IEnumerable<IFramework> GetCandidates(FrameworkPrecedenceOutput output, IFramework framework)
         {
-            IEnumerable<TFramework> candidates = GetFrameworkList();
+            IEnumerable<IFramework> candidates = GetFrameworkList();
 
             if (!output.Input.IncludeProfiles)
             {
@@ -88,11 +88,11 @@ namespace Knapcode.NuGetTools.Logic
             }
 
             var excludedIdentifiers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            if (!string.IsNullOrWhiteSpace(output.Input.ExludedIdentifiers))
+            if (!string.IsNullOrWhiteSpace(output.Input.ExcludedIdentifiers))
             {
                 var split = output
                     .Input
-                    .ExludedIdentifiers
+                    .ExcludedIdentifiers
                     .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(x => x.Trim())
                     .Where(x => x.Length > 0)
@@ -115,14 +115,14 @@ namespace Knapcode.NuGetTools.Logic
             return candidates;
         }
 
-        private static bool IsPortable(TFramework x)
+        private static bool IsPortable(IFramework x)
         {
             return StringComparer.OrdinalIgnoreCase.Equals(".NETPortable", x.Identifier);
         }
 
-        private IReadOnlyList<TFramework> GetFrameworkList()
+        private IReadOnlyList<IFramework> GetFrameworkList()
         {
-            var frameworks = new List<TFramework>();
+            var frameworks = new List<IFramework>();
 
             foreach (var item in _frameworkList.DotNetFrameworkNames)
             {
@@ -139,15 +139,24 @@ namespace Knapcode.NuGetTools.Logic
             return frameworks;
         }
 
-        [Serializable]
-        private class FrameworkEqualityComparer : IEqualityComparer<TFramework>
+        private class FrameworkEqualityComparer : IEqualityComparer<IFramework>
         {
-            public bool Equals(TFramework x, TFramework y)
+            public bool Equals(IFramework? x, IFramework? y)
             {
+                if (x is null && y is null)
+                {
+                    return true;
+                }
+
+                if (x is null || y is null)
+                {
+                    return false;
+                }
+
                 return StringComparer.OrdinalIgnoreCase.Equals(x.DotNetFrameworkName, y.DotNetFrameworkName);
             }
 
-            public int GetHashCode(TFramework obj)
+            public int GetHashCode(IFramework obj)
             {
                 return StringComparer.OrdinalIgnoreCase.GetHashCode(obj.DotNetFrameworkName);
             }

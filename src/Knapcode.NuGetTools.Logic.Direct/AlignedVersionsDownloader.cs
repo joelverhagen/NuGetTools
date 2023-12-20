@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using NuGet.Common;
+﻿using NuGet.Common;
 using NuGet.Packaging.Core;
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
@@ -92,15 +87,14 @@ namespace Knapcode.NuGetTools.Logic.Direct
             IEnumerable<string> ids,
             Func<string, Task<IEnumerable<NuGetVersion>>> getVersionsAsync)
         {
-            HashSet<NuGetVersion> versions = null;
+            var versions = new HashSet<NuGetVersion>();
 
             foreach (var id in ids)
             {
                 var availableVersions = await getVersionsAsync(id);
 
-                if (versions == null)
+                if (versions.Count == 0)
                 {
-                    versions = new HashSet<NuGetVersion>();
                     versions.UnionWith(availableVersions);
                 }
                 else

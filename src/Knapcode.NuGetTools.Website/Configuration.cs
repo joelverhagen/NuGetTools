@@ -1,6 +1,4 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Reflection;
 using NuGet.Versioning;
 
@@ -10,19 +8,19 @@ namespace Knapcode.NuGetTools.Website
     {
         static Configuration()
         {
-            var assembly = typeof(Configuration).GetTypeInfo().Assembly;
+            var assembly = typeof(Configuration).GetTypeInfo().Assembly!;
 
             AssemblyVersion = assembly
                 .GetCustomAttribute<AssemblyVersionAttribute>()?
-                .Version;
+                .Version!;
 
             AssemblyFileVersion = assembly
                 .GetCustomAttribute<AssemblyFileVersionAttribute>()?
-                .Version;
+                .Version!;
 
             AssemblyInformationalVersion = assembly
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
-                .InformationalVersion;
+                .InformationalVersion!;
 
             if (SemanticVersion.TryParse(AssemblyInformationalVersion, out var version))
             {
@@ -40,7 +38,7 @@ namespace Knapcode.NuGetTools.Website
         public static string AssemblyVersion { get; private set; }
         public static string AssemblyFileVersion { get; private set; }
         public static string AssemblyInformationalVersion { get; private set; }
-        public static string AssemblyCommitHash { get; private set; }
+        public static string? AssemblyCommitHash { get; private set; }
         public static DateTimeOffset AssemblyBuildTimestamp { get; private set; }
     }
 }

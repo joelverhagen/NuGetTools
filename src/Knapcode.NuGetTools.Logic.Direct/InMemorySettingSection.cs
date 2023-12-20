@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using NuGet.Configuration;
+﻿using NuGet.Configuration;
 
 namespace Knapcode.NuGetTools.Logic.Direct
 {

@@ -1,13 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Knapcode.NuGetTools.Logic.Direct.Wrappers;
+﻿using System.Reflection;
+using Knapcode.NuGetTools.Logic.NuGet3x;
 using NuGet.Frameworks;
-using FrameworkEnumeratorData = Knapcode.NuGetTools.Logic.FrameworkEnumeratorData<Knapcode.NuGetTools.Logic.Direct.Wrappers.Framework>;
 
 namespace Knapcode.NuGetTools.Logic.Direct
 {
-    public class FrameworkEnumerator : IFrameworkEnumerator<Framework>
+    public class FrameworkEnumerator : IFrameworkEnumerator
     {
         public IEnumerable<FrameworkEnumeratorData> Expand(IEnumerable<FrameworkEnumeratorData> frameworks, FrameworkExpansionOptions options)
         {
@@ -114,6 +111,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
                 "net472",
                 "net471",
                 "net47",
+                "net8",
             }.Select(x => NuGetFramework.Parse(x)).Select(GetFrameworkEnumeratorData);
 
             return AddFrameworks(existing, hardcodedFrameworks);
@@ -259,9 +257,9 @@ namespace Knapcode.NuGetTools.Logic.Direct
             }
         }
 
-        private static FrameworkEnumeratorData<Framework> GetFrameworkEnumeratorData(NuGetFramework x)
+        private static FrameworkEnumeratorData GetFrameworkEnumeratorData(NuGetFramework x)
         {
-            return new FrameworkEnumeratorData(new Framework(x));
+            return new FrameworkEnumeratorData(new Framework3x(x));
         }
 
         private static IEnumerable<FrameworkEnumeratorData> AddCommonFrameworks(HashSet<FrameworkEnumeratorData> existing)
@@ -282,7 +280,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
             HashSet<FrameworkEnumeratorData> existing,
             FrameworkEnumeratorData data)
         {
-            var shortFolderName = data.Framework.NuGetFramework.GetShortFolderName();
+            var shortFolderName = ((Framework3x)data.Framework).NuGetFramework.GetShortFolderName();
             var roundTrip = GetFrameworkEnumeratorData(NuGetFramework.ParseFolder(shortFolderName));
 
             var added = AddFramework(existing, roundTrip);
@@ -296,7 +294,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
             HashSet<FrameworkEnumeratorData> existing,
             FrameworkEnumeratorData data)
         {
-            var dotNetFrameworkName = data.Framework.NuGetFramework.DotNetFrameworkName;
+            var dotNetFrameworkName = ((Framework3x)data.Framework).NuGetFramework.DotNetFrameworkName;
             var roundTrip = GetFrameworkEnumeratorData(NuGetFramework.Parse(dotNetFrameworkName));
 
             var added = AddFramework(existing, roundTrip);
@@ -312,7 +310,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
             FrameworkExpander expander)
         {
             var expanded = expander
-                .Expand(data.Framework.NuGetFramework)
+                .Expand(((Framework3x)data.Framework).NuGetFramework)
                 .Select(GetFrameworkEnumeratorData);
 
             if (expanded.Any())
@@ -344,7 +342,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
             }
         }
 
-        private static FrameworkEnumeratorData AddFramework(HashSet<FrameworkEnumeratorData> existing, FrameworkEnumeratorData data)
+        private static FrameworkEnumeratorData? AddFramework(HashSet<FrameworkEnumeratorData> existing, FrameworkEnumeratorData data)
         {
             if (data.Version == FrameworkConstants.MaxVersion)
             {

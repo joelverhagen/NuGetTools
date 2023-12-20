@@ -4,14 +4,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.6.33513.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C65B2136-1245-4F2D-950F-55187D51FEC0}"
-	ProjectSection(SolutionItems) = preProject
-		src\Directory.Build.props = src\Directory.Build.props
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A4ECEBC3-81BD-4BE4-80E7-D4011B729DA2}"
 	ProjectSection(SolutionItems) = preProject
 		build.ps1 = build.ps1
-		src\Directory.Build.props = src\Directory.Build.props
+		Directory.Build.props = Directory.Build.props
+		global.json = global.json
 		NuGet.Config = NuGet.Config
 		README.md = README.md
 	EndProjectSection
@@ -29,6 +27,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Knapcode.NuGetTools.Logic.Direct", "src\Knapcode.NuGetTools.Logic.Direct\Knapcode.NuGetTools.Logic.Direct.csproj", "{D7F487E6-9A50-4F7B-A6AE-E323408136F4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Knapcode.NuGetTools.PackageDownloader", "src\Knapcode.NuGetTools.PackageDownloader\Knapcode.NuGetTools.PackageDownloader.csproj", "{2EE6D448-3E19-432C-A25B-E21474D8D8E3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Knapcode.NuGetTools.Logic.NuGet3x", "src\Knapcode.NuGetTools.Logic.NuGet3x\Knapcode.NuGetTools.Logic.NuGet3x.csproj", "{EE80559E-3E56-472C-A3DA-49213721F938}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Knapcode.NuGetTools.Logic.NuGet2x", "src\Knapcode.NuGetTools.Logic.NuGet2x\Knapcode.NuGetTools.Logic.NuGet2x.csproj", "{F7C925D0-D3E8-470C-B095-AD4EA9103ED4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -86,6 +88,22 @@ Global
 		{2EE6D448-3E19-432C-A25B-E21474D8D8E3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2EE6D448-3E19-432C-A25B-E21474D8D8E3}.Release|x64.ActiveCfg = Release|Any CPU
 		{2EE6D448-3E19-432C-A25B-E21474D8D8E3}.Release|x64.Build.0 = Release|Any CPU
+		{EE80559E-3E56-472C-A3DA-49213721F938}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE80559E-3E56-472C-A3DA-49213721F938}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE80559E-3E56-472C-A3DA-49213721F938}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EE80559E-3E56-472C-A3DA-49213721F938}.Debug|x64.Build.0 = Debug|Any CPU
+		{EE80559E-3E56-472C-A3DA-49213721F938}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE80559E-3E56-472C-A3DA-49213721F938}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE80559E-3E56-472C-A3DA-49213721F938}.Release|x64.ActiveCfg = Release|Any CPU
+		{EE80559E-3E56-472C-A3DA-49213721F938}.Release|x64.Build.0 = Release|Any CPU
+		{F7C925D0-D3E8-470C-B095-AD4EA9103ED4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7C925D0-D3E8-470C-B095-AD4EA9103ED4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7C925D0-D3E8-470C-B095-AD4EA9103ED4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F7C925D0-D3E8-470C-B095-AD4EA9103ED4}.Debug|x64.Build.0 = Debug|Any CPU
+		{F7C925D0-D3E8-470C-B095-AD4EA9103ED4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7C925D0-D3E8-470C-B095-AD4EA9103ED4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7C925D0-D3E8-470C-B095-AD4EA9103ED4}.Release|x64.ActiveCfg = Release|Any CPU
+		{F7C925D0-D3E8-470C-B095-AD4EA9103ED4}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -97,6 +115,8 @@ Global
 		{07C73F45-3DF8-428F-AC91-58654E18BA24} = {C65B2136-1245-4F2D-950F-55187D51FEC0}
 		{D7F487E6-9A50-4F7B-A6AE-E323408136F4} = {C65B2136-1245-4F2D-950F-55187D51FEC0}
 		{2EE6D448-3E19-432C-A25B-E21474D8D8E3} = {C65B2136-1245-4F2D-950F-55187D51FEC0}
+		{EE80559E-3E56-472C-A3DA-49213721F938} = {C65B2136-1245-4F2D-950F-55187D51FEC0}
+		{F7C925D0-D3E8-470C-B095-AD4EA9103ED4} = {C65B2136-1245-4F2D-950F-55187D51FEC0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {22DC91EB-7A5F-46AA-992C-9C28049612AD}

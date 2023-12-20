@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.CommandLine;
+﻿using System.CommandLine;
 using System.CommandLine.Parsing;
-using System.Linq;
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using Knapcode.NuGetTools.Logic.Direct;
 using NuGet.Common;
 using NuGet.Protocol.Core.Types;
@@ -48,6 +42,11 @@ namespace Knapcode.NuGetTools.PackageDownloader
             {
                 var packagesDirectory = context.ParseResult.GetValueForArgument(packagesDirectoryArgument);
                 var sources = context.ParseResult.GetValueForOption(sourceOption);
+
+                if (sources is null)
+                {
+                    return;
+                }
 
                 await DownloadPackagesAsync(packagesDirectory, sources, context.GetCancellationToken());
             });
@@ -131,7 +130,14 @@ namespace Knapcode.NuGetTools.PackageDownloader
             using (var httpClient = new HttpClient { BaseAddress = new Uri(baseUrl) })
             {
                 var json = await httpClient.GetStringAsync("api/versions");
-                remoteVersions = JsonSerializer.Deserialize<List<string>>(json).Select(NuGetVersion.Parse).ToHashSet();
+                var versions = JsonSerializer.Deserialize<List<string>>(json);
+
+                if (versions is null || versions.Count == 0)
+                {
+                    throw new InvalidOperationException("No remote versions were found.");
+                }
+
+                remoteVersions = versions.Select(NuGetVersion.Parse).ToHashSet();
             }
 
             HashSet<NuGetVersion> localVersions;

@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Knapcode.NuGetTools.Logic
+﻿namespace Knapcode.NuGetTools.Logic
 {
     public class SingletonToolsFactory : IToolsFactory
     {
@@ -27,7 +23,7 @@ namespace Knapcode.NuGetTools.Logic
             return new[] { _version };
         }
 
-        public IToolsService GetService(string version)
+        public IToolsService? GetService(string version)
         {
             if (version != _version)
             {
@@ -44,9 +40,9 @@ namespace Knapcode.NuGetTools.Logic
             return Task.FromResult<IEnumerable<string>>(versions);
         }
 
-        public Task<IToolsService> GetServiceAsync(string version, CancellationToken token)
+        public Task<IToolsService?> GetServiceAsync(string version, CancellationToken token)
         {
-            IToolsService output = null;
+            IToolsService? output = null;
 
             if (version == _version)
             {
@@ -56,9 +52,9 @@ namespace Knapcode.NuGetTools.Logic
             return Task.FromResult(output);
         }
 
-        public Task<IFrameworkPrecedenceService> GetFrameworkPrecedenceServiceAsync(string version, CancellationToken token)
+        public Task<IFrameworkPrecedenceService?> GetFrameworkPrecedenceServiceAsync(string version, CancellationToken token)
         {
-            IFrameworkPrecedenceService output = null;
+            IFrameworkPrecedenceService? output = null;
 
             if (version == _version)
             {

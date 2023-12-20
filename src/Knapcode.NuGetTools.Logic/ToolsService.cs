@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.ComponentModel.Design;
 using Knapcode.NuGetTools.Logic.Models;
 using Knapcode.NuGetTools.Logic.Models.Framework;
 using Knapcode.NuGetTools.Logic.Models.Version;
@@ -10,30 +7,19 @@ using Knapcode.NuGetTools.Logic.Wrappers;
 
 namespace Knapcode.NuGetTools.Logic
 {
-    public class ToolsService<TFramework, TVersion, TVersionRange> : IToolsService
-        where TFramework : IFramework
-        where TVersion : IVersion
-        where TVersionRange : IVersionRange
+    public class ToolsService : IToolsService
     {
-        private readonly IFrameworkLogic<TFramework> _frameworkLogic;
-        private readonly IVersionLogic<TVersion> _versionLogic;
-        private readonly IVersionRangeLogic<TVersion, TVersionRange> _versionRangeLogic;
-        
-        public ToolsService(
-            string version,
-            IFrameworkLogic<TFramework> frameworkLogic,
-            IVersionLogic<TVersion> versionLogic,
-            IVersionRangeLogic<TVersion, TVersionRange> versionRangeLogic)
+        private readonly INuGetLogic _logic;
+
+        public ToolsService(string version, INuGetLogic logic)
         {
             Version = version;
-            _frameworkLogic = frameworkLogic;
-            _versionLogic = versionLogic;
-            _versionRangeLogic = versionRangeLogic;
+            _logic = logic;
         }
 
         public string Version { get; }
 
-        public ParseFrameworkOutput ParseFramework(ParseFrameworkInput input)
+        public ParseFrameworkOutput ParseFramework(ParseFrameworkInput? input)
         {
             var output = new ParseFrameworkOutput
             {
@@ -46,7 +32,7 @@ namespace Knapcode.NuGetTools.Logic
             {
                 try
                 {
-                    output.Framework = _frameworkLogic.Parse(input.Framework);
+                    output.Framework = _logic.Framework.Parse(input.Framework);
                     output.InputStatus = InputStatus.Valid;
                 }
                 catch (Exception)
@@ -58,7 +44,7 @@ namespace Knapcode.NuGetTools.Logic
             return output;
         }
 
-        public ParseVersionOutput ParseVersion(ParseVersionInput input)
+        public ParseVersionOutput ParseVersion(ParseVersionInput? input)
         {
             var output = new ParseVersionOutput
             {
@@ -71,7 +57,7 @@ namespace Knapcode.NuGetTools.Logic
             {
                 try
                 {
-                    output.Version = _versionLogic.Parse(input.Version);
+                    output.Version = _logic.Version.Parse(input.Version);
                     output.InputStatus = InputStatus.Valid;
                 }
                 catch (Exception)
@@ -83,7 +69,7 @@ namespace Knapcode.NuGetTools.Logic
             return output;
         }
 
-        public ParseVersionRangeOutput ParseVersionRange(ParseVersionRangeInput input)
+        public ParseVersionRangeOutput ParseVersionRange(ParseVersionRangeInput? input)
         {
             var output = new ParseVersionRangeOutput
             {
@@ -96,7 +82,7 @@ namespace Knapcode.NuGetTools.Logic
             {
                 try
                 {
-                    output.VersionRange = _versionRangeLogic.Parse(input.VersionRange);
+                    output.VersionRange = _logic.VersionRange.Parse(input.VersionRange);
                     output.InputStatus = InputStatus.Valid;
                 }
                 catch (Exception)
@@ -108,7 +94,7 @@ namespace Knapcode.NuGetTools.Logic
             return output;
         }
 
-        public FrameworkCompatibilityOutput FrameworkCompatibility(FrameworkCompatibilityInput input)
+        public FrameworkCompatibilityOutput FrameworkCompatibility(FrameworkCompatibilityInput? input)
         {
             var output = new FrameworkCompatibilityOutput
             {
@@ -121,16 +107,13 @@ namespace Knapcode.NuGetTools.Logic
                 return output;
             }
 
-            var projectMissing = string.IsNullOrWhiteSpace(input.Project);
-            var packageMissing = string.IsNullOrWhiteSpace(input.Package);
-
-            var project = default(TFramework);
-            if (!projectMissing)
+            bool projectMissing;
+            if (!string.IsNullOrWhiteSpace(input.Project))
             {
+                projectMissing = false;
                 try
                 {
-                    project = _frameworkLogic.Parse(input.Project);
-                    output.Project = project;
+                    output.Project = _logic.Framework.Parse(input.Project);
                     output.IsProjectValid = true;
                 }
                 catch (Exception)
@@ -138,14 +121,18 @@ namespace Knapcode.NuGetTools.Logic
                     output.IsProjectValid = false;
                 }
             }
-
-            var package = default(TFramework);
-            if (!packageMissing)
+            else
             {
+                projectMissing = true;
+            }
+
+            bool packageMissing;
+            if (!string.IsNullOrWhiteSpace(input.Package))
+            {
+                packageMissing = false;
                 try
                 {
-                    package = _frameworkLogic.Parse(input.Package);
-                    output.Package = package;
+                    output.Package = _logic.Framework.Parse(input.Package);
                     output.IsPackageValid = true;
                 }
                 catch (Exception)
@@ -153,13 +140,17 @@ namespace Knapcode.NuGetTools.Logic
                     output.IsPackageValid = false;
                 }
             }
+            else
+            {
+                packageMissing = true;
+            }
 
             if (!projectMissing && !packageMissing)
             {
-                if (output.IsProjectValid && output.IsPackageValid)
+                if (output.Project is not null && output.Package is not null)
                 {
                     output.InputStatus = InputStatus.Valid;
-                    output.IsCompatible = _frameworkLogic.IsCompatible(project, package);
+                    output.IsCompatible = _logic.Framework.IsCompatible(output.Project, output.Package);
                 }
                 else
                 {
@@ -170,7 +161,7 @@ namespace Knapcode.NuGetTools.Logic
             return output;
         }
 
-        public VersionComparisonOutput VersionComparison(VersionComparisonInput input)
+        public VersionComparisonOutput VersionComparison(VersionComparisonInput? input)
         {
             var output = new VersionComparisonOutput
             {
@@ -184,16 +175,13 @@ namespace Knapcode.NuGetTools.Logic
                 return output;
             }
 
-            var versionAMissing = string.IsNullOrWhiteSpace(input.VersionA);
-            var versionBMissing = string.IsNullOrWhiteSpace(input.VersionB);
-
-            var versionA = default(TVersion);
-            if (!versionAMissing)
+            bool missingVersionA;
+            if (!string.IsNullOrWhiteSpace(input.VersionA))
             {
+                missingVersionA = false;
                 try
                 {
-                    versionA = _versionLogic.Parse(input.VersionA);
-                    output.VersionA = versionA;
+                    output.VersionA = _logic.Version.Parse(input.VersionA);
                     output.IsVersionAValid = true;
                 }
                 catch
@@ -201,14 +189,18 @@ namespace Knapcode.NuGetTools.Logic
                     output.IsVersionAValid = false;
                 }
             }
-
-            var versionB = default(TVersion);
-            if (!versionBMissing)
+            else
             {
+                missingVersionA = true;
+            }
+
+            bool missingVersionB;
+            if (!string.IsNullOrWhiteSpace(input.VersionB))
+            {
+                missingVersionB = false;
                 try
                 {
-                    versionB = _versionLogic.Parse(input.VersionB);
-                    output.VersionB = versionB;
+                    output.VersionB = _logic.Version.Parse(input.VersionB);
                     output.IsVersionBValid = true;
                 }
                 catch
@@ -216,13 +208,17 @@ namespace Knapcode.NuGetTools.Logic
                     output.IsVersionBValid = false;
                 }
             }
-
-            if (!versionAMissing && !versionBMissing)
+            else
             {
-                if (output.IsVersionAValid && output.IsVersionBValid)
+                missingVersionB = true;
+            }
+
+            if (!missingVersionA && !missingVersionB)
+            {
+                if (output.VersionA is not null && output.VersionB is not null)
                 {
                     output.InputStatus = InputStatus.Valid;
-                    var result = _versionLogic.Compare(versionA, versionB);
+                    var result = _logic.Version.Compare(output.VersionA, output.VersionB);
                     if (result < 0)
                     {
                         output.Result = ComparisonResult.LessThan;
@@ -245,7 +241,7 @@ namespace Knapcode.NuGetTools.Logic
             return output;
         }
 
-        public GetNearestFrameworkOutput GetNearestFramework(GetNearestFrameworkInput input)
+        public GetNearestFrameworkOutput GetNearestFramework(GetNearestFrameworkInput? input)
         {
             var outputFrameworks = new List<OutputFramework>();
             var invalid = new List<string>();
@@ -262,16 +258,13 @@ namespace Knapcode.NuGetTools.Logic
                 return output;
             }
 
-            var projectMissing = string.IsNullOrWhiteSpace(input.Project);
-            var packageMissing = string.IsNullOrWhiteSpace(input.Package);
-
-            var project = default(TFramework);
-            if (!projectMissing)
+            bool projectMissing;
+            if (!string.IsNullOrWhiteSpace(input.Project))
             {
+                projectMissing = false;
                 try
                 {
-                    project = _frameworkLogic.Parse(input.Project);
-                    output.Project = project;
+                    output.Project = _logic.Framework.Parse(input.Project);
                     output.IsProjectValid = true;
                 }
                 catch (Exception)
@@ -279,23 +272,29 @@ namespace Knapcode.NuGetTools.Logic
                     output.IsProjectValid = false;
                 }
             }
-
-            if (!packageMissing)
+            else
             {
+                projectMissing = true;
+            }
+
+            bool packageMissing;
+            if (!string.IsNullOrWhiteSpace(input.Package))
+            {
+                packageMissing = false;
                 using (var reader = new StringReader(input.Package))
                 {
-                    string line;
+                    string? line;
                     while ((line = reader.ReadLine()) != null)
                     {
                         line = line.Trim();
-                        if (string.IsNullOrEmpty(line))
+                        if (string.IsNullOrWhiteSpace(line))
                         {
                             continue;
                         }
 
                         try
                         {
-                            var framework = _frameworkLogic.Parse(line);
+                            var framework = _logic.Framework.Parse(line);
                             var pair = new OutputFramework
                             {
                                 Input = line,
@@ -303,9 +302,9 @@ namespace Knapcode.NuGetTools.Logic
                                 IsCompatible = false
                             };
 
-                            if (output.Project != null)
+                            if (output.Project is not null)
                             {
-                                pair.IsCompatible = _frameworkLogic.IsCompatible(project, framework);
+                                pair.IsCompatible = _logic.Framework.IsCompatible(output.Project, framework);
                             }
 
                             outputFrameworks.Add(pair);
@@ -319,15 +318,19 @@ namespace Knapcode.NuGetTools.Logic
 
                 output.IsPackageValid = output.Package.Any();
             }
+            else
+            {
+                packageMissing = true;
+            }
 
             if (!projectMissing && !packageMissing)
             {
-                if (output.IsProjectValid && output.IsPackageValid)
+                if (output.Project is not null && output.IsPackageValid)
                 {
                     output.InputStatus = InputStatus.Valid;
-                    
-                    var frameworks = output.Package.Select(x => (TFramework)x.Framework).ToArray();
-                    var nearest = _frameworkLogic.GetNearest(project, frameworks);
+
+                    var frameworks = output.Package.Select(x => x.Framework).ToList();
+                    var nearest = _logic.Framework.GetNearest(output.Project, frameworks);
                     if (nearest != null)
                     {
                         output.Nearest = output.Package.First(x => x.Framework.Equals(nearest));
@@ -342,7 +345,7 @@ namespace Knapcode.NuGetTools.Logic
             return output;
         }
 
-        public VersionSatisfiesOutput VersionSatisfies(VersionSatisfiesInput input)
+        public VersionSatisfiesOutput VersionSatisfies(VersionSatisfiesInput? input)
         {
             var output = new VersionSatisfiesOutput
             {
@@ -355,16 +358,13 @@ namespace Knapcode.NuGetTools.Logic
                 return output;
             }
 
-            var versionRangeMissing = string.IsNullOrWhiteSpace(input.VersionRange);
-            var versionMissing = string.IsNullOrWhiteSpace(input.Version);
-
-            var versionRange = default(TVersionRange);
-            if (!versionRangeMissing)
+            bool missingVersionRange;
+            if (input.VersionRange is not null)
             {
+                missingVersionRange = false;
                 try
                 {
-                    versionRange = _versionRangeLogic.Parse(input.VersionRange);
-                    output.VersionRange = versionRange;
+                    output.VersionRange = _logic.VersionRange.Parse(input.VersionRange);
                     output.IsVersionRangeValid = true;
                 }
                 catch
@@ -372,14 +372,18 @@ namespace Knapcode.NuGetTools.Logic
                     output.IsVersionRangeValid = false;
                 }
             }
-
-            var version = default(TVersion);
-            if (!versionMissing)
+            else
             {
+                missingVersionRange = true;
+            }
+
+            bool missingVersion;
+            if (input.Version is not null)
+            {
+                missingVersion = false;
                 try
                 {
-                    version =_versionLogic.Parse(input.Version);
-                    output.Version = version;
+                    output.Version = _logic.Version.Parse(input.Version);
                     output.IsVersionValid = true;
                 }
                 catch
@@ -387,13 +391,17 @@ namespace Knapcode.NuGetTools.Logic
                     output.IsVersionValid = false;
                 }
             }
-
-            if (!versionRangeMissing && !versionMissing)
+            else
             {
-                if (output.IsVersionRangeValid && output.IsVersionValid)
+                missingVersion = true;
+            }
+
+            if (!missingVersionRange && !missingVersion)
+            {
+                if (output.VersionRange is not null && output.Version is not null)
                 {
                     output.InputStatus = InputStatus.Valid;
-                    output.Satisfies = _versionRangeLogic.Satisfies(versionRange, version);
+                    output.Satisfies = _logic.VersionRange.Satisfies(output.VersionRange, output.Version);
                 }
                 else
                 {
@@ -404,7 +412,7 @@ namespace Knapcode.NuGetTools.Logic
             return output;
         }
 
-        public FindBestVersionMatchOutput FindBestVersionMatch(FindBestVersionMatchInput input)
+        public FindBestVersionMatchOutput FindBestVersionMatch(FindBestVersionMatchInput? input)
         {
             var outputVersions = new List<OutputVersion>();
             var invalid = new List<string>();
@@ -414,8 +422,8 @@ namespace Knapcode.NuGetTools.Logic
                 Versions = outputVersions,
                 Invalid = invalid,
                 Input = input,
-                IsOperationSupported = _versionRangeLogic.FindBestMatchAvailable,
-                AreVersionsSorted = _versionRangeLogic.IsBetterAvailable,
+                IsOperationSupported = _logic.VersionRange.FindBestMatchAvailable,
+                AreVersionsSorted = _logic.VersionRange.IsBetterAvailable,
             };
 
             if (input == null)
@@ -423,16 +431,13 @@ namespace Knapcode.NuGetTools.Logic
                 return output;
             }
 
-            var versionRangeMissing = string.IsNullOrWhiteSpace(input.VersionRange);
-            var versionsMissing = string.IsNullOrWhiteSpace(input.Versions);
-
-            var versionRange = default(TVersionRange);
-            if (!versionRangeMissing)
+            bool versionRangeMissing;
+            if (!string.IsNullOrWhiteSpace(input.VersionRange))
             {
+                versionRangeMissing = false;
                 try
                 {
-                    versionRange = _versionRangeLogic.Parse(input.VersionRange);
-                    output.VersionRange = versionRange;
+                    output.VersionRange = _logic.VersionRange.Parse(input.VersionRange);
                     output.IsVersionRangeValid = true;
                 }
                 catch (Exception)
@@ -440,23 +445,29 @@ namespace Knapcode.NuGetTools.Logic
                     output.IsVersionRangeValid = false;
                 }
             }
-
-            if (!versionsMissing)
+            else
             {
+                versionRangeMissing = true;
+            }
+
+            bool versionsMissing;
+            if (!string.IsNullOrWhiteSpace(input.Versions))
+            {
+                versionsMissing = false;
                 using (var reader = new StringReader(input.Versions))
                 {
-                    string line;
+                    string? line;
                     while ((line = reader.ReadLine()) != null)
                     {
                         line = line.Trim();
-                        if (string.IsNullOrEmpty(line))
+                        if (string.IsNullOrWhiteSpace(line))
                         {
                             continue;
                         }
 
                         try
                         {
-                            var version = _versionLogic.Parse(line);
+                            var version = _logic.Version.Parse(line);
                             var pair = new OutputVersion
                             {
                                 Input = line,
@@ -467,12 +478,12 @@ namespace Knapcode.NuGetTools.Logic
                             {
                                 if (output.IsOperationSupported)
                                 {
-                                    var bestMatch = _versionRangeLogic.FindBestMatch(versionRange, new[] { version });
+                                    var bestMatch = _logic.VersionRange.FindBestMatch(output.VersionRange, new[] { version });
                                     pair.Satisfies = bestMatch != null;
                                 }
                                 else
                                 {
-                                    pair.Satisfies = _versionRangeLogic.Satisfies(versionRange, version);
+                                    pair.Satisfies = _logic.VersionRange.Satisfies(output.VersionRange, version);
                                 }
                             }
 
@@ -485,24 +496,28 @@ namespace Knapcode.NuGetTools.Logic
                     }
                 }
 
-                if (output.VersionRange != null && _versionRangeLogic.IsBetterAvailable)
+                if (output.VersionRange != null && _logic.VersionRange.IsBetterAvailable)
                 {
-                    outputVersions.Sort((a, b) => -1 * Compare(versionRange, a, b));
+                    outputVersions.Sort((a, b) => -1 * Compare(output.VersionRange, a, b));
                 }
 
                 output.IsVersionValid = output.Versions.Any();
             }
+            else
+            {
+                versionsMissing = true;
+            }
 
             if (!versionRangeMissing && !versionsMissing)
             {
-                if (output.IsVersionRangeValid && output.IsVersionValid)
+                if (output.VersionRange is not null && output.IsVersionValid)
                 {
                     output.InputStatus = InputStatus.Valid;
-                    
+
                     if (output.IsOperationSupported)
                     {
-                        var versions = output.Versions.Select(x => (TVersion)x.Version).ToArray();
-                        var bestMatch = _versionRangeLogic.FindBestMatch(versionRange, versions);
+                        var versions = output.Versions.Select(x => x.Version).ToList();
+                        var bestMatch = _logic.VersionRange.FindBestMatch(output.VersionRange, versions);
                         if (bestMatch != null)
                         {
                             output.BestMatch = output.Versions.First(x => x.Version.Equals(bestMatch));
@@ -518,7 +533,7 @@ namespace Knapcode.NuGetTools.Logic
             return output;
         }
 
-        public SortVersionsOutput SortVersions(SortVersionsInput input)
+        public SortVersionsOutput SortVersions(SortVersionsInput? input)
         {
             var outputVersions = new List<IVersion>();
             var invalid = new List<string>();
@@ -535,24 +550,24 @@ namespace Knapcode.NuGetTools.Logic
                 return output;
             }
 
-            var versionsMissing = string.IsNullOrWhiteSpace(input.Versions);
-
-            if (!versionsMissing)
+            bool versionsMissing;
+            if (!string.IsNullOrWhiteSpace(input.Versions))
             {
+                versionsMissing = false;
                 using (var reader = new StringReader(input.Versions))
                 {
-                    string line;
+                    string? line;
                     while ((line = reader.ReadLine()) != null)
                     {
                         line = line.Trim();
-                        if (string.IsNullOrEmpty(line))
+                        if (string.IsNullOrWhiteSpace(line))
                         {
                             continue;
                         }
 
                         try
                         {
-                            var version = _versionLogic.Parse(line);
+                            var version = _logic.Version.Parse(line);
                             outputVersions.Add(version);
                         }
                         catch (Exception)
@@ -562,7 +577,11 @@ namespace Knapcode.NuGetTools.Logic
                     }
                 }
 
-                outputVersions.Sort((a, b) => _versionLogic.Compare((TVersion)a, (TVersion)b));
+                outputVersions.Sort(_logic.Version.Compare);
+            }
+            else
+            {
+                versionsMissing = true;
             }
 
             if (!versionsMissing)
@@ -580,24 +599,24 @@ namespace Knapcode.NuGetTools.Logic
             return output;
         }
 
-        private int Compare(TVersionRange versionRange, OutputVersion a, OutputVersion b)
+        private int Compare(IVersionRange versionRange, OutputVersion a, OutputVersion b)
         {
             var satisfiesComparison = a.Satisfies.CompareTo(b.Satisfies);
             if (satisfiesComparison != 0)
             {
                 return satisfiesComparison;
             }
-            else if (_versionRangeLogic.IsBetter(versionRange, (TVersion)a.Version, (TVersion)b.Version))
+            else if (_logic.VersionRange.IsBetter(versionRange, a.Version, b.Version))
             {
                 return -1;
             }
-            else if (_versionRangeLogic.IsBetter(versionRange, (TVersion)b.Version, (TVersion)a.Version))
+            else if (_logic.VersionRange.IsBetter(versionRange, b.Version, a.Version))
             {
                 return 1;
             }
             else
             {
-                return _versionLogic.Compare((TVersion)a.Version, (TVersion)b.Version);
+                return _logic.Version.Compare(a.Version, b.Version);
             }
         }
     }

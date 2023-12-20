@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Knapcode.NuGetTools.Logic
+﻿namespace Knapcode.NuGetTools.Logic
 {
     public interface IFrameworkList
     {

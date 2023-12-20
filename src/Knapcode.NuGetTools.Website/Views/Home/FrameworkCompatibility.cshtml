@@ -13,12 +13,12 @@
     <div class="form-group">
         <label for="project">Project Framework</label>
         <input type="text" class="form-control framework-short-folder-name-typeahead monospace" name="project" id="project"
-               autocomplete="off" placeholder="net45" value="@output.Input.Project">
+               autocomplete="off" placeholder="net45" value="@output.Input?.Project">
     </div>
     <div class="form-group">
         <label for="package">Package Framework</label>
         <input type="text" class="form-control framework-short-folder-name-typeahead monospace" name="package" id="package"
-               autocomplete="off" placeholder="netstandard1.0" value="@output.Input.Package">
+               autocomplete="off" placeholder="netstandard1.0" value="@output.Input?.Package">
     </div>
     <button type="submit" class="btn btn-default">Submit</button>
     <button type="submit" name="swap" id="swap" value="true" class="btn btn-default">Swap</button>
@@ -30,15 +30,15 @@
         if (@output.IsCompatible)
         {
             <div class="alert alert-success" role="alert">
-                <code>@output.Project.ShortFolderName</code> (<b><parse-framework value="@output.Input.Project" /></b>)
-                projects support <code>@output.Package.ShortFolderName</code> (<b><parse-framework value="@output.Input.Package" /></b>) packages.
+                <code>@output.Project?.ShortFolderName</code> (<b><parse-framework value="@output.Input?.Project" /></b>)
+                projects support <code>@output.Package?.ShortFolderName</code> (<b><parse-framework value="@output.Input?.Package" /></b>) packages.
             </div>
         }
         else
         {
             <div class="alert alert-warning" role="alert">
-                <code>@output.Project.ShortFolderName</code> (<b><parse-framework value="@output.Input.Project" /></b>)
-                projects do not support <code>@output.Package.ShortFolderName</code> (<b><parse-framework value="@output.Input.Package" /></b>) packages.
+                <code>@output.Project?.ShortFolderName</code> (<b><parse-framework value="@output.Input?.Project" /></b>)
+                projects do not support <code>@output.Package?.ShortFolderName</code> (<b><parse-framework value="@output.Input?.Package" /></b>) packages.
             </div>
         }
     }
@@ -47,14 +47,14 @@
         if (!@output.IsProjectValid)
         {
             <div class="alert alert-danger" role="alert">
-                Project framework <b>@output.Input.Project</b> could not be parsed.
+                Project framework <b>@output.Input?.Project</b> could not be parsed.
             </div>
         }
 
         if (!@output.IsPackageValid)
         {
             <div class="alert alert-danger" role="alert">
-                Package framework <b>@output.Input.Package</b> could not be parsed.
+                Package framework <b>@output.Input?.Package</b> could not be parsed.
             </div>
         }
     }

@@ -13,12 +13,12 @@
     <div class="form-group">
         <label for="project">Project Framework</label>
         <input type="text" class="form-control framework-short-folder-name-typeahead monospace" name="project" id="project"
-               autocomplete="off" placeholder="net45" value="@output.Input.Project">
+               autocomplete="off" placeholder="net45" value="@output.Input?.Project">
     </div>
     <div class="form-group">
         <label for="package">Package Frameworks</label>
         <textarea class="form-control framework-short-folder-name-typeahead monospace" rows="5" name="package" id="package"
-                  placeholder="netstandard1.0">@output.Input.Package</textarea>
+                  placeholder="netstandard1.0">@output.Input?.Package</textarea>
     </div>
     <button type="submit" class="btn btn-default">Submit</button>
 </form>
@@ -30,15 +30,15 @@
         {
             <div class="alert alert-success" role="alert">
                 The <code>@output.Nearest.Framework.ShortFolderName</code> (<b><parse-framework value="@output.Nearest.Input" /></b>)
-                package framework is the nearest to the <code>@output.Project.ShortFolderName</code>
-                (<b><parse-framework value="@output.Input.Project" /></b>) project framework.
+                package framework is the nearest to the <code>@output.Project?.ShortFolderName</code>
+                (<b><parse-framework value="@output.Input?.Project" /></b>) project framework.
             </div>
         }
         else
         {
             <div class="alert alert-warning" role="alert">
-                None of the recognized frameworks are compatible with the <code>@output.Project.ShortFolderName</code>
-                (<b><parse-framework value="@output.Input.Project" /></b>) project framework.
+                None of the recognized frameworks are compatible with the <code>@output.Project?.ShortFolderName</code>
+                (<b><parse-framework value="@output.Input?.Project" /></b>) project framework.
             </div>
         }
 
@@ -78,7 +78,7 @@
         if (!@output.IsProjectValid)
         {
             <div class="alert alert-danger" role="alert">
-                Project framework <b>@output.Input.Project</b> could not be parsed.
+                Project framework <b>@output.Input?.Project</b> could not be parsed.
             </div>
         }
 

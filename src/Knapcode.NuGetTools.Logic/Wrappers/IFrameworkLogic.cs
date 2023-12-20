@@ -1,12 +1,9 @@
-﻿using System.Collections.Generic;
-
-namespace Knapcode.NuGetTools.Logic.Wrappers
+﻿namespace Knapcode.NuGetTools.Logic.Wrappers
 {
-    public interface IFrameworkLogic<TFramework>
-        where TFramework : IFramework
+    public interface IFrameworkLogic
     {
-        TFramework Parse(string input);
-        bool IsCompatible(TFramework project, TFramework package);
-        TFramework GetNearest(TFramework project, IEnumerable<TFramework> package);
+        IFramework Parse(string input);
+        bool IsCompatible(IFramework project, IFramework package);
+        IFramework? GetNearest(IFramework project, IEnumerable<IFramework> package);
     }
 }

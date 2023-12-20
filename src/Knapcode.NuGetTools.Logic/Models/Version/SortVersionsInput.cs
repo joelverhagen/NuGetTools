@@ -2,6 +2,6 @@
 {
     public class SortVersionsInput
     {
-        public string Versions { get; set; }
+        public string? Versions { get; set; }
     }
 }

@@ -13,7 +13,7 @@
     <div class="form-group">
         <label for="framework">Framework</label>
         <input type="text" class="form-control framework-short-folder-name-typeahead monospace" name="framework" id="framework"
-               autocomplete="off" placeholder="net45" value="@output.Input.Framework">
+               autocomplete="off" placeholder="net45" value="@output.Input?.Framework">
     </div>
     <button type="submit" class="btn btn-default">Submit</button>
 </form>
@@ -23,12 +23,11 @@
     {
         <div class="alert alert-success" role="alert">
             <p>
-                The input value is <b>@output.Input.Framework</b>.
+                The input value is <b>@output.Input?.Framework</b>.
             </p>
             @try
             {
-                string shortFolderName = output.Framework.ShortFolderName;
-                <p>The short folder name is <code>@shortFolderName</code>.</p>
+                <p>The short folder name is <code>@(output.Framework?.ShortFolderName)</code>.</p>
             }
             catch
             {
@@ -37,12 +36,12 @@
                     While determining the short folder name, an exception was thrown.
                 </p>
             }
-            <p>The .NET framework name is <code>@output.Framework.DotNetFrameworkName</code>.</p>
-            <p>The framework identifier is <code>@output.Framework.Identifier</code>.</p>
-            <p>The framework version is <code>@output.Framework.Version</code>.</p>
-            <p>The result of <code>ToString()</code> is <code>@output.Framework.ToStringResult</code>.</p>
+            <p>The .NET framework name is <code>@output.Framework?.DotNetFrameworkName</code>.</p>
+            <p>The framework identifier is <code>@output.Framework?.Identifier</code>.</p>
+            <p>The framework version is <code>@output.Framework?.Version</code>.</p>
+            <p>The result of <code>ToString()</code> is <code>@output.Framework?.ToStringResult</code>.</p>
             <br />
-            @if (output.Framework.HasProfile)
+            @if (output.Framework?.HasProfile == true)
             {
                 <p>The framework profile is <code>@output.Framework.Profile</code>.</p>
             }
@@ -51,7 +50,7 @@
                 <p>There is no framework profile.</p>
             }
             <br />
-            @if (output.Framework.HasPlatform)
+            @if (output.Framework?.HasPlatform == true)
             {
                 <p>The platform identifier is <code>@output.Framework.Platform</code>.</p>
                 <p>The platform version is <code>@output.Framework.PlatformVersion</code>.</p>
@@ -65,7 +64,7 @@
     else if (@output.InputStatus == InputStatus.Invalid)
     {
         <div class="alert alert-danger" role="alert">
-            The framework <b>@output.Input.Framework</b> could not be parsed.
+            The framework <b>@output.Input?.Framework</b> could not be parsed.
         </div>
     }
 </div>

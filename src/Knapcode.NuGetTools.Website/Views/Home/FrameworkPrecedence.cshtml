@@ -7,7 +7,7 @@
 <h1>Framework Precedence</h1>
 <p>
     If multiple sets of assets are available in a package (under different frameworks), NuGet must choose between
-    these frameworks. Enter a project framework to see the order of precendence of possible package frameworks. Note
+    these frameworks. Enter a project framework to see the order of precedence of possible package frameworks. Note
     that this list is not exhaustive.
 </p>
 
@@ -19,8 +19,8 @@
     </div>
     <div class="form-group">
         <label for="project">Excluded Identifiers</label>
-        <input type="text" class="form-control framework-identifier-typeahead monospace" name="exludedIdentifiers" id="exludedIdentifiers"
-               autocomplete="off" placeholder=".NETPlatform, DNXCore, DNX" value="@output.Input.ExludedIdentifiers">
+        <input type="text" class="form-control framework-identifier-typeahead monospace" name="excludedIdentifiers" id="excludedIdentifiers"
+               autocomplete="off" placeholder=".NETPlatform, DNXCore, DNX" value="@output.Input.ExcludedIdentifiers">
     </div>
     <div class="checkbox">
         <label>
@@ -45,14 +45,14 @@
         if (!output.Precedence.Any())
         {
             <div class="alert alert-warning" role="alert">
-                The <code>@output.Framework.DotNetFrameworkName</code> (<b><parse-framework value="@output.Input.Framework" /></b>)
+                The <code>@output.Framework?.DotNetFrameworkName</code> (<b><parse-framework value="@output.Input?.Framework" /></b>)
                 project framework does not have any well known compatible package frameworks.
             </div>
         }
         else
         {
             <p>
-                The <code>@output.Framework.DotNetFrameworkName</code> (<b><parse-framework value="@output.Input.Framework" /></b>)
+                The <code>@output.Framework?.DotNetFrameworkName</code> (<b><parse-framework value="@output.Input?.Framework" /></b>)
                 project framework has the following package framework precedence list.
             </p>
             <table class="table">

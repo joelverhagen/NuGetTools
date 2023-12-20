@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Knapcode.NuGetTools.Logic
+﻿namespace Knapcode.NuGetTools.Logic
 {
     public interface IToolsFactory
     {
@@ -16,9 +12,9 @@ namespace Knapcode.NuGetTools.Logic
 
         Task<string> GetLatestVersionAsync(CancellationToken token);
 
-        Task<IToolsService> GetServiceAsync(string version, CancellationToken token);
+        Task<IToolsService?> GetServiceAsync(string version, CancellationToken token);
 
-        Task<IFrameworkPrecedenceService> GetFrameworkPrecedenceServiceAsync(string version, CancellationToken token);
+        Task<IFrameworkPrecedenceService?> GetFrameworkPrecedenceServiceAsync(string version, CancellationToken token);
 
         Task<IFrameworkList> GetFrameworkListAsync(CancellationToken token);
     }

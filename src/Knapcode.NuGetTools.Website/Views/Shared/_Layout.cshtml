@@ -52,25 +52,25 @@
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Framework <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a asp-controller="Home" asp-action="ParseFramework">Parse Framework</a></li>
-                            <li><a asp-controller="Home" asp-action="FrameworkCompatibility">Framework Compatibility</a></li>
-                            <li><a asp-controller="Home" asp-action="GetNearestFramework">Get Nearest Framework</a></li>
-                            <li><a asp-controller="Home" asp-action="FrameworkPrecedence">Framework Precedence</a></li>
+                            <li><a asp-controller="Home" asp-action="ParseFramework" asp-route-nuGetVersion="@Model.CurrentVersion">Parse Framework</a></li>
+                            <li><a asp-controller="Home" asp-action="FrameworkCompatibility" asp-route-nuGetVersion="@Model.CurrentVersion">Framework Compatibility</a></li>
+                            <li><a asp-controller="Home" asp-action="GetNearestFramework" asp-route-nuGetVersion="@Model.CurrentVersion">Get Nearest Framework</a></li>
+                            <li><a asp-controller="Home" asp-action="FrameworkPrecedence" asp-route-nuGetVersion="@Model.CurrentVersion">Framework Precedence</a></li>
                         </ul>
                     </li>
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Version <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a asp-controller="Home" asp-action="ParseVersion">Parse Version</a></li>
-                            <li><a asp-controller="Home" asp-action="SortVersions">Sort Versions</a></li>
-                            <li><a asp-controller="Home" asp-action="VersionComparison">Version Comparison</a></li>
+                            <li><a asp-controller="Home" asp-action="ParseVersion" asp-route-nuGetVersion="@Model.CurrentVersion">Parse Version</a></li>
+                            <li><a asp-controller="Home" asp-action="SortVersions" asp-route-nuGetVersion="@Model.CurrentVersion">Sort Versions</a></li>
+                            <li><a asp-controller="Home" asp-action="VersionComparison" asp-route-nuGetVersion="@Model.CurrentVersion">Version Comparison</a></li>
                         </ul>
                     </li>
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Version Range <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a asp-controller="Home" asp-action="ParseVersionRange">Parse Version Range</a></li>
-                            <li><a asp-controller="Home" asp-action="FindBestVersionMatch">Find Best Version Match</a></li>
+                            <li><a asp-controller="Home" asp-action="ParseVersionRange" asp-route-nuGetVersion="@Model.CurrentVersion">Parse Version Range</a></li>
+                            <li><a asp-controller="Home" asp-action="FindBestVersionMatch" asp-route-nuGetVersion="@Model.CurrentVersion">Find Best Version Match</a></li>
                         </ul>
                     </li>
                 </ul>

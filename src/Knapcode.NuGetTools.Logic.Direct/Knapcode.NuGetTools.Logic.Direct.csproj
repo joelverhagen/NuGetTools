@@ -1,31 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net472;net6.0</TargetFrameworks>
-    <AssemblyName>Knapcode.NuGetTools.Logic.Direct</AssemblyName>
-    <PackageId>Knapcode.NuGetTools.Logic.Direct</PackageId>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Knapcode.NuGetTools.Logic\Knapcode.NuGetTools.Logic.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Knapcode.NuGetTools.Logic.NuGet2x\Knapcode.NuGetTools.Logic.NuGet2x.csproj" />
+		<ProjectReference Include="..\Knapcode.NuGetTools.Logic.NuGet3x\Knapcode.NuGetTools.Logic.NuGet3x.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.2.0" />
-  </ItemGroup>
-	
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
-	<PackageReference Include="NuGet.Protocol" Version="$(NuGetPackageVersion)" />
-  </ItemGroup>
-	
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-	<PackageReference Include="NuGet.PackageManagement" Version="$(NuGetPackageVersion)" />
-  </ItemGroup>
-	
-  <ItemGroup Condition="'$(TargetFramework)' != 'net472'">
-	<Compile Remove="PackageLoader.cs" />
-	<Compile Remove="IPackageLoader.cs" />
-	<Compile Remove="ToolsFactory.cs" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.2.0" />
+		<PackageReference Include="NuGet.PackageManagement" Version="$(NuGetPackageVersion)" />
+	</ItemGroup>
 
 </Project>

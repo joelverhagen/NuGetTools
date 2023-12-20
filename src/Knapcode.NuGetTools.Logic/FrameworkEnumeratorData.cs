@@ -1,14 +1,12 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 using Knapcode.NuGetTools.Logic.Wrappers;
 
 namespace Knapcode.NuGetTools.Logic
 {
-    public class FrameworkEnumeratorData<TFramework> : IEquatable<FrameworkEnumeratorData<TFramework>>, IComparable<FrameworkEnumeratorData<TFramework>>
-        where TFramework : IFramework
+    public class FrameworkEnumeratorData : IEquatable<FrameworkEnumeratorData>, IComparable<FrameworkEnumeratorData>
     {
-        public FrameworkEnumeratorData(TFramework framework)
+        public FrameworkEnumeratorData(IFramework framework)
         {
             Identifier = framework.Identifier;
             Version = framework.Version;
@@ -19,7 +17,7 @@ namespace Knapcode.NuGetTools.Logic
         public string Identifier { get; }
         public Version Version { get; }
         public string Profile { get; }
-        public TFramework Framework { get; }
+        public IFramework Framework { get; }
 
         public override string ToString()
         {
@@ -33,24 +31,21 @@ namespace Knapcode.NuGetTools.Logic
             }
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            return Equals(obj as FrameworkEnumeratorData<TFramework>);
+            return Equals(obj as FrameworkEnumeratorData);
         }
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                var hash = 27;
-                hash = (13 * hash) + StringComparer.OrdinalIgnoreCase.GetHashCode(Identifier);
-                hash = (13 * hash) + Version.GetHashCode();
-                hash = (13 * hash) + StringComparer.OrdinalIgnoreCase.GetHashCode(Profile);
-                return hash;
-            }
+            var hashCode = new HashCode();
+            hashCode.Add(Identifier, StringComparer.OrdinalIgnoreCase);
+            hashCode.Add(Version);
+            hashCode.Add(Profile, StringComparer.OrdinalIgnoreCase);
+            return hashCode.ToHashCode();
         }
 
-        public bool Equals(FrameworkEnumeratorData<TFramework> other)
+        public bool Equals(FrameworkEnumeratorData? other)
         {
             if (other == null)
             {
@@ -62,8 +57,13 @@ namespace Knapcode.NuGetTools.Logic
                    StringComparer.OrdinalIgnoreCase.Equals(Profile, other.Profile);
         }
 
-        public int CompareTo(FrameworkEnumeratorData<TFramework> other)
+        public int CompareTo(FrameworkEnumeratorData? other)
         {
+            if (other is null)
+            {
+                return 1;
+            }
+
             var frameworkCompare = StringComparer.OrdinalIgnoreCase.Compare(Identifier, other.Identifier);
             if (frameworkCompare != 0)
             {

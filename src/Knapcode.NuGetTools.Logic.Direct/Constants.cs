@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Knapcode.NuGetTools.Logic.Direct
+﻿namespace Knapcode.NuGetTools.Logic.Direct
 {
     public static class Constants
     {

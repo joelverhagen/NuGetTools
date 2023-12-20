@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Web.Xdt" Version="2.1.0" NoWarn="NU1701" />
+		<PackageReference Include="NuGet.Core" Version="2.14.0" NoWarn="NU1701" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Knapcode.NuGetTools.Logic\Knapcode.NuGetTools.Logic.csproj" />
+	</ItemGroup>
+
+</Project>

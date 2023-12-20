@@ -1,20 +1,27 @@
-﻿using System.IO;
-using Microsoft.AspNetCore.Hosting;
+﻿var builder = WebApplication.CreateBuilder(args);
 
-namespace Knapcode.NuGetTools.Website
+// Add services to the container.
+builder.Services.AddControllersWithViews();
+builder.Services.AddApplicationInsightsTelemetry();
+builder.Services.AddNuGetTools();
+
+var app = builder.Build();
+
+if (!app.Environment.IsDevelopment() && !app.Environment.IsAutomation())
 {
-    public class Program
-    {
-        public static void Main()
-        {
-            var host = new WebHostBuilder()
-                .UseKestrel()
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseIISIntegration()
-                .UseStartup<Startup>()
-                .Build();
-
-            host.Run();
-        }
-    }
+    app.UseExceptionHandler("/error");
+    app.UseHsts();
 }
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.Run();

@@ -1,16 +1,17 @@
 ﻿using Knapcode.NuGetTools.Logic.Wrappers;
 using NuGet.Frameworks;
 
-namespace Knapcode.NuGetTools.Logic.Direct.Wrappers
+namespace Knapcode.NuGetTools.Logic.NuGet3x
 {
-    public class Framework : IFramework
+    public class Framework3x : IFramework
     {
-        public Framework(NuGetFramework framework)
+        public Framework3x(NuGetFramework framework)
         {
             NuGetFramework = framework;
         }
 
         public NuGetFramework NuGetFramework { get; }
+
         public string DotNetFrameworkName => NuGetFramework.DotNetFrameworkName;
         public string ShortFolderName => NuGetFramework.GetShortFolderName();
         public string Identifier => NuGetFramework.Framework;

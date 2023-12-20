@@ -1,15 +1,11 @@
-﻿using System.Collections.Generic;
-
-namespace Knapcode.NuGetTools.Logic.Wrappers
+﻿namespace Knapcode.NuGetTools.Logic.Wrappers
 {
-    public interface IVersionRangeLogic<TVersion, TVersionRange>
-        where TVersion : IVersion
-        where TVersionRange : IVersionRange
+    public interface IVersionRangeLogic
     {
-        TVersionRange Parse(string input);
-        bool Satisfies(TVersionRange versionRange, TVersion version);
-        TVersion FindBestMatch(TVersionRange versionRange, IEnumerable<TVersion> versions);
-        bool IsBetter(TVersionRange versionRange, TVersion current, TVersion considering);
+        IVersionRange Parse(string input);
+        bool Satisfies(IVersionRange versionRange, IVersion version);
+        IVersion? FindBestMatch(IVersionRange versionRange, IEnumerable<IVersion> versions);
+        bool IsBetter(IVersionRange versionRange, IVersion current, IVersion considering);
         bool FindBestMatchAvailable { get; }
         bool IsBetterAvailable { get; }
     }

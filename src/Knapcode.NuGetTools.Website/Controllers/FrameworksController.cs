@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Knapcode.NuGetTools.Logic;
+﻿using Knapcode.NuGetTools.Logic;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Knapcode.NuGetTools.Website

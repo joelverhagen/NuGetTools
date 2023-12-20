@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using NuGet.Configuration;
+﻿using NuGet.Configuration;
 
 namespace Knapcode.NuGetTools.Logic.Direct
 {
@@ -14,7 +12,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
         public string Root => throw new NotImplementedException();
 
 #pragma warning disable 0067
-        public event EventHandler SettingsChanged;
+        public event EventHandler? SettingsChanged;
 #pragma warning restore 0067
 
         public bool DeleteSection(string section) => throw new NotImplementedException();

@@ -13,7 +13,7 @@
     <div class="form-group">
         <label for="versionRange">Version Range</label>
         <input type="text" class="form-control monospace" name="versionRange" id="versionRange"
-               placeholder="[2.0.0--, )" value="@output.Input.VersionRange">
+               placeholder="[2.0.0--, )" value="@output.Input?.VersionRange">
     </div>
     <button type="submit" class="btn btn-default">Submit</button>
 </form>
@@ -23,10 +23,10 @@
     {
         <div class="alert alert-success" role="alert">
             <p>
-                The input value is <b>@output.Input.VersionRange</b>.
+                The input value is <b>@output.Input?.VersionRange</b>.
             </p>
             <p>
-            @if (output.VersionRange.IsFloatingAvailable)
+            @if (output.VersionRange?.IsFloatingAvailable == true)
             {
                 @:The version range is <b>@(output.VersionRange.IsFloating ? "floating" : "not floating")</b>.
             }
@@ -36,14 +36,14 @@
             }
             </p>
             <p>
-                The normalized version range is <code>@output.VersionRange.NormalizedString</code>.
+                The normalized version range is <code>@output.VersionRange?.NormalizedString</code>.
             </p>
             <p>
-                The pretty printed version range is <code>@output.VersionRange.PrettyPrint</code>.
+                The pretty printed version range is <code>@output.VersionRange?.PrettyPrint</code>.
             </p>
 
             <p>
-            @if (output.VersionRange.LegacyStringAvailable)
+            @if (output.VersionRange?.LegacyStringAvailable == true)
             {
                 @:The legacy string is <code>@output.VersionRange.LegacyString</code>.
             }
@@ -53,7 +53,7 @@
             }
             </p>
             <p>
-            @if (output.VersionRange.LegacyShortStringAvailable)
+            @if (output.VersionRange?.LegacyShortStringAvailable == true)
             {
                 @:The legacy short string is <code>@output.VersionRange.LegacyShortString</code>.
             }
@@ -63,7 +63,7 @@
             }
             </p>
             <p>
-            @if (output.VersionRange.LegacyShortStringAvailable)
+            @if (output.VersionRange?.OriginalStringAvailable == true)
             {
                 @:The original string is <code>@output.VersionRange.OriginalString</code>.
             }
@@ -73,7 +73,7 @@
             }
             </p>
             <p>
-                @if (output.VersionRange.HasLowerBound)
+                @if (output.VersionRange?.HasLowerBound == true)
                 {
                     <text>
                         The version range has an <b>@(output.VersionRange.IsMinInclusive ? "inclusive" : "exclusive") lower bound</b> of
@@ -83,11 +83,11 @@
                 }
                 else
                 {
-                    @:The version range has <b>no lower bound</b>, but the lower bound is @(output.VersionRange.IsMinInclusive ? "inclusive" : "exclusive").
+                    @:The version range has <b>no lower bound</b>, but the lower bound is @(output.VersionRange?.IsMinInclusive == true ? "inclusive" : "exclusive").
                 }
             </p>
             <p>
-                @if (output.VersionRange.HasUpperBound)
+                @if (output.VersionRange?.HasUpperBound == true)
                 {
                     <text>
                         The version range has an <b>@(output.VersionRange.IsMaxInclusive ? "inclusive" : "exclusive") upper bound</b> of
@@ -97,7 +97,7 @@
                 }
                 else
                 {
-                    @:The version range has <b>no upper bound</b>, but the upper bound is @(output.VersionRange.IsMaxInclusive ? "inclusive" : "exclusive").
+                    @:The version range has <b>no upper bound</b>, but the upper bound is @(output.VersionRange?.IsMaxInclusive == true ? "inclusive" : "exclusive").
                 }
             </p>
         </div>
@@ -105,7 +105,7 @@
     else if (@output.InputStatus == InputStatus.Invalid)
     {
         <div class="alert alert-danger" role="alert">
-            The version range <b>@output.Input.VersionRange</b> could not be parsed.
+            The version range <b>@output.Input?.VersionRange</b> could not be parsed.
         </div>
     }
 </div>

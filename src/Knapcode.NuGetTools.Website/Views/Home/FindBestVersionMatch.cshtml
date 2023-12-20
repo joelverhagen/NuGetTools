@@ -14,11 +14,11 @@
     <div class="form-group">
         <label for="versionRange">Version Range</label>
         <input type="text" class="form-control monospace" name="versionRange" id="versionRange"
-               placeholder="[1.0.0, )" value="@output.Input.VersionRange">
+               placeholder="[1.0.0, )" value="@output.Input?.VersionRange">
     </div>
     <div class="form-group">
         <label for="versions">Versions</label>
-        <textarea class="form-control monospace" rows="5" name="versions" id="versions" placeholder="1.1.0">@output.Input.Versions</textarea>
+        <textarea class="form-control monospace" rows="5" name="versions" id="versions" placeholder="1.1.0">@output.Input?.Versions</textarea>
     </div>
     <button type="submit" class="btn btn-default">Submit</button>
 </form>
@@ -30,13 +30,13 @@
         {
             <div class="alert alert-success" role="alert">
                 The <code>@output.BestMatch.Version.GetPrettyString()</code> (<b><parse-version value="@output.BestMatch.Input" /></b>) version
-                is the best match to the <code>@output.VersionRange.NormalizedString</code> (<b><parse-version-range value="@output.Input.VersionRange" /></b>) version range.
+                is the best match to the <code>@output.VersionRange?.NormalizedString</code> (<b><parse-version-range value="@output.Input?.VersionRange" /></b>) version range.
             </div>
         }
         else if (output.IsOperationSupported)
         {
             <div class="alert alert-warning" role="alert">
-                None of the recognized versions satisfied the <code>@output.VersionRange.NormalizedString</code> (<b><parse-version-range value="@output.Input.VersionRange" /></b>) version range.
+                None of the recognized versions satisfied the <code>@output.VersionRange?.NormalizedString</code> (<b><parse-version-range value="@output.Input?.VersionRange" /></b>) version range.
             </div>
         }
         else
@@ -90,7 +90,7 @@
         if (!output.IsVersionRangeValid)
         {
             <div class="alert alert-danger" role="alert">
-                Version range <b>@output.Input.VersionRange</b> could not be parsed.
+                Version range <b>@output.Input?.VersionRange</b> could not be parsed.
             </div>
         }
 

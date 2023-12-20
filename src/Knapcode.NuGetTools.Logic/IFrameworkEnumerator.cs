@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using Knapcode.NuGetTools.Logic.Wrappers;
-
-namespace Knapcode.NuGetTools.Logic
+﻿namespace Knapcode.NuGetTools.Logic
 {
-    public interface IFrameworkEnumerator<TFramework> where TFramework : IFramework
+    public interface IFrameworkEnumerator
     {
-        IEnumerable<FrameworkEnumeratorData<TFramework>> Enumerate(FrameworkEnumerationOptions options);
-        IEnumerable<FrameworkEnumeratorData<TFramework>> Expand(IEnumerable<FrameworkEnumeratorData<TFramework>> frameworks, FrameworkExpansionOptions options);
+        IEnumerable<FrameworkEnumeratorData> Enumerate(FrameworkEnumerationOptions options);
+        IEnumerable<FrameworkEnumeratorData> Expand(IEnumerable<FrameworkEnumeratorData> frameworks, FrameworkExpansionOptions options);
     }
 }

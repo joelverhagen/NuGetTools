@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using NuGet.Common;
+﻿using NuGet.Common;
 
 namespace Knapcode.NuGetTools.Logic.Direct
 {

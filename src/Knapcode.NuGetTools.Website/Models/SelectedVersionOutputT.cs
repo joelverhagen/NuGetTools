@@ -2,6 +2,6 @@
 {
     public class SelectedVersionOutput<T> : SelectedVersionOutput
     {
-        public T Output { get; set; }
+        public required T Output { get; set; }
     }
 }

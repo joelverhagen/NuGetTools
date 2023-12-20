@@ -13,7 +13,7 @@
     <div class="form-group">
         <label for="version">Version</label>
         <input type="text" class="form-control monospace" name="version" id="version"
-               placeholder="1.0.0-beta" value="@output.Input.Version">
+               placeholder="1.0.0-beta" value="@output.Input?.Version">
     </div>
     <button type="submit" class="btn btn-default">Submit</button>
 </form>
@@ -23,11 +23,11 @@
     {
         <div class="alert alert-success" role="alert">
             <p>
-                The input value is <b>@output.Input.Version</b>.
+                The input value is <b>@output.Input?.Version</b>.
             </p>
 
             <p>
-            @if (output.Version.NormalizedStringAvailable)
+            @if (output.Version?.NormalizedStringAvailable == true)
             {
                 @:The normalized version is <code>@output.Version.NormalizedString</code>.
             }
@@ -37,10 +37,10 @@
             }
             </p>
             <p>
-                The result of <code>ToString()</code> is <code>@output.Version.ToStringResult</code>.
+                The result of <code>ToString()</code> is <code>@output.Version?.ToStringResult</code>.
             </p>
             <p>
-            @if (output.Version.FullStringAvailable)
+            @if (output.Version?.FullStringAvailable == true)
             {
                 @:The full version is <code>@output.Version.FullString</code>.
             }
@@ -50,7 +50,7 @@
             }
             </p>
             <p>
-            @if (output.Version.IsSemVer2Available)
+            @if (output.Version?.IsSemVer2Available == true)
             {
                 if (output.Version.Revision != 0)
                 {
@@ -83,7 +83,7 @@
                 @:SemVer version detection is only available in NuGet 3.4.3 or later.
             }
             </p>
-            @if (output.Version.IsPrerelease)
+            @if (output.Version?.IsPrerelease == true)
             {
                 <p>The version is <b>prerelease</b>.</p>
             }
@@ -96,7 +96,7 @@
     else if (@output.InputStatus == InputStatus.Invalid)
     {
         <div class="alert alert-danger" role="alert">
-            The version <b>@output.Input.Version</b> could not be parsed.
+            The version <b>@output.Input?.Version</b> could not be parsed.
         </div>
     }
 </div>
