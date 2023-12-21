@@ -1,6 +1,8 @@
 ﻿using System.Net;
+using System.Text.Json;
 using NuGet.Versioning;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Knapcode.NuGetTools.Website.Tests;
 
@@ -36,7 +38,7 @@ public class IntegrationTest : IClassFixture<TestServerFixture>
         if (parsedBaseAddress != null)
         {
             AvailableVersions = AvailableVersions
-                .Select(x => NuGetVersion.Parse(x))
+                .Select(NuGetVersion.Parse)
                 .GroupBy(x => x.Major)
                 .Select(g => g.Max())
                 .OrderBy(x => x)
@@ -52,13 +54,34 @@ public class IntegrationTest : IClassFixture<TestServerFixture>
         }
     }
     
-    private readonly TestServerFixture _f;
+    private readonly TestServerFixture _fixture;
+    private readonly ITestOutputHelper _output;
 
-    public IntegrationTest(TestServerFixture testServerFixture)
+    public IntegrationTest(TestServerFixture testServerFixture, ITestOutputHelper output)
     {
-        _f = testServerFixture;
+        _fixture = testServerFixture;
+        _output = output;
     }
-    
+
+    [Fact]
+    public async Task HasMultipleVersions()
+    {
+        // Arrange
+        var requestUri = "/api/versions";
+
+        // Act
+        using (var response = await _fixture.Client.GetAsync(requestUri))
+        {
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var versionsJson = await response.Content.ReadAsStringAsync();
+            _output.WriteLine("Available NuGet versions:");
+            _output.WriteLine(versionsJson);
+            var versions = JsonSerializer.Deserialize<List<string>>(versionsJson);
+            Assert.True(versions?.Count > 1, "Did you run Invoke-DownloadPackages.ps1? There should be more than one NuGet version.");
+        }
+    }
+
     [Theory]
     [MemberData(nameof(AvailableVersionData))]
     public async Task ParseFramework(string version)
@@ -67,11 +90,11 @@ public class IntegrationTest : IClassFixture<TestServerFixture>
         var requestUri = $"/{version}/parse-framework?framework=net45";
 
         // Act
-        using (var response = await _f.Client.GetAsync(requestUri))
+        using (var response = await _fixture.Client.GetAsync(requestUri))
         {
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var text = await _f.GetFlattenedTextAsync(response);
+            var text = await _fixture.GetFlattenedTextAsync(response);
             Assert.Contains("The input value is net45.", text);
             Assert.Contains("The short folder name is net45.", text);
             Assert.Contains("The .NET framework name is .NETFramework,Version=v4.5.", text);
@@ -86,11 +109,11 @@ public class IntegrationTest : IClassFixture<TestServerFixture>
         var requestUri = $"/{version}/framework-compatibility?project=net46&package=net45";
 
         // Act
-        using (var response = await _f.Client.GetAsync(requestUri))
+        using (var response = await _fixture.Client.GetAsync(requestUri))
         {
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var text = await _f.GetFlattenedTextAsync(response);
+            var text = await _fixture.GetFlattenedTextAsync(response);
             Assert.Contains("net46 (net46) projects support net45 (net45) packages.", text);
         }
     }
@@ -103,11 +126,11 @@ public class IntegrationTest : IClassFixture<TestServerFixture>
         var requestUri = $"/{version}/get-nearest-framework?project=net46&package=net40%0D%0Anet45%0D%0Anet461";
 
         // Act
-        using (var response = await _f.Client.GetAsync(requestUri))
+        using (var response = await _fixture.Client.GetAsync(requestUri))
         {
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var text = await _f.GetFlattenedTextAsync(response);
+            var text = await _fixture.GetFlattenedTextAsync(response);
             Assert.Contains("The net45 (net45) package framework is the nearest to the net46 (net46) project framework.", text);
         }
     }
@@ -120,11 +143,11 @@ public class IntegrationTest : IClassFixture<TestServerFixture>
         var requestUri = $"/{version}/framework-precedence?framework=net45";
 
         // Act
-        using (var response = await _f.Client.GetAsync(requestUri))
+        using (var response = await _fixture.Client.GetAsync(requestUri))
         {
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var text = await _f.GetFlattenedTextAsync(response);
+            var text = await _fixture.GetFlattenedTextAsync(response);
             Assert.Contains("The .NETFramework,Version=v4.5 (net45) project framework has the following package framework precedence list.", text);
         }
     }
@@ -137,11 +160,11 @@ public class IntegrationTest : IClassFixture<TestServerFixture>
         var requestUri = $"/{version}/parse-version?version=1.0.0-beta01";
 
         // Act
-        using (var response = await _f.Client.GetAsync(requestUri))
+        using (var response = await _fixture.Client.GetAsync(requestUri))
         {
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var text = await _f.GetFlattenedTextAsync(response);
+            var text = await _fixture.GetFlattenedTextAsync(response);
             Assert.Contains("The result of ToString() is 1.0.0-beta01.", text);
         }
     }
@@ -154,11 +177,11 @@ public class IntegrationTest : IClassFixture<TestServerFixture>
         var requestUri = $"/{version}/version-comparison?versionA=1.0.0-beta&versionB=2.0.0";
 
         // Act
-        using (var response = await _f.Client.GetAsync(requestUri))
+        using (var response = await _fixture.Client.GetAsync(requestUri))
         {
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var text = await _f.GetFlattenedTextAsync(response);
+            var text = await _fixture.GetFlattenedTextAsync(response);
             Assert.Contains("1.0.0-beta (1.0.0-beta) < 2.0.0 (2.0.0).", text);
         }
     }
@@ -171,11 +194,11 @@ public class IntegrationTest : IClassFixture<TestServerFixture>
         var requestUri = $"/{version}/sort-versions?versions=10.2.0-beta%0D%0A0.9.0%0D%0A2.0.0";
 
         // Act
-        using (var response = await _f.Client.GetAsync(requestUri))
+        using (var response = await _fixture.Client.GetAsync(requestUri))
         {
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var text = await _f.GetFlattenedTextAsync(response);
+            var text = await _fixture.GetFlattenedTextAsync(response);
             Assert.Contains("0.9.0 (0.9.0) 2.0.0 (2.0.0) 10.2.0-beta (10.2.0-beta)", text);
         }
     }
@@ -188,11 +211,11 @@ public class IntegrationTest : IClassFixture<TestServerFixture>
         var requestUri = $"/{version}/parse-version-range?versionRange=%5B1.0.0%2C+2.0.0%5D";
 
         // Act
-        using (var response = await _f.Client.GetAsync(requestUri))
+        using (var response = await _fixture.Client.GetAsync(requestUri))
         {
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var text = await _f.GetFlattenedTextAsync(response);
+            var text = await _fixture.GetFlattenedTextAsync(response);
             Assert.Contains("The normalized version range is [1.0.0, 2.0.0].", text);
         }
     }
@@ -205,11 +228,11 @@ public class IntegrationTest : IClassFixture<TestServerFixture>
         var requestUri = $"/{version}/parse-version-range?versionRange=1.0.%2A-%2A";
 
         // Act
-        using (var response = await _f.Client.GetAsync(requestUri))
+        using (var response = await _fixture.Client.GetAsync(requestUri))
         {
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var text = await _f.GetFlattenedTextAsync(response);
+            var text = await _fixture.GetFlattenedTextAsync(response);
             if (NuGetVersion.Parse(version) >= NuGetVersion.Parse("5.6.0-preview.3.6558"))
             {
                 Assert.Contains("The normalized version range is [1.0.*-*, ).", text);
@@ -229,11 +252,11 @@ public class IntegrationTest : IClassFixture<TestServerFixture>
         var requestUri = $"/{version}/version-satisfies?versionRange=%5B1.0.0%2C+2.0.0%5D&version=1.5.0";
 
         // Act
-        using (var response = await _f.Client.GetAsync(requestUri))
+        using (var response = await _fixture.Client.GetAsync(requestUri))
         {
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var text = await _f.GetFlattenedTextAsync(response);
+            var text = await _fixture.GetFlattenedTextAsync(response);
             Assert.Contains("1.5.0 (1.5.0) satisfies [1.0.0, 2.0.0] ([1.0.0, 2.0.0]).", text);
         }
     }
@@ -246,11 +269,11 @@ public class IntegrationTest : IClassFixture<TestServerFixture>
         var requestUri = $"/{version}/find-best-version-match?versionRange=%5B1.0.0%2C+2.0.0%5D&versions=0.9.0%0D%0A1.5.0%0D%0A2.1.0";
 
         // Act
-        using (var response = await _f.Client.GetAsync(requestUri))
+        using (var response = await _fixture.Client.GetAsync(requestUri))
         {
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var text = await _f.GetFlattenedTextAsync(response);
+            var text = await _fixture.GetFlattenedTextAsync(response);
             if (NuGetVersion.Parse(version).Major >= 3)
             {
                 Assert.Contains("The 1.5.0 (1.5.0) version is the best match to the [1.0.0, 2.0.0] ([1.0.0, 2.0.0]) version range.", text);
@@ -269,7 +292,7 @@ public class IntegrationTest : IClassFixture<TestServerFixture>
         var maxVersion = AvailableVersions.Max();
 
         // Act
-        using (var response = await _f.Client.GetAsync("/"))
+        using (var response = await _fixture.Client.GetAsync("/"))
         {
             // Assert
             Assert.Equal(HttpStatusCode.Found, response.StatusCode);
@@ -284,7 +307,7 @@ public class IntegrationTest : IClassFixture<TestServerFixture>
         var maxVersion = AvailableVersions.Max();
 
         // Act
-        using (var response = await _f.Client.GetAsync("/latest/parse-version?version=1.0.0-beta01"))
+        using (var response = await _fixture.Client.GetAsync("/latest/parse-version?version=1.0.0-beta01"))
         {
             // Assert
             Assert.Equal(HttpStatusCode.Found, response.StatusCode);
