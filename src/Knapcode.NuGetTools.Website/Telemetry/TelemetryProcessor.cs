@@ -2,39 +2,38 @@
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
 
-namespace Knapcode.NuGetTools.Website
+namespace Knapcode.NuGetTools.Website;
+
+public class RequestSuccessInitializer : ITelemetryInitializer
 {
-    public class RequestSuccessInitializer : ITelemetryInitializer
+    private const string PropertyKey = "RequestSuccessInitializer";
+    private const string PropertyValue = "true";
+
+    private static readonly HashSet<int> SuccessResponseCodes = new HashSet<int>
     {
-        private const string PropertyKey = "RequestSuccessInitializer";
-        private const string PropertyValue = "true";
+        404
+    };
 
-        private static readonly HashSet<int> SuccessResponseCodes = new HashSet<int>
+    public void Initialize(ITelemetry telemetry)
+    {
+        var requestTelemetry = telemetry as RequestTelemetry;
+        if (requestTelemetry == null)
         {
-            404
-        };
+            return;
+        }
 
-        public void Initialize(ITelemetry telemetry)
+        int responseCode;
+        if (!int.TryParse(requestTelemetry.ResponseCode, out responseCode))
         {
-            var requestTelemetry = telemetry as RequestTelemetry;
-            if (requestTelemetry == null)
-            {
-                return;
-            }
+            return;
+        }
 
-            int responseCode;
-            if (!int.TryParse(requestTelemetry.ResponseCode, out responseCode))
-            {
-                return;
-            }
+        if (SuccessResponseCodes.Contains(responseCode))
+        {
+            requestTelemetry.Success = true;
 
-            if (SuccessResponseCodes.Contains(responseCode))
-            {
-                requestTelemetry.Success = true;
-
-                var itemTelemetry = (ISupportProperties)telemetry;
-                itemTelemetry.Properties[PropertyKey] = PropertyValue;
-            }
+            var itemTelemetry = (ISupportProperties)telemetry;
+            itemTelemetry.Properties[PropertyKey] = PropertyValue;
         }
     }
 }

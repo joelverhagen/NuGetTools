@@ -1,7 +1,7 @@
 ﻿@model SelectedVersionOutput<ParseVersionRangeOutput>
 @{
     ViewData["Title"] = "Parse Version Range";
-    var output = Model.Output;
+var output = Model.Output;
 }
 
 <h1>Parse a version range</h1>
@@ -20,20 +20,20 @@
 
 <div class="results">
     @if (@output.InputStatus == InputStatus.Valid)
-    {
-        <div class="alert alert-success" role="alert">
+{
+    <div class="alert alert-success" role="alert">
             <p>
                 The input value is <b>@output.Input?.VersionRange</b>.
             </p>
             <p>
             @if (output.VersionRange?.IsFloatingAvailable == true)
-            {
-                @:The version range is <b>@(output.VersionRange.IsFloating ? "floating" : "not floating")</b>.
-            }
-            else
-            {
-                @:Floating versions are only available in NuGet 3.x.
-            }
+        {
+            @:The version range is <b>@(output.VersionRange.IsFloating ? "floating" : "not floating")</b>.
+        }
+        else
+        {
+            @:Floating versions are only available in NuGet 3.x.
+        }
             </p>
             <p>
                 The normalized version range is <code>@output.VersionRange?.NormalizedString</code>.
@@ -44,68 +44,68 @@
 
             <p>
             @if (output.VersionRange?.LegacyStringAvailable == true)
-            {
-                @:The legacy string is <code>@output.VersionRange.LegacyString</code>.
-            }
-            else
-            {
-                @:The legacy string is only available in NuGet 3.x.
-            }
+        {
+            @:The legacy string is <code>@output.VersionRange.LegacyString</code>.
+        }
+        else
+        {
+            @:The legacy string is only available in NuGet 3.x.
+        }
             </p>
             <p>
             @if (output.VersionRange?.LegacyShortStringAvailable == true)
-            {
-                @:The legacy short string is <code>@output.VersionRange.LegacyShortString</code>.
-            }
-            else
-            {
-                @:The legacy short string is only available in NuGet 3.4.3 or later.
-            }
+        {
+            @:The legacy short string is <code>@output.VersionRange.LegacyShortString</code>.
+        }
+        else
+        {
+            @:The legacy short string is only available in NuGet 3.4.3 or later.
+        }
             </p>
             <p>
             @if (output.VersionRange?.OriginalStringAvailable == true)
-            {
-                @:The original string is <code>@output.VersionRange.OriginalString</code>.
-            }
-            else
-            {
-                @:The original string is only available in NuGet 3.x.
-            }
+        {
+            @:The original string is <code>@output.VersionRange.OriginalString</code>.
+        }
+        else
+        {
+            @:The original string is only available in NuGet 3.x.
+        }
             </p>
             <p>
                 @if (output.VersionRange?.HasLowerBound == true)
-                {
-                    <text>
+            {
+                <text>
                         The version range has an <b>@(output.VersionRange.IsMinInclusive ? "inclusive" : "exclusive") lower bound</b> of
                         <code>@output.VersionRange.MinVersion.GetPrettyString()</code>
                         (<parse-version value="@output.VersionRange.MinVersion.ToStringResult" />).
                     </text>
-                }
-                else
-                {
-                    @:The version range has <b>no lower bound</b>, but the lower bound is @(output.VersionRange?.IsMinInclusive == true ? "inclusive" : "exclusive").
-                }
+            }
+            else
+            {
+                @:The version range has <b>no lower bound</b>, but the lower bound is @(output.VersionRange?.IsMinInclusive == true ? "inclusive" : "exclusive").
+            }
             </p>
             <p>
                 @if (output.VersionRange?.HasUpperBound == true)
-                {
-                    <text>
+            {
+                <text>
                         The version range has an <b>@(output.VersionRange.IsMaxInclusive ? "inclusive" : "exclusive") upper bound</b> of
                         <code>@output.VersionRange.MaxVersion.GetPrettyString()</code>
                         (<parse-version value="@output.VersionRange.MaxVersion.ToStringResult" />).
                     </text>
-                }
-                else
-                {
-                    @:The version range has <b>no upper bound</b>, but the upper bound is @(output.VersionRange?.IsMaxInclusive == true ? "inclusive" : "exclusive").
-                }
+            }
+            else
+            {
+                @:The version range has <b>no upper bound</b>, but the upper bound is @(output.VersionRange?.IsMaxInclusive == true ? "inclusive" : "exclusive").
+            }
             </p>
         </div>
-    }
-    else if (@output.InputStatus == InputStatus.Invalid)
-    {
-        <div class="alert alert-danger" role="alert">
+}
+else if (@output.InputStatus == InputStatus.Invalid)
+{
+    <div class="alert alert-danger" role="alert">
             The version range <b>@output.Input?.VersionRange</b> could not be parsed.
         </div>
-    }
+}
 </div>

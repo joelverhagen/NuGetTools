@@ -2,22 +2,21 @@
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 
-namespace Knapcode.NuGetTools.Logic.Direct
-{
-    public interface IAlignedVersionsDownloader
-    {
-        Task<IEnumerable<NuGetVersion>> GetDownloadedVersionsAsync(
-            IEnumerable<string> ids,
-            SourceCacheContext sourceCacheContext,
-            ILogger log,
-            CancellationToken token);
+namespace Knapcode.NuGetTools.Logic.Direct;
 
-        Task<IEnumerable<NuGetVersion>> DownloadPackagesAsync(
-            IEnumerable<string> sources,
-            IEnumerable<string> ids,
-            VersionRange versionRange,
-            SourceCacheContext sourceCacheContext,
-            ILogger log,
-            CancellationToken token);
-    }
+public interface IAlignedVersionsDownloader
+{
+    Task<IEnumerable<NuGetVersion>> GetDownloadedVersionsAsync(
+        IEnumerable<string> ids,
+        SourceCacheContext sourceCacheContext,
+        ILogger log,
+        CancellationToken token);
+
+    Task<IEnumerable<NuGetVersion>> DownloadPackagesAsync(
+        IEnumerable<string> sources,
+        IEnumerable<string> ids,
+        VersionRange versionRange,
+        SourceCacheContext sourceCacheContext,
+        ILogger log,
+        CancellationToken token);
 }

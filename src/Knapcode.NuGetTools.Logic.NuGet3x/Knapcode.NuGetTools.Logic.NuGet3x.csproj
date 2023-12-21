@@ -1,12 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="NuGet.Frameworks" Version="$(NuGetPackageVersion)" />
-		<PackageReference Include="NuGet.Versioning" Version="$(NuGetPackageVersion)" />
+		<PackageReference Include="NuGet.Frameworks" />
+		<PackageReference Include="NuGet.Versioning" />
 	</ItemGroup>
 
 	<ItemGroup>

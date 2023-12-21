@@ -37,12 +37,12 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
       - name: Download NuGet.* packages
         run: ./Invoke-DownloadPackages.ps1 -PackagesDir $env:PACKAGES_DIR -Force
 
-      - name: Build Release
-        run: dotnet build --configuration Release --no-restore
-      
       - name: Test
         run: dotnet test --logger "console;verbosity=normal" --configuration Release --no-build
 

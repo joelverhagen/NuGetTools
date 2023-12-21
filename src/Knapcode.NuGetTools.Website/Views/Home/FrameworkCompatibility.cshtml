@@ -1,7 +1,7 @@
 ﻿@model SelectedVersionOutput<FrameworkCompatibilityOutput>
 @{
     ViewData["Title"] = "Framework Compatibility";
-    var output = Model.Output;
+var output = Model.Output;
 }
 
 <h1>Check framework compatibility</h1>
@@ -26,36 +26,36 @@
 
 <div class="results">
     @if (@output.InputStatus == InputStatus.Valid)
+{
+    if (@output.IsCompatible)
     {
-        if (@output.IsCompatible)
-        {
-            <div class="alert alert-success" role="alert">
+        <div class="alert alert-success" role="alert">
                 <code>@output.Project?.ShortFolderName</code> (<b><parse-framework value="@output.Input?.Project" /></b>)
                 projects support <code>@output.Package?.ShortFolderName</code> (<b><parse-framework value="@output.Input?.Package" /></b>) packages.
             </div>
-        }
-        else
-        {
-            <div class="alert alert-warning" role="alert">
+    }
+    else
+    {
+        <div class="alert alert-warning" role="alert">
                 <code>@output.Project?.ShortFolderName</code> (<b><parse-framework value="@output.Input?.Project" /></b>)
                 projects do not support <code>@output.Package?.ShortFolderName</code> (<b><parse-framework value="@output.Input?.Package" /></b>) packages.
             </div>
-        }
     }
-    else if (@output.InputStatus == InputStatus.Invalid)
+}
+else if (@output.InputStatus == InputStatus.Invalid)
+{
+    if (!@output.IsProjectValid)
     {
-        if (!@output.IsProjectValid)
-        {
-            <div class="alert alert-danger" role="alert">
+        <div class="alert alert-danger" role="alert">
                 Project framework <b>@output.Input?.Project</b> could not be parsed.
             </div>
-        }
+    }
 
-        if (!@output.IsPackageValid)
-        {
-            <div class="alert alert-danger" role="alert">
+    if (!@output.IsPackageValid)
+    {
+        <div class="alert alert-danger" role="alert">
                 Package framework <b>@output.Input?.Package</b> could not be parsed.
             </div>
-        }
     }
+}
 </div>

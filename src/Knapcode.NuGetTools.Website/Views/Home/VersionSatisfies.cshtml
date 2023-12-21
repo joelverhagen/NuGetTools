@@ -1,7 +1,7 @@
 ﻿@model SelectedVersionOutput<VersionSatisfiesOutput>
 @{
     ViewData["Title"] = "Version Satisfies";
-    var output = Model.Output;
+var output = Model.Output;
 }
 
 <h1>Version satisfies a version range</h1>
@@ -25,38 +25,38 @@
 
 <div class="results">
     @if (@output.InputStatus == InputStatus.Valid)
-    {   
-        @if (output.Satisfies)
-        {
-            <div class="alert alert-success" role="alert">
+{   
+    @if (output.Satisfies)
+    {
+        <div class="alert alert-success" role="alert">
                 <code>@output.Version?.ToStringResult</code> (<b><parse-version value="@output.Input?.Version" /></b>)
                 satisfies
                 <code>@output.VersionRange?.NormalizedString</code> (<b><parse-version-range value="@output.Input?.VersionRange" /></b>).
             </div>
-        }
-        else
-        {
-            <div class="alert alert-warning" role="alert">
+    }
+    else
+    {
+        <div class="alert alert-warning" role="alert">
                 <code>@output.Version?.ToStringResult</code> (<b><parse-version value="@output.Input?.Version" /></b>)
                 does not satisfy
                 <code>@output.VersionRange?.NormalizedString</code> (<b><parse-version-range value="@output.Input?.VersionRange" /></b>).
             </div>
-        }
     }
-    else if (@output.InputStatus == InputStatus.Invalid)
+}
+else if (@output.InputStatus == InputStatus.Invalid)
+{
+    if (!@output.IsVersionRangeValid)
     {
-        if (!@output.IsVersionRangeValid)
-        {
-            <div class="alert alert-danger" role="alert">
+        <div class="alert alert-danger" role="alert">
                 Version range <b>@output.Input?.VersionRange</b> could not be parsed.
             </div>
-        }
+    }
 
-        if (!@output.IsVersionValid)
-        {
-            <div class="alert alert-danger" role="alert">
+    if (!@output.IsVersionValid)
+    {
+        <div class="alert alert-danger" role="alert">
                 <b>Version @output.Input?.Version</b> could not be parsed.
             </div>
-        }
     }
+}
 </div>

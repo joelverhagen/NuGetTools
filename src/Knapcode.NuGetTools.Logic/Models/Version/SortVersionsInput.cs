@@ -1,7 +1,6 @@
-﻿namespace Knapcode.NuGetTools.Logic.Models.Version
+﻿namespace Knapcode.NuGetTools.Logic.Models.Version;
+
+public class SortVersionsInput
 {
-    public class SortVersionsInput
-    {
-        public string? Versions { get; set; }
-    }
+    public string? Versions { get; set; }
 }

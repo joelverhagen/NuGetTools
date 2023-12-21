@@ -27,52 +27,67 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IFrameworkList, FrameworkList>();
         services.AddTransient<IPackageRangeDownloader, PackageRangeDownloader>();
 
-        services.AddSingleton<IToolsFactory, ToolsFactory>();
+        services.AddSingleton<VersionedToolsFactory>();
 
-        try
+        AddDirectToolsServices(services);
+
+        services.AddSingleton<IToolsFactory>(serviceProvider =>
         {
-            // Try to construct the reflection-based tools factory.
-            var serviceProvider = services.BuildServiceProvider();
-            var toolsFactory = serviceProvider.GetRequiredService<IToolsFactory>();
-
-            var versions = toolsFactory.GetAvailableVersionsAsync(CancellationToken.None).Result;
-
-            if (!versions.Any())
+            var versioned = GetVersionedToolsFactory(serviceProvider);
+            if (versioned is not null)
             {
-                throw new InvalidOperationException("At least one version is required.");
+                return versioned;
             }
-        }
-        catch
-        {
-            // Fallback to using the NuGet version directly referenced by this project.
-            var serviceDescriptor = services.First(x => x.ImplementationType == typeof(ToolsFactory));
-            services.Remove(serviceDescriptor);
 
-            services.AddTransient<IFrameworkLogic, FrameworkLogic3x>();
-            services.AddTransient<IVersionLogic, VersionLogic3x>();
-            services.AddTransient<IVersionRangeLogic, VersionRangeLogic3x>();
-            services.AddTransient<INuGetLogic, NuGetLogic3x>();
-
-            var clientVersion = NuGetVersion.Parse(ClientVersionUtility.GetNuGetAssemblyVersion()).ToNormalizedString();
-
-            services.AddTransient<IToolsService, ToolsService>(serviceProvider =>
-            {
-                return new ToolsService(
-                    clientVersion,
-                    serviceProvider.GetRequiredService<INuGetLogic>());
-            });
-
-            services.AddTransient<IFrameworkPrecedenceService>(serviceProvider =>
-            {
-                return new FrameworkPrecedenceService(
-                    clientVersion,
-                    serviceProvider.GetRequiredService<IFrameworkList>(),
-                    serviceProvider.GetRequiredService<IFrameworkLogic>());
-            });
-
-            services.AddSingleton<IToolsFactory, SingletonToolsFactory>();
-        }
+            return serviceProvider.GetRequiredService<DirectToolsFactory>();
+        });
 
         return services;
+    }
+
+    private static void AddDirectToolsServices(IServiceCollection services)
+    {
+        services.AddTransient<IFrameworkLogic, FrameworkLogic3x>();
+        services.AddTransient<IVersionLogic, VersionLogic3x>();
+        services.AddTransient<IVersionRangeLogic, VersionRangeLogic3x>();
+        services.AddTransient<INuGetLogic, NuGetLogic3x>();
+
+        var clientVersion = NuGetVersion.Parse(ClientVersionUtility.GetNuGetAssemblyVersion()).ToNormalizedString();
+
+        services.AddTransient<IToolsService, ToolsService>(serviceProvider =>
+        {
+            return new ToolsService(
+                clientVersion,
+                serviceProvider.GetRequiredService<INuGetLogic>());
+        });
+
+        services.AddTransient<IFrameworkPrecedenceService>(serviceProvider =>
+        {
+            return new FrameworkPrecedenceService(
+                clientVersion,
+                serviceProvider.GetRequiredService<IFrameworkList>(),
+                serviceProvider.GetRequiredService<IFrameworkLogic>());
+        });
+
+        services.AddSingleton<DirectToolsFactory>();
+    }
+
+    private static VersionedToolsFactory? GetVersionedToolsFactory(IServiceProvider serviceProvider)
+    {
+        var settings = serviceProvider.GetRequiredService<NuGetSettings>();
+        if (!Directory.Exists(settings.GlobalPackagesFolder)
+            || !Directory.EnumerateDirectories(settings.GlobalPackagesFolder).Any())
+        {
+            return null;
+        }
+
+        var factory = serviceProvider.GetRequiredService<VersionedToolsFactory>();
+        var versions = factory.GetAvailableVersionsAsync(CancellationToken.None).Result;
+        if (!versions.Any())
+        {
+            return null;
+        }
+
+        return factory;
     }
 }

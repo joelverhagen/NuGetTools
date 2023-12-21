@@ -1,10 +1,9 @@
-﻿namespace Microsoft.Extensions.Hosting
+﻿namespace Microsoft.Extensions.Hosting;
+
+public static class ExtensionMethods
 {
-    public static class ExtensionMethods
+    public static bool IsAutomation(this IHostEnvironment env)
     {
-        public static bool IsAutomation(this IHostEnvironment env)
-        {
-            return env.IsEnvironment("Automation");
-        }
+        return env.IsEnvironment("Automation");
     }
 }

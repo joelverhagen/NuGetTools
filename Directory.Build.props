@@ -1,7 +1,6 @@
 <Project>
 
 	<PropertyGroup>
-		<NuGetPackageVersion>6.6.1</NuGetPackageVersion>
 		<MinVerTagPrefix>v</MinVerTagPrefix>
 	</PropertyGroup>
 
@@ -9,11 +8,6 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
-	
-	<ItemGroup>
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
-		<PackageReference Include="MinVer" Version="4.3.0" PrivateAssets="all" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<AssemblyMetadata Include="BuildTimestamp" Condition="'$(Configuration)' == 'Debug'">

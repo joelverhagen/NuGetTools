@@ -1,9 +1,8 @@
-﻿namespace Knapcode.NuGetTools.Logic.Models
+﻿namespace Knapcode.NuGetTools.Logic.Models;
+
+public enum ComparisonResult
 {
-    public enum ComparisonResult
-    {
-        LessThan,
-        Equal,
-        GreaterThan
-    }
+    LessThan,
+    Equal,
+    GreaterThan
 }

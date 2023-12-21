@@ -1,7 +1,7 @@
 ﻿@model SelectedVersionOutput<VersionComparisonOutput>
 @{
     ViewData["Title"] = "Version Comparison";
-    var output = Model.Output;
+var output = Model.Output;
 }
 
 <h1>Compare two versions</h1>
@@ -26,38 +26,38 @@
 
 <div class="results">
     @if (@output.InputStatus == InputStatus.Valid)
-    {
-        <div class="alert alert-success cmp-output" role="alert">
+{
+    <div class="alert alert-success cmp-output" role="alert">
             <code>@output.VersionA?.GetPrettyString()</code> (<b><parse-version value="@output.Input?.VersionA" /></b>)
             @switch (output.Result)
-            {
-                case ComparisonResult.LessThan:
-                    @:<span class="cmp-symbol">&lt;</span>
-                    break;
-                case ComparisonResult.Equal:
-                    @:<span class="cmp-symbol">=</span>
-                    break;
-                case ComparisonResult.GreaterThan:
-                    @:<span class="cmp-symbol">&gt;</span>
-                    break;
-            }
+        {
+            case ComparisonResult.LessThan:
+                @:<span class="cmp-symbol">&lt;</span>
+                break;
+            case ComparisonResult.Equal:
+                @:<span class="cmp-symbol">=</span>
+                break;
+            case ComparisonResult.GreaterThan:
+                @:<span class="cmp-symbol">&gt;</span>
+                break;
+        }
             <code>@output.VersionB?.GetPrettyString()</code> (<b><parse-version value="@output.Input?.VersionB" /></b>).
         </div>
-    }
-    else if (@output.InputStatus == InputStatus.Invalid)
+}
+else if (@output.InputStatus == InputStatus.Invalid)
+{
+    if (!@output.IsVersionAValid)
     {
-        if (!@output.IsVersionAValid)
-        {
-            <div class="alert alert-danger" role="alert">
+        <div class="alert alert-danger" role="alert">
                 Version A <b>@output.Input?.VersionA</b> could not be parsed.
             </div>
-        }
+    }
 
-        if (!@output.IsVersionBValid)
-        {
-            <div class="alert alert-danger" role="alert">
+    if (!@output.IsVersionBValid)
+    {
+        <div class="alert alert-danger" role="alert">
                 <b>Version B @output.Input?.VersionB</b> could not be parsed.
             </div>
-        }
     }
+}
 </div>

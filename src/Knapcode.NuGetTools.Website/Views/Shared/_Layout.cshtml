@@ -34,16 +34,16 @@
                 <form class="form-inline navbar-left">
                     <select id="version-select" class="form-control version-select">
                         @foreach (var versionUrl in Model.VersionUrls)
+                    {
+                        if (Model.CurrentVersion == versionUrl.Version)
                         {
-                            if (Model.CurrentVersion == versionUrl.Version)
-                            {
-                                <option selected="selected">@versionUrl.Version</option>
-                            }
-                            else
-                            {
-                                <option value="@versionUrl.Url">@versionUrl.Version</option>
-                            }
+                            <option selected="selected">@versionUrl.Version</option>
                         }
+                        else
+                        {
+                            <option value="@versionUrl.Url">@versionUrl.Version</option>
+                        }
+                    }
                     </select>
                 </form>
             </div>

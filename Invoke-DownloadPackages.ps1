@@ -3,6 +3,10 @@ param (
     [switch] $Force
 )
 
+if (!$PackagesDir) {
+    $PackagesDir = Join-Path $PSScriptRoot "src/Knapcode.NuGetTools.Website/packages"
+}
+
 $PackagesDir = [IO.Path]::GetFullPath($PackagesDir)
 
 Write-Host "Downloading NuGet packages for the website to $PackagesDir"

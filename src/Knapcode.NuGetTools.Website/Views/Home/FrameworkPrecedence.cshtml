@@ -1,7 +1,7 @@
 ﻿@model SelectedVersionOutput<FrameworkPrecedenceOutput>
 @{
     ViewData["Title"] = "Framework Precedence";
-    var output = Model.Output;
+var output = Model.Output;
 }
 
 <h1>Framework Precedence</h1>
@@ -41,21 +41,22 @@
 
 <div class="results">
     @if (output.InputStatus == InputStatus.Valid)
+{
+    if (!output.Precedence.Any())
     {
-        if (!output.Precedence.Any())
-        {
-            <div class="alert alert-warning" role="alert">
+        <div class="alert alert-warning" role="alert">
                 The <code>@output.Framework?.DotNetFrameworkName</code> (<b><parse-framework value="@output.Input?.Framework" /></b>)
                 project framework does not have any well known compatible package frameworks.
             </div>
-        }
-        else
-        {
-            <p>
+    }
+    else
+    {
+        <p>
                 The <code>@output.Framework?.DotNetFrameworkName</code> (<b><parse-framework value="@output.Input?.Framework" /></b>)
                 project framework has the following package framework precedence list.
             </p>
-            <table class="table">
+            
+        <table class="table">
                 <thead>
                     <tr>
                         <th>Order</th>
@@ -65,21 +66,21 @@
                 </thead>
                 <tbody>
                     @for (var i = 0; i < output.Precedence.Count; i++)
-                    {
-                        <tr>
+                {
+                    <tr>
                             <td>@(i + 1)</td>
                             <td><code>@output.Precedence[i].DotNetFrameworkName</code></td>
                             <td><code>@output.Precedence[i].ShortFolderName</code></td>
                         </tr>
-                    }
+                }
                 </tbody>
             </table>
-        }
     }
-    else if (@output.InputStatus == InputStatus.Invalid)
-    {
-        <div class="alert alert-danger" role="alert">
+}
+else if (@output.InputStatus == InputStatus.Invalid)
+{
+    <div class="alert alert-danger" role="alert">
             Project framework <b>@output.Input.Framework</b> could not be parsed.
         </div>
-    }
+}
 </div>

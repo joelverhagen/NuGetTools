@@ -1,7 +1,7 @@
 ﻿@model SelectedVersionOutput<SortVersionsOutput>
 @{
     ViewData["Title"] = "Sort Versions";
-    var output = Model.Output;
+var output = Model.Output;
 }
 
 <h1>Sort versions</h1>
@@ -19,46 +19,46 @@
 
 <div class="results">
     @if (output.InputStatus == InputStatus.Valid)
-    {
-        <div class="alert alert-success" role="alert">
+{
+    <div class="alert alert-success" role="alert">
             <p>The following versions are in ascending, SemVer order.</p>
             <ol>
                 @foreach (var version in output.Versions)
-                {
-                    <li>
+            {
+                <li>
                         <code>@version.GetPrettyString()</code> (<b><parse-version value="@version.ToStringResult" /></b>)
                     </li>
-                }
+            }
             </ol>
         </div>
 
-        if (output.Invalid.Any())
-        {
-            <div class="alert alert-warning" role="alert">
+    if (output.Invalid.Any())
+    {
+        <div class="alert alert-warning" role="alert">
                 <p>The following versions could not be parsed.</p>
                 <ol>
                     @foreach (var version in output.Invalid)
-                    {
-                        <li>
+                {
+                    <li>
                             <code>@version</code>
                         </li>
-                    }
+                }
                 </ol>
             </div>
-        }
     }
-    else if (output.InputStatus == InputStatus.Invalid)
-    {
-        <div class="alert alert-danger" role="alert">
+}
+else if (output.InputStatus == InputStatus.Invalid)
+{
+    <div class="alert alert-danger" role="alert">
             <p>No valid versions were provided.The following versions could not be parsed.</p>
             <ol>
                 @foreach (var version in output.Invalid)
-                {
-                    <li>
+            {
+                <li>
                         <code>@version</code>
                     </li>
-                }
+            }
             </ol>
         </div>
-    }
+}
 </div>

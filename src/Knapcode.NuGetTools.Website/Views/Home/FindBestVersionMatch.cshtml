@@ -1,7 +1,7 @@
 ﻿@model SelectedVersionOutput<FindBestVersionMatchOutput>
 @{
     ViewData["Title"] = "Find Best Version Match";
-    var output = Model.Output;
+var output = Model.Output;
 }
 
 <h1>Find best version match</h1>
@@ -25,86 +25,86 @@
 
 <div class="results">
     @if (output.InputStatus == InputStatus.Valid)
+{
+    if (output.BestMatch != null)
     {
-        if (output.BestMatch != null)
-        {
-            <div class="alert alert-success" role="alert">
+        <div class="alert alert-success" role="alert">
                 The <code>@output.BestMatch.Version.GetPrettyString()</code> (<b><parse-version value="@output.BestMatch.Input" /></b>) version
                 is the best match to the <code>@output.VersionRange?.NormalizedString</code> (<b><parse-version-range value="@output.Input?.VersionRange" /></b>) version range.
             </div>
-        }
-        else if (output.IsOperationSupported)
-        {
-            <div class="alert alert-warning" role="alert">
+    }
+    else if (output.IsOperationSupported)
+    {
+        <div class="alert alert-warning" role="alert">
                 None of the recognized versions satisfied the <code>@output.VersionRange?.NormalizedString</code> (<b><parse-version-range value="@output.Input?.VersionRange" /></b>) version range.
             </div>
+    }
+    else
+    {
+        <div class="alert alert-warning" role="alert">
+                Finding the best version match is only supported in NuGet 3.x and greater.
+            </div>
+    }
+
+    <div class="alert alert-info" role="alert">
+            @if (output.AreVersionsSorted)
+        {
+            <p>The following versions were considered, <b>displayed in the order of precedence</b>:</p>
         }
         else
         {
-            <div class="alert alert-warning" role="alert">
-                Finding the best version match is only supported in NuGet 3.x and greater.
-            </div>
+            <p>The following versions were considered, displayed in the order that they were provided:</p>
         }
-
-        <div class="alert alert-info" role="alert">
-            @if (output.AreVersionsSorted)
-            {
-                <p>The following versions were considered, <b>displayed in the order of precedence</b>:</p>
-            }
-            else
-            {
-                <p>The following versions were considered, displayed in the order that they were provided:</p>
-            }
 
             <ul class="list-unstyled">
                 @foreach (var input in output.Versions)
-                {
-                    <li>
+            {
+                <li>
                         @if (input.Satisfies)
-                        {
-                            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-                        }
-                        else
-                        {
-                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                        }
+                    {
+                        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                    }
+                    else
+                    {
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    }
                         <code>@input.Version.GetPrettyString()</code>
                         (<b><parse-version value="@input.Input" /></b>)
                     </li>
-                }
+            }
             </ul>
             @if (output.Invalid.Any())
-            {
-                <p>The following version(s) could not be parsed:</p>
-                <ul>
-                    @foreach (var invalid in output.Invalid)
-                    {
-                        <li><b>@invalid</b></li>
-                    }
-                </ul>
-            }
-        </div>
-    }
-    else if (output.InputStatus == InputStatus.Invalid)
-    {
-        if (!output.IsVersionRangeValid)
         {
-            <div class="alert alert-danger" role="alert">
+            <p>The following version(s) could not be parsed:</p>
+            <ul>
+                    @foreach (var invalid in output.Invalid)
+                {
+                    <li><b>@invalid</b></li>
+                }
+                </ul>
+        }
+        </div>
+}
+else if (output.InputStatus == InputStatus.Invalid)
+{
+    if (!output.IsVersionRangeValid)
+    {
+        <div class="alert alert-danger" role="alert">
                 Version range <b>@output.Input?.VersionRange</b> could not be parsed.
             </div>
-        }
+    }
 
-        if (!output.IsVersionValid)
-        {
-            <div class="alert alert-danger" role="alert">
+    if (!output.IsVersionValid)
+    {
+        <div class="alert alert-danger" role="alert">
                 <p>The following version(s) could not be parsed:</p>
                 <ul>
                     @foreach (var invalid in output.Invalid)
-                    {
-                        <li><b>@invalid</b></li>
-                    }
+                {
+                    <li><b>@invalid</b></li>
+                }
                 </ul>
             </div>
-        }
     }
+}
 </div>

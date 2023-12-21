@@ -1,8 +1,7 @@
-﻿namespace Knapcode.NuGetTools.Logic
+﻿namespace Knapcode.NuGetTools.Logic;
+
+public interface IFrameworkEnumerator
 {
-    public interface IFrameworkEnumerator
-    {
-        IEnumerable<FrameworkEnumeratorData> Enumerate(FrameworkEnumerationOptions options);
-        IEnumerable<FrameworkEnumeratorData> Expand(IEnumerable<FrameworkEnumeratorData> frameworks, FrameworkExpansionOptions options);
-    }
+    IEnumerable<FrameworkEnumeratorData> Enumerate(FrameworkEnumerationOptions options);
+    IEnumerable<FrameworkEnumeratorData> Expand(IEnumerable<FrameworkEnumeratorData> frameworks, FrameworkExpansionOptions options);
 }

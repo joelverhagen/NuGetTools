@@ -1,7 +1,7 @@
 ﻿@model SelectedVersionOutput<ParseVersionOutput>
 @{
     ViewData["Title"] = "Parse Version";
-    var output = Model.Output;
+var output = Model.Output;
 }
 
 <h1>Parse a version</h1>
@@ -20,83 +20,83 @@
 
 <div class="results">
     @if (@output.InputStatus == InputStatus.Valid)
-    {
-        <div class="alert alert-success" role="alert">
+{
+    <div class="alert alert-success" role="alert">
             <p>
                 The input value is <b>@output.Input?.Version</b>.
             </p>
 
             <p>
             @if (output.Version?.NormalizedStringAvailable == true)
-            {
-                @:The normalized version is <code>@output.Version.NormalizedString</code>.
-            }
-            else
-            {
-                @:The normalized version is only available in NuGet 2.14.0 or later.
-            }
+        {
+            @:The normalized version is <code>@output.Version.NormalizedString</code>.
+        }
+        else
+        {
+            @:The normalized version is only available in NuGet 2.14.0 or later.
+        }
             </p>
             <p>
                 The result of <code>ToString()</code> is <code>@output.Version?.ToStringResult</code>.
             </p>
             <p>
             @if (output.Version?.FullStringAvailable == true)
-            {
-                @:The full version is <code>@output.Version.FullString</code>.
-            }
-            else
-            {
-                @:The full version is only available in NuGet 3.5.0-beta-final or later.
-            }
+        {
+            @:The full version is <code>@output.Version.FullString</code>.
+        }
+        else
+        {
+            @:The full version is only available in NuGet 3.5.0-beta-final or later.
+        }
             </p>
             <p>
             @if (output.Version?.IsSemVer2Available == true)
+        {
+            if (output.Version.Revision != 0)
             {
-                if (output.Version.Revision != 0)
+                @:The version has a revision (fourth integer in the version) so it is not strictly SemVer. However,
+                @:NuGet considers the version to be a
+                if (output.Version.IsSemVer2)
                 {
-                    @:The version has a revision (fourth integer in the version) so it is not strictly SemVer. However,
-                    @:NuGet considers the version to be a
-                    if (output.Version.IsSemVer2)
-                    {
-                        @:<b><a href="http://semver.org/spec/v2.0.0.html">SemVer 2.0.0</a></b> version string.
-                    }
-                    else
-                    {
-                        @:<b><a href="http://semver.org/spec/v1.0.0.html">SemVer 1.0.0</a></b> version string.
-                    }
+                    @:<b><a href="http://semver.org/spec/v2.0.0.html">SemVer 2.0.0</a></b> version string.
                 }
                 else
                 {
-                    @:The version is considered a
-                    if (output.Version.IsSemVer2)
-                    {
-                        @:<b><a href="http://semver.org/spec/v2.0.0.html">SemVer 2.0.0</a></b> version string.
-                    }
-                    else
-                    {
-                        @:<b><a href="http://semver.org/spec/v1.0.0.html">SemVer 1.0.0</a></b> version string.
-                    }
+                    @:<b><a href="http://semver.org/spec/v1.0.0.html">SemVer 1.0.0</a></b> version string.
                 }
             }
             else
             {
-                @:SemVer version detection is only available in NuGet 3.4.3 or later.
+                @:The version is considered a
+                if (output.Version.IsSemVer2)
+                {
+                    @:<b><a href="http://semver.org/spec/v2.0.0.html">SemVer 2.0.0</a></b> version string.
+                }
+                else
+                {
+                    @:<b><a href="http://semver.org/spec/v1.0.0.html">SemVer 1.0.0</a></b> version string.
+                }
             }
+        }
+        else
+        {
+            @:SemVer version detection is only available in NuGet 3.4.3 or later.
+        }
             </p>
             @if (output.Version?.IsPrerelease == true)
-            {
-                <p>The version is <b>prerelease</b>.</p>
-            }
-            else
-            {
-                <p>The version is <b>not prerelease</b>.</p>
-            }
+        {
+            <p>The version is <b>prerelease</b>.</p>
+        }
+        else
+        {
+            <p>The version is <b>not prerelease</b>.</p>
+        }
         </div>
-    }
-    else if (@output.InputStatus == InputStatus.Invalid)
-    {
-        <div class="alert alert-danger" role="alert">
+}
+else if (@output.InputStatus == InputStatus.Invalid)
+{
+    <div class="alert alert-danger" role="alert">
             The version <b>@output.Input?.Version</b> could not be parsed.
         </div>
-    }
+}
 </div>

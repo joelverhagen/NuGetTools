@@ -1,8 +1,7 @@
-﻿namespace Knapcode.NuGetTools.Logic.Wrappers
+﻿namespace Knapcode.NuGetTools.Logic.Wrappers;
+
+public interface IVersionLogic
 {
-    public interface IVersionLogic
-    {
-        IVersion Parse(string input);
-        int Compare(IVersion versionA, IVersion versionB);
-    }
+    IVersion Parse(string input);
+    int Compare(IVersion versionA, IVersion versionB);
 }

@@ -1,7 +1,7 @@
 ﻿@model SelectedVersionOutput<GetNearestFrameworkOutput>
 @{
     ViewData["Title"] = "Get Nearest Framework";
-    var output = Model.Output;
+var output = Model.Output;
 }
 
 <h1>Get Nearest Framework</h1>
@@ -25,74 +25,74 @@
 
 <div class="results">
     @if (@output.InputStatus == InputStatus.Valid)
+{
+    if (@output.Nearest != null)
     {
-        if (@output.Nearest != null)
-        {
-            <div class="alert alert-success" role="alert">
+        <div class="alert alert-success" role="alert">
                 The <code>@output.Nearest.Framework.ShortFolderName</code> (<b><parse-framework value="@output.Nearest.Input" /></b>)
                 package framework is the nearest to the <code>@output.Project?.ShortFolderName</code>
                 (<b><parse-framework value="@output.Input?.Project" /></b>) project framework.
             </div>
-        }
-        else
-        {
-            <div class="alert alert-warning" role="alert">
+    }
+    else
+    {
+        <div class="alert alert-warning" role="alert">
                 None of the recognized frameworks are compatible with the <code>@output.Project?.ShortFolderName</code>
                 (<b><parse-framework value="@output.Input?.Project" /></b>) project framework.
             </div>
-        }
+    }
 
-        <div class="alert alert-info" role="alert">
+    <div class="alert alert-info" role="alert">
             <p>The package frameworks that were considered were:</p>
             <ul class="list-unstyled">
                 @foreach (var input in output.Package)
-                {
-                    <li>
+            {
+                <li>
                         @if (input.IsCompatible)
-                        {
-                            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-                        }
-                        else
-                        {
-                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                        }
+                    {
+                        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                    }
+                    else
+                    {
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    }
                         <code>@input.Framework.ShortFolderName</code>
                         (<b><parse-framework value="@input.Input" /></b>)
                     </li>
-                }
+            }
             </ul>
             @if (output.Invalid.Any())
-            {
-                <p>The following package framework(s) could not be parsed:</p>
-                <ul>
-                    @foreach (var invalid in output.Invalid)
-                    {
-                        <li><b>@invalid</b></li>
-                    }
-                </ul>
-            }
-        </div>
-    }
-    else if (@output.InputStatus == InputStatus.Invalid)
-    {
-        if (!@output.IsProjectValid)
         {
-            <div class="alert alert-danger" role="alert">
+            <p>The following package framework(s) could not be parsed:</p>
+            <ul>
+                    @foreach (var invalid in output.Invalid)
+                {
+                    <li><b>@invalid</b></li>
+                }
+                </ul>
+        }
+        </div>
+}
+else if (@output.InputStatus == InputStatus.Invalid)
+{
+    if (!@output.IsProjectValid)
+    {
+        <div class="alert alert-danger" role="alert">
                 Project framework <b>@output.Input?.Project</b> could not be parsed.
             </div>
-        }
+    }
 
-        if (!@output.IsPackageValid)
-        {
-            <div class="alert alert-danger" role="alert">
+    if (!@output.IsPackageValid)
+    {
+        <div class="alert alert-danger" role="alert">
                 <p>The following package framework(s) could not be parsed:</p>
                 <ul>
                     @foreach (var invalid in output.Invalid)
-                    {
-                        <li><b>@invalid</b></li>
-                    }
+                {
+                    <li><b>@invalid</b></li>
+                }
                 </ul>
             </div>
-        }
     }
+}
 </div>

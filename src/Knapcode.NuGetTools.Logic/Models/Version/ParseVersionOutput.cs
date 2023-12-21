@@ -1,11 +1,10 @@
 using Knapcode.NuGetTools.Logic.Wrappers;
 
-namespace Knapcode.NuGetTools.Logic.Models.Version
+namespace Knapcode.NuGetTools.Logic.Models.Version;
+
+public class ParseVersionOutput
 {
-    public class ParseVersionOutput
-    {
-        public InputStatus InputStatus { get; set; }
-        public ParseVersionInput? Input { get; set; }
-        public IVersion? Version { get; set; }
-    }
+    public InputStatus InputStatus { get; set; }
+    public ParseVersionInput? Input { get; set; }
+    public IVersion? Version { get; set; }
 }

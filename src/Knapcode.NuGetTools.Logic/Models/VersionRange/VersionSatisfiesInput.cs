@@ -1,8 +1,7 @@
-namespace Knapcode.NuGetTools.Logic.Models.VersionRange
+namespace Knapcode.NuGetTools.Logic.Models.VersionRange;
+
+public class VersionSatisfiesInput
 {
-    public class VersionSatisfiesInput
-    {
-        public string? VersionRange { get; set; }
-        public string? Version { get; set; }
-    }
+    public string? VersionRange { get; set; }
+    public string? Version { get; set; }
 }

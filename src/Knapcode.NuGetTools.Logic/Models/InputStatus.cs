@@ -1,9 +1,8 @@
-﻿namespace Knapcode.NuGetTools.Logic.Models
+﻿namespace Knapcode.NuGetTools.Logic.Models;
+
+public enum InputStatus
 {
-    public enum InputStatus
-    {
-        Missing,
-        Invalid,
-        Valid
-    }
+    Missing,
+    Invalid,
+    Valid
 }

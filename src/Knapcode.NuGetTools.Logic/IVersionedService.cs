@@ -1,7 +1,6 @@
-﻿namespace Knapcode.NuGetTools.Logic
+﻿namespace Knapcode.NuGetTools.Logic;
+
+public interface IVersionedService
 {
-    public interface IVersionedService
-    {
-        string Version { get; }
-    }
+    string Version { get; }
 }

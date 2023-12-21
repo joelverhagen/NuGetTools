@@ -1,9 +1,8 @@
-﻿namespace Knapcode.NuGetTools.Logic.Wrappers
+﻿namespace Knapcode.NuGetTools.Logic.Wrappers;
+
+public interface INuGetLogic
 {
-    public interface INuGetLogic
-    {
-        IFrameworkLogic Framework { get; }
-        IVersionLogic Version { get; }
-        IVersionRangeLogic VersionRange { get; }
-    }
+    IFrameworkLogic Framework { get; }
+    IVersionLogic Version { get; }
+    IVersionRangeLogic VersionRange { get; }
 }

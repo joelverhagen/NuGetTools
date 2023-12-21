@@ -1,9 +1,8 @@
 ﻿using Knapcode.NuGetTools.Logic.Models.Framework;
 
-namespace Knapcode.NuGetTools.Logic
+namespace Knapcode.NuGetTools.Logic;
+
+public interface IFrameworkPrecedenceService : IVersionedService
 {
-    public interface IFrameworkPrecedenceService : IVersionedService
-    {
-        FrameworkPrecedenceOutput FrameworkPrecedence(FrameworkPrecedenceInput input);
-    }
+    FrameworkPrecedenceOutput FrameworkPrecedence(FrameworkPrecedenceInput input);
 }

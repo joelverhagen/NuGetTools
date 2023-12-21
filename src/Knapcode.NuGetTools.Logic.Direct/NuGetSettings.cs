@@ -1,28 +1,27 @@
 ﻿using NuGet.Configuration;
 
-namespace Knapcode.NuGetTools.Logic.Direct
+namespace Knapcode.NuGetTools.Logic.Direct;
+
+public class NuGetSettings
 {
-    public class NuGetSettings
+    public NuGetSettings(ISettings settings)
     {
-        public NuGetSettings(ISettings settings)
+        Settings = settings;
+    }
+
+    public ISettings Settings { get; }
+
+    public string GlobalPackagesFolder
+    {
+        get
         {
-            Settings = settings;
+            return SettingsUtility.GetGlobalPackagesFolder(Settings);
         }
-
-        public ISettings Settings { get; }
-
-        public string GlobalPackagesFolder
+        
+        set
         {
-            get
-            {
-                return SettingsUtility.GetGlobalPackagesFolder(Settings);
-            }
-            
-            set
-            {
-                var path = Path.GetFullPath(value);
-                SettingsUtility.SetConfigValue(Settings, "globalPackagesFolder", path);
-            }
+            var path = Path.GetFullPath(value);
+            SettingsUtility.SetConfigValue(Settings, "globalPackagesFolder", path);
         }
     }
 }

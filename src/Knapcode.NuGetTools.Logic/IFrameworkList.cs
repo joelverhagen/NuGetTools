@@ -1,9 +1,8 @@
-﻿namespace Knapcode.NuGetTools.Logic
+﻿namespace Knapcode.NuGetTools.Logic;
+
+public interface IFrameworkList
 {
-    public interface IFrameworkList
-    {
-        IReadOnlyList<string> DotNetFrameworkNames { get; }
-        IReadOnlyList<string> ShortFolderNames { get; }
-        IReadOnlyList<string> Identifiers { get; }
-    }
+    IReadOnlyList<string> DotNetFrameworkNames { get; }
+    IReadOnlyList<string> ShortFolderNames { get; }
+    IReadOnlyList<string> Identifiers { get; }
 }

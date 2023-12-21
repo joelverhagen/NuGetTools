@@ -1,8 +1,12 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using Knapcode.NuGetTools.Website;
+using Microsoft.ApplicationInsights.Extensibility;
+
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddNuGetTools();
+builder.Services.AddSingleton<ITelemetryInitializer, RequestSuccessInitializer>();
 
 var app = builder.Build();
 
