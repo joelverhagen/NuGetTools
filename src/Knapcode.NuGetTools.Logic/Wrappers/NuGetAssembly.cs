@@ -1,19 +1,42 @@
 using System.Collections.ObjectModel;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.CodeAnalysis.CSharp;
 
 namespace Knapcode.NuGetTools.Logic.Wrappers;
 
 public record NuGetAssembly(
+    string RelativePath,
     string AssemblyName,
-    string AssemblyAttributes)
+    string Sha256Hash,
+    long FileSize,
+    string CustomAttributes)
 {
-    public static NuGetAssembly FromType<T>()
+    public static NuGetAssembly FromAssembly(string relativePath, Assembly assembly)
     {
-        var assembly = typeof(T).Assembly;
         var assemblyName = assembly.FullName ?? throw new ArgumentException("No full name could be found.");
 
+        string sha256Hash;
+        long fileSize;
+        using (var fileStream = new FileStream(assembly.Location, FileMode.Open, FileAccess.Read))
+        {
+            sha256Hash = Convert.ToHexString(SHA256.HashData(fileStream));
+            fileSize = fileStream.Length;
+        }
+
+        var customAttributes = GetCustomAttributes(assembly);
+
+        return new NuGetAssembly(
+            relativePath,
+            assemblyName,
+            sha256Hash,
+            fileSize,
+            customAttributes);
+    }
+
+    private static string GetCustomAttributes(Assembly assembly)
+    {
         var builder = new StringBuilder();
         foreach (var attribute in assembly.CustomAttributes)
         {
@@ -65,9 +88,7 @@ public record NuGetAssembly(
             builder.AppendLine(")]");
         }
 
-        var assemblyAttributes = builder.ToString();
-
-        return new NuGetAssembly(assemblyName, assemblyAttributes);
+        return builder.ToString();
     }
 
     private static void AppendArgument(StringBuilder builder, CustomAttributeTypedArgument arg)

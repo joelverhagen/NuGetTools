@@ -138,6 +138,20 @@ public class VersionedToolsFactory : IToolsFactory
         }
     }
 
+    public async Task<IReadOnlyList<NuGetPackage>?> GetPackagesAsync(string version, CancellationToken token)
+    {
+        var matchingVersion = await GetMatchingVersionAsync(version);
+
+        if (matchingVersion == null)
+        {
+            return null;
+        }
+
+        var context = await InitializeAndGetContextAsync(matchingVersion);
+
+        return context.Packages;
+    }
+
     public async Task<IFrameworkPrecedenceService?> GetFrameworkPrecedenceServiceAsync(string version, CancellationToken token)
     {
         var matchingVersion = await GetMatchingVersionAsync(version);
@@ -189,11 +203,16 @@ public class VersionedToolsFactory : IToolsFactory
         return matchedVersion;
     }
 
-    private async Task<INuGetLogic> InitializeAndGetLogicAsync(NuGetVersion version)
+    private async Task<VersionContext> InitializeAndGetContextAsync(NuGetVersion version)
     {
         await _versionSet.Value;
 
-        var context = await GetContextAsync(_settings.GlobalPackagesFolder, version);
+        return await GetContextAsync(_settings.GlobalPackagesFolder, version);
+    }
+
+    private async Task<INuGetLogic> InitializeAndGetLogicAsync(NuGetVersion version)
+    {
+        var context = await InitializeAndGetContextAsync(version);
 
         return context.Logic!;
     }
@@ -237,7 +256,7 @@ public class VersionedToolsFactory : IToolsFactory
             name: $"NuGet {version.ToNormalizedString()}",
             isCollectible: false);
 
-        var logicAssembly = release switch
+        (var logicAssembly, var assemblyInfo) = release switch
         {
             NuGetRelease.Version2x => GetV2Implementation(packagesFolder, version, assemblyLoadContext),
             NuGetRelease.Version3x => GetV3Implementation(packagesFolder, version, assemblyLoadContext),
@@ -247,38 +266,82 @@ public class VersionedToolsFactory : IToolsFactory
         var logicType = logicAssembly
             .ExportedTypes
             .First(t => t.IsClass && !t.IsAbstract && t.IsAssignableTo(typeof(INuGetLogic)));
+        var logic = (INuGetLogic)Activator.CreateInstance(logicType)!;
 
-        context.Logic = (INuGetLogic)Activator.CreateInstance(logicType)!;
+        context.Packages = GetPackageInfo(assemblyInfo, logic);
+        context.Logic = logic;
         context.AssemblyLoadContext = assemblyLoadContext;
 
         return context;
     }
 
-    private static Assembly GetV2Implementation(string packagesFolder, NuGetVersion version, AssemblyLoadContext context)
+    private static List<NuGetPackage> GetPackageInfo(List<(PackageIdentity Identity, string Path, Assembly Assembly)> assemblyInfo, INuGetLogic logic)
     {
-        var coreIdentity = new PackageIdentity(Constants.CoreId, version);
-        var assemblies = LoadPackageAssemblies(packagesFolder, coreIdentity, context);
+        var assemblyNameToInfo = assemblyInfo.ToDictionary(p => p.Assembly.FullName!);
 
-        var logicAssembly = RewriteProxyReferences(context, NuGetLogic2xModule, assemblies);
-        return logicAssembly;
+        var identityGroups = assemblyInfo.GroupBy(x => x.Identity);
+        var packages = new Dictionary<PackageIdentity, List<NuGetAssembly>>();
+
+        foreach (var assemblyName in logic.AssemblyNames)
+        {
+            if (!assemblyNameToInfo.TryGetValue(assemblyName, out var info))
+            {
+                throw new InvalidOperationException($"Could not find a relative path for assembly '{assemblyName}'.");
+            }
+
+            if (!packages.TryGetValue(info.Identity, out var assemblies))
+            {
+                assemblies = new List<NuGetAssembly>();
+                packages.Add(info.Identity, assemblies);
+            }
+
+            assemblies.Add(NuGetAssembly.FromAssembly(
+                info.Path,
+                info.Assembly));
+        }
+
+        return packages
+            .Select(p => new NuGetPackage(p.Key.Id, p.Key.Version.ToNormalizedString(), p.Value))
+            .ToList();
     }
 
-    private static Assembly GetV3Implementation(string packagesFolder, NuGetVersion version, AssemblyLoadContext context)
+    private static (Assembly Logic, List<(PackageIdentity Identity, string Path, Assembly Assembly)> Assemblies) GetV2Implementation(
+        string packagesFolder,
+        NuGetVersion version,
+        AssemblyLoadContext context)
     {
-        var versioningIdentity = new PackageIdentity(Constants.VersioningId, version);
-        var assemblies = LoadPackageAssemblies(packagesFolder, versioningIdentity, context);
+        var assemblies = LoadPackageAssemblies(
+            packagesFolder,
+            new PackageIdentity(Constants.CoreId, version),
+            context).ToList();
 
-        var frameworksIdentity = new PackageIdentity(Constants.FrameworksId, version);
-        assemblies.AddRange(LoadPackageAssemblies(packagesFolder, frameworksIdentity, context));
+        var logicAssembly = RewriteProxyReferences(context, NuGetLogic2xModule, assemblies.Select(x => x.Assembly));
+        return (logicAssembly, assemblies);
+    }
 
-        var logicAssembly = RewriteProxyReferences(context, NuGetLogic3xModule, assemblies);
-        return logicAssembly;
+    private static (Assembly Logic, List<(PackageIdentity Identity, string Path, Assembly Assembly)> Assemblies) GetV3Implementation(
+        string packagesFolder,
+        NuGetVersion version,
+        AssemblyLoadContext context)
+    {
+        var assemblies = LoadPackageAssemblies(
+            packagesFolder,
+            new PackageIdentity(Constants.VersioningId, version),
+            context).ToList();
+
+        assemblies.AddRange(LoadPackageAssemblies(
+            packagesFolder,
+            new PackageIdentity(Constants.FrameworksId, version),
+            context));
+
+        var logicAssembly = RewriteProxyReferences(context, NuGetLogic3xModule, assemblies.Select(x => x.Assembly));
+        return (logicAssembly, assemblies);
     }
 
     private static Assembly RewriteProxyReferences(
         AssemblyLoadContext context,
         Lazy<ModuleDefinition> lazyBaseModule,
-        List<Assembly> newReferences)
+        IEnumerable<Assembly> newReferences)
     {
         using var moduleStream = new MemoryStream();
 
@@ -304,7 +367,10 @@ public class VersionedToolsFactory : IToolsFactory
         return context.LoadFromStream(moduleStream);
     }
 
-    private static List<Assembly> LoadPackageAssemblies(string packagesFolder, PackageIdentity packageIdentity, AssemblyLoadContext context)
+    private static IEnumerable<(PackageIdentity Identity, string Path, Assembly Assembly)> LoadPackageAssemblies(
+        string packagesFolder,
+        PackageIdentity packageIdentity,
+        AssemblyLoadContext context)
     {
         var pathResolver = new VersionFolderPathResolver(packagesFolder);
         var hashPath = pathResolver.GetHashPath(packageIdentity.Id, packageIdentity.Version);
@@ -322,7 +388,7 @@ public class VersionedToolsFactory : IToolsFactory
             {
                 if (TryLoadWithFramework(context, framework, installPath, packageReader, out var assemblies))
                 {
-                    return assemblies;
+                    return assemblies.Select(x => (packageIdentity, x.Path, x.Assembly));
                 }
             }
 
@@ -338,7 +404,7 @@ public class VersionedToolsFactory : IToolsFactory
         NuGetFramework framework,
         string installPath,
         PackageFolderReader packageReader,
-        [NotNullWhen(true)] out List<Assembly>? assemblies)
+        [NotNullWhen(true)] out List<(string Path, Assembly Assembly)>? pathToAssembly)
     {
         var conventions = new ManagedCodeConventions(null);
         var criteria = conventions.Criteria.ForFramework(framework);
@@ -358,17 +424,17 @@ public class VersionedToolsFactory : IToolsFactory
 
         if (runtimeGroup is null)
         {
-            assemblies = null;
+            pathToAssembly = null;
             return false;
         }
 
-        assemblies = new List<Assembly>();
+        pathToAssembly = new List<(string Path, Assembly Assembly)>();
         foreach (var asset in runtimeGroup.Items)
         {
             var absolutePath = Path.Combine(
                 installPath,
                 asset.Path.Replace(AssetDirectorySeparator, Path.DirectorySeparatorChar));
-            assemblies.Add(context.LoadFromAssemblyPath(absolutePath));
+            pathToAssembly.Add((asset.Path, context.LoadFromAssemblyPath(absolutePath)));
         }
 
         return true;
@@ -378,6 +444,7 @@ public class VersionedToolsFactory : IToolsFactory
     {
         public SemaphoreSlim Lock { get; } = new SemaphoreSlim(initialCount: 1);
         public AssemblyLoadContext? AssemblyLoadContext { get; set; }
+        public IReadOnlyList<NuGetPackage>? Packages { get; set; }
         public INuGetLogic? Logic { get; set; }
     }
 }

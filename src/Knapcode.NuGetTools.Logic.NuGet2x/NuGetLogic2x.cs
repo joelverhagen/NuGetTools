@@ -10,11 +10,14 @@ public class NuGetLogic2x : INuGetLogic
         Framework = new FrameworkLogic2x();
         Version = new VersionLogic2x();
         VersionRange = new VersionRangeLogic2x();
-        Assemblies = new[] { NuGetAssembly.FromType<SemanticVersion>() };
+        AssemblyNames = new[]
+        {
+            typeof(VersionUtility).Assembly.FullName ?? throw new NotSupportedException(),
+        };
     }
 
     public IFrameworkLogic Framework { get; }
     public IVersionLogic Version { get; }
     public IVersionRangeLogic VersionRange { get; }
-    public IReadOnlyList<NuGetAssembly> Assemblies { get; }
+    public IReadOnlyList<string> AssemblyNames { get; }
 }

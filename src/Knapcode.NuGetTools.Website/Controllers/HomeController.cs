@@ -314,6 +314,26 @@ public class HomeController : Controller
         return View(versionedOutput);
     }
 
+    [HttpGet("/{nuGetVersion}/package-metadata")]
+    public async Task<IActionResult> PackageMetadata([FromRoute] string nuGetVersion, CancellationToken token)
+    {
+        var redirect = await GetVersionRedirectAsync(token);
+        if (redirect != null)
+        {
+            return redirect;
+        }
+
+        var packages = await _toolsFactory.GetPackagesAsync(nuGetVersion, token);
+        if (packages == null)
+        {
+            return NotFound();
+        }
+
+        var output = await GetSelectedVersionOutputAsync(nuGetVersion, packages, token);
+
+        return View(output);
+    }
+
     private async Task<SelectedVersionOutput> GetSelectedVersionOutputAsync(IVersionedService service, CancellationToken token)
     {
         return await GetSelectedVersionOutputAsync(service.Version, (object?)null, token);

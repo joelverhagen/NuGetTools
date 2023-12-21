@@ -1,3 +1,5 @@
+using Knapcode.NuGetTools.Logic.Wrappers;
+
 namespace Knapcode.NuGetTools.Logic;
 
 public interface IToolsFactory
@@ -17,4 +19,6 @@ public interface IToolsFactory
     Task<IFrameworkPrecedenceService?> GetFrameworkPrecedenceServiceAsync(string version, CancellationToken token);
 
     Task<IFrameworkList> GetFrameworkListAsync(CancellationToken token);
+
+    Task<IReadOnlyList<NuGetPackage>?> GetPackagesAsync(string version, CancellationToken token);
 }

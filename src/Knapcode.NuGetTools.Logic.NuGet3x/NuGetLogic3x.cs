@@ -11,15 +11,15 @@ public class NuGetLogic3x : INuGetLogic
         Framework = new FrameworkLogic3x();
         Version = new VersionLogic3x();
         VersionRange = new VersionRangeLogic3x();
-        Assemblies = new[]
+        AssemblyNames = new[]
         {
-            NuGetAssembly.FromType<NuGetFramework>(),
-            NuGetAssembly.FromType<NuGetVersion>(),
+            typeof(NuGetFramework).Assembly.FullName ?? throw new NotSupportedException(),
+            typeof(NuGetVersion).Assembly.FullName ?? throw new NotSupportedException(),
         };
     }
 
     public IFrameworkLogic Framework { get; }
     public IVersionLogic Version { get; }
     public IVersionRangeLogic VersionRange { get; }
-    public IReadOnlyList<NuGetAssembly> Assemblies { get; }
+    public IReadOnlyList<string> AssemblyNames { get; }
 }

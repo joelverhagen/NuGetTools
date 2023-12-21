@@ -1,3 +1,5 @@
+using Knapcode.NuGetTools.Logic.Wrappers;
+
 namespace Knapcode.NuGetTools.Logic;
 
 public class DirectToolsFactory : IToolsFactory
@@ -72,5 +74,17 @@ public class DirectToolsFactory : IToolsFactory
     public Task<string> GetLatestVersionAsync(CancellationToken token)
     {
         return Task.FromResult(_version);
+    }
+
+    public Task<IReadOnlyList<NuGetPackage>?> GetPackagesAsync(string version, CancellationToken token)
+    {
+        IReadOnlyList<NuGetPackage>? output = null;
+
+        if (version == _version)
+        {
+            output = new List<NuGetPackage>();
+        }
+
+        return Task.FromResult(output);
     }
 }

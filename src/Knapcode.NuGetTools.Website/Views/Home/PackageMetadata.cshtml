@@ -1,0 +1,48 @@
+@model SelectedVersionOutput<IReadOnlyList<NuGetPackage>>
+@{
+    ViewData["Title"] = "About this NuGet SDK version";
+    var output = Model.Output;
+}
+
+<h1>@ViewData["Title"]</h1>
+<p>
+    The following packages are used by version <b>@Model.CurrentVersion</b> of NuGet and by this tool.
+</p>
+
+<div class="results">
+    @if (output.Count > 0)
+    {
+        foreach (var package in output)
+        {
+            <h2>@package.Id @package.Version</h2>
+            <p>
+                <a href="https://www.nuget.org/packages/@package.Id/@package.Version">NuGet Gallery</a>
+                |
+                <a href="https://nuget.info/packages/@package.Id/@package.Version">NuGet Package Explorer</a> (nuget.info)
+                |
+                <a href="https://www.fuget.org/packages/@package.Id/@package.Version">FuGet</a>
+                |
+                <a href="https://nugettrends.com/packages?ids=@package.Id">NuGet Trends</a>
+            </p>
+            foreach (var assembly in package.Assemblies)
+            {
+                <h3>@(System.IO.Path.GetFileName(assembly.RelativePath))</h3>
+                <dl>
+                    <dt>Path</dt>
+                    <dd>@assembly.RelativePath</dd>
+
+                    <dt>Assembly name</dt>
+                    <dd>@assembly.AssemblyName</dd>
+
+                    <dt>SHA-256 hash</dt>
+                    <dd>@assembly.Sha256Hash</dd>
+
+                    <dt>File size</dt>
+                    <dd>@((assembly.FileSize / (1024.0)).ToString("F2")) KB (@assembly.FileSize bytes)</dd>
+                </dl>
+                <b>Custom attributes</b>
+                <pre>@assembly.CustomAttributes</pre>
+            }
+        }
+    }
+</div>

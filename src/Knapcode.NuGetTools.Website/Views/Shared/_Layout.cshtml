@@ -1,4 +1,4 @@
-﻿@using Knapcode.NuGetTools.Logic.Models;
+@using Knapcode.NuGetTools.Logic.Models;
 @model SelectedVersionOutput
 <!DOCTYPE html>
 <html>
@@ -73,6 +73,7 @@
                             <li><a asp-controller="Home" asp-action="FindBestVersionMatch" asp-route-nuGetVersion="@Model.CurrentVersion">Find Best Version Match</a></li>
                         </ul>
                     </li>
+                    <li><a asp-controller="Home" asp-action="PackageMetadata" asp-route-nuGetVersion="@Model.CurrentVersion">Meta</a></li>
                 </ul>
             </div>
         </div>

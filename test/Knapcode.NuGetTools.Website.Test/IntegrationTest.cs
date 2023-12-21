@@ -285,6 +285,31 @@ public class IntegrationTest : IClassFixture<TestServerFixture>
         }
     }
 
+    [Theory]
+    [MemberData(nameof(AvailableVersionData))]
+    public async Task PackageMetadata(string version)
+    {
+        // Arrange
+        var requestUri = $"/{version}/package-metadata";
+
+        // Act
+        using (var response = await _fixture.Client.GetAsync(requestUri))
+        {
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var text = await _fixture.GetFlattenedTextAsync(response);
+            if (NuGetVersion.Parse(version).Major >= 3)
+            {
+                Assert.Contains($"NuGet.Frameworks {version}", text);
+                Assert.Contains($"NuGet.Versioning {version}", text);
+            }
+            else
+            {
+                Assert.Contains($"NuGet.Core {version}", text);
+            }
+        }
+    }
+
     [Fact]
     public async Task RootRedirectsToLatestVersion()
     {
