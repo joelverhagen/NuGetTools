@@ -1,24 +1,30 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<None Update="wwwroot\**\*;Views\**\*">
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-		</None>
-	</ItemGroup>
-	
-	<ItemGroup>
-		<InternalsVisibleTo Include="Knapcode.NuGetTools.Website.Test" />
-	</ItemGroup>
+  <ItemGroup>
+    <None Update="wwwroot\**\*;Views\**\*;packages\**\*">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />
-	</ItemGroup>
+  <ItemGroup>
+    <Content Include="packages\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\Knapcode.NuGetTools.Logic.Direct\Knapcode.NuGetTools.Logic.Direct.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Knapcode.NuGetTools.Website.Test" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Knapcode.NuGetTools.Logic.Direct\Knapcode.NuGetTools.Logic.Direct.csproj" />
+  </ItemGroup>
 </Project>

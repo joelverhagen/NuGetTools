@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\Knapcode.NuGetTools.Logic.Direct\Knapcode.NuGetTools.Logic.Direct.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Knapcode.NuGetTools.Logic.Direct\Knapcode.NuGetTools.Logic.Direct.csproj" />
+  </ItemGroup>
 
 </Project>

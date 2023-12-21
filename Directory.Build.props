@@ -1,21 +1,21 @@
 <Project>
 
-	<PropertyGroup>
-		<MinVerTagPrefix>v</MinVerTagPrefix>
-	</PropertyGroup>
+  <PropertyGroup>
+    <MinVerTagPrefix>v</MinVerTagPrefix>
+  </PropertyGroup>
 
-	<PropertyGroup>
-		<Nullable>enable</Nullable>
-		<ImplicitUsings>enable</ImplicitUsings>
-	</PropertyGroup>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<AssemblyMetadata Include="BuildTimestamp" Condition="'$(Configuration)' == 'Debug'">
-			<Value>$([System.DateTime]::Today.ToString("O"))</Value>
-		</AssemblyMetadata>
-		<AssemblyMetadata Include="BuildTimestamp" Condition="'$(Configuration)' != 'Debug'">
-			<Value>$([System.DateTime]::UtcNow.ToString("O"))</Value>
-		</AssemblyMetadata>
-	</ItemGroup>
+  <ItemGroup>
+    <AssemblyMetadata Include="BuildTimestamp" Condition="'$(Configuration)' == 'Debug'">
+      <Value>$([System.DateTime]::Today.ToString("O"))</Value>
+    </AssemblyMetadata>
+    <AssemblyMetadata Include="BuildTimestamp" Condition="'$(Configuration)' != 'Debug'">
+      <Value>$([System.DateTime]::UtcNow.ToString("O"))</Value>
+    </AssemblyMetadata>
+  </ItemGroup>
 
 </Project>

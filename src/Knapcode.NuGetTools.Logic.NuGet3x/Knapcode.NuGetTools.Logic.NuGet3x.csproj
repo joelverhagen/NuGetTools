@@ -1,16 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="NuGet.Frameworks" />
-		<PackageReference Include="NuGet.Versioning" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="NuGet.Frameworks" />
+    <PackageReference Include="NuGet.Versioning" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\Knapcode.NuGetTools.Logic\Knapcode.NuGetTools.Logic.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Knapcode.NuGetTools.Logic\Knapcode.NuGetTools.Logic.csproj" />
+  </ItemGroup>
 
 </Project>
