@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using NuGet.Common;
 using NuGet.PackageManagement;
+using NuGet.Packaging;
 using NuGet.Packaging.Core;
 using NuGet.Packaging.Signing;
 using NuGet.Protocol;
@@ -127,8 +128,17 @@ public class PackageRangeDownloader : IPackageRangeDownloader
         ILogger log,
         CancellationToken token)
     {
+        var resolver = new VersionFolderPathResolver(_nuGetSettings.GlobalPackagesFolder);
+        var hashPath = resolver.GetHashPath(identity.Id, identity.Version);
+        if (File.Exists(hashPath))
+        {
+            log.LogInformation($"The package '{identity}' is already available.");
+            return;
+        }
+
         var packageDownloadContext = new PackageDownloadContext(sourceCacheContext);
-        var result = await PackageDownloader.GetDownloadResourceResultAsync(
+
+        using var downloadResult = await PackageDownloader.GetDownloadResourceResultAsync(
             sourceRepositories,
             packageIdentity: identity,
             downloadContext: packageDownloadContext,
@@ -136,22 +146,19 @@ public class PackageRangeDownloader : IPackageRangeDownloader
             logger: log,
             token: token);
 
-        using (result)
+        if (downloadResult.Status != DownloadResourceResultStatus.Available)
         {
-            if (result.Status != DownloadResourceResultStatus.Available)
-            {
-                throw new InvalidOperationException($"The package '{identity}' is not available.");
-            }
-
-            await GlobalPackagesFolderUtility.AddPackageAsync(
-                result.PackageSource,
-                identity,
-                result.PackageStream,
-                _nuGetSettings.GlobalPackagesFolder,
-                packageDownloadContext.ParentId,
-                ClientPolicyContext.GetClientPolicy(_nuGetSettings.Settings, log),
-                log,
-                token);
+            throw new InvalidOperationException($"The package '{identity}' is not available.");
         }
+
+        using var addResult = await GlobalPackagesFolderUtility.AddPackageAsync(
+            downloadResult.PackageSource,
+            identity,
+            downloadResult.PackageStream,
+            _nuGetSettings.GlobalPackagesFolder,
+            packageDownloadContext.ParentId,
+            ClientPolicyContext.GetClientPolicy(_nuGetSettings.Settings, log),
+            log,
+            token);
     }
 }

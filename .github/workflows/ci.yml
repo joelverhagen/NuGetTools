@@ -63,7 +63,7 @@ jobs:
           $notMatching = $report | ? { !$_.StartsWith("Matching") }
           Write-Output "versions-changed=$(($notMatching.Length -ne 0).ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
 
-  format:
+  check-formatting:
     runs-on: windows-latest
     defaults:
       run:

@@ -19,8 +19,11 @@ namespace Knapcode.NuGetTools.Logic.Direct;
 
 public class VersionedToolsFactory : IToolsFactory
 {
-    private static readonly NuGetFramework Net48 = NuGetFramework.Parse("net48");
-    private static readonly NuGetFramework Net6 = NuGetFramework.Parse("net6.0");
+    public static readonly IReadOnlyList<NuGetFramework> CompatibleFrameworks = new[]
+    {
+        NuGetFramework.Parse("net48"),
+        NuGetFramework.Parse("net8.0"),
+    };
 
     private static readonly Lazy<ModuleDefinition> NuGetLogic2xModule
         = new Lazy<ModuleDefinition>(() => ModuleDefinition.ReadModule(typeof(NuGetLogic2x).Assembly.Location));
@@ -32,10 +35,10 @@ public class VersionedToolsFactory : IToolsFactory
     private readonly IAlignedVersionsDownloader _downloader;
     private readonly IFrameworkList _frameworkList;
     private readonly NuGetSettings _settings;
-    private readonly Lazy<Task<Dictionary<string, NuGetVersion>>> _versions;
+    private readonly Lazy<Task<Dictionary<string, NuGetVersion>>> _stringToVersion;
     private readonly Lazy<Task<List<string>>> _versionStrings;
     private readonly Lazy<Task<string>> _latestVersion;
-    private readonly Lazy<Task<Dictionary<NuGetVersion, NuGetRelease>>> _releases;
+    private readonly Lazy<Task<IReadOnlySet<NuGetVersion>>> _versionSet;
 
     private readonly ConcurrentDictionary<NuGetVersion, Task<IToolsService>> _toolServices = new();
     private readonly ConcurrentDictionary<NuGetVersion, Task<IFrameworkPrecedenceService>> _frameworkPrecedenceServices = new();
@@ -52,7 +55,7 @@ public class VersionedToolsFactory : IToolsFactory
         _settings = settings;
         _nuGetLog = new MicrosoftLogger(log);
 
-        _releases = new Lazy<Task<Dictionary<NuGetVersion, NuGetRelease>>>(async () =>
+        _versionSet = new Lazy<Task<IReadOnlySet<NuGetVersion>>>(async () =>
         {
             using (var sourceCacheContext = new SourceCacheContext())
             {
@@ -61,37 +64,31 @@ public class VersionedToolsFactory : IToolsFactory
                     sourceCacheContext,
                     _nuGetLog,
                     CancellationToken.None);
-                var pairs2x = versions2x
-                    .Select(x => new KeyValuePair<NuGetVersion, NuGetRelease>(x, NuGetRelease.Version2x));
 
                 var versions3x = await _downloader.GetDownloadedVersionsAsync(
                     Constants.PackageIds3x,
                     sourceCacheContext,
                     _nuGetLog,
                     CancellationToken.None);
-                var pairs3x = versions3x
-                    .Select(x => new KeyValuePair<NuGetVersion, NuGetRelease>(x, NuGetRelease.Version3x));
 
-                return pairs2x
-                    .Concat(pairs3x)
-                    .ToDictionary(x => x.Key, x => x.Value);
+                return versions2x.Concat(versions3x).ToHashSet();
             }
         });
 
-        _versions = new Lazy<Task<Dictionary<string, NuGetVersion>>>(async () =>
+        _stringToVersion = new Lazy<Task<Dictionary<string, NuGetVersion>>>(async () =>
         {
-            var releases = await _releases.Value;
+            var releases = await _versionSet.Value;
 
             return releases
                 .ToDictionary(
-                    x => x.Key.ToNormalizedString(),
-                    x => x.Key,
+                    x => x.ToNormalizedString(),
+                    x => x,
                     StringComparer.OrdinalIgnoreCase);
         });
 
         _versionStrings = new Lazy<Task<List<string>>>(async () =>
         {
-            var versions = await _versions.Value;
+            var versions = await _stringToVersion.Value;
 
             return versions
                 .OrderByDescending(x => x.Value)
@@ -101,7 +98,7 @@ public class VersionedToolsFactory : IToolsFactory
 
         _latestVersion = new Lazy<Task<string>>(async () =>
         {
-            var versions = await _versions.Value;
+            var versions = await _stringToVersion.Value;
 
             return versions
                 .OrderByDescending(x => x.Value)
@@ -130,7 +127,7 @@ public class VersionedToolsFactory : IToolsFactory
                 matchingVersion,
                 async key =>
                 {
-                    var logic = await GetLogicAsync(key);
+                    var logic = await InitializeAndGetLogicAsync(key);
                     return new ToolsService(version, logic);
                 });
         }
@@ -156,7 +153,7 @@ public class VersionedToolsFactory : IToolsFactory
                 matchingVersion,
                 async key =>
                 {
-                    var logic = await GetLogicAsync(key);
+                    var logic = await InitializeAndGetLogicAsync(key);
                     return new FrameworkPrecedenceService(
                         version,
                         _frameworkList,
@@ -182,7 +179,7 @@ public class VersionedToolsFactory : IToolsFactory
 
     private async Task<NuGetVersion?> GetMatchingVersionAsync(string version)
     {
-        var versions = await _versions.Value;
+        var versions = await _stringToVersion.Value;
         NuGetVersion? matchedVersion;
         if (!versions.TryGetValue(version, out matchedVersion))
         {
@@ -192,13 +189,28 @@ public class VersionedToolsFactory : IToolsFactory
         return matchedVersion;
     }
 
-    private async Task<INuGetLogic> GetLogicAsync(NuGetVersion version)
+    private async Task<INuGetLogic> InitializeAndGetLogicAsync(NuGetVersion version)
+    {
+        await _versionSet.Value;
+
+        var context = await GetContextAsync(_settings.GlobalPackagesFolder, version);
+
+        return context.Logic!;
+    }
+
+    public static async Task<IEnumerable<Assembly>> GetLoadedAssembliesAsync(string packagesFolder, NuGetVersion version)
+    {
+        var context = await GetContextAsync(packagesFolder, version);
+
+        return context.AssemblyLoadContext!.Assemblies;
+    }
+
+    private static async Task<VersionContext> GetContextAsync(string packagesFolder, NuGetVersion version)
     {
         var context = Contexts.GetOrAdd(version, _ => new VersionContext());
-
         if (context.Logic is not null)
         {
-            return context.Logic;
+            return context;
         }
 
         await context.Lock.WaitAsync();
@@ -206,10 +218,10 @@ public class VersionedToolsFactory : IToolsFactory
         {
             if (context.Logic is not null)
             {
-                return context.Logic;
+                return context;
             }
 
-            return await InitializeContextAsync(version, context);
+            return InitializeContext(packagesFolder, version, context);
         }
         finally
         {
@@ -217,14 +229,9 @@ public class VersionedToolsFactory : IToolsFactory
         }
     }
 
-    private async Task<INuGetLogic> InitializeContextAsync(NuGetVersion version, VersionContext context)
+    private static VersionContext InitializeContext(string packagesFolder, NuGetVersion version, VersionContext context)
     {
-        var releases = await _releases.Value;
-        NuGetRelease release;
-        if (!releases.TryGetValue(version, out release))
-        {
-            throw new ArgumentException($"The provided version '{version}' is not supported");
-        }
+        var release = version.Major >= 3 ? NuGetRelease.Version3x : NuGetRelease.Version2x;
 
         var assemblyLoadContext = new AssemblyLoadContext(
             name: $"NuGet {version.ToNormalizedString()}",
@@ -232,8 +239,8 @@ public class VersionedToolsFactory : IToolsFactory
 
         var logicAssembly = release switch
         {
-            NuGetRelease.Version2x => GetV2Implementation(version, assemblyLoadContext),
-            NuGetRelease.Version3x => GetV3Implementation(version, assemblyLoadContext),
+            NuGetRelease.Version2x => GetV2Implementation(packagesFolder, version, assemblyLoadContext),
+            NuGetRelease.Version3x => GetV3Implementation(packagesFolder, version, assemblyLoadContext),
             _ => throw new NotImplementedException(),
         };
 
@@ -244,31 +251,31 @@ public class VersionedToolsFactory : IToolsFactory
         context.Logic = (INuGetLogic)Activator.CreateInstance(logicType)!;
         context.AssemblyLoadContext = assemblyLoadContext;
 
-        return context.Logic;
+        return context;
     }
 
-    private Assembly GetV2Implementation(NuGetVersion version, AssemblyLoadContext context)
+    private static Assembly GetV2Implementation(string packagesFolder, NuGetVersion version, AssemblyLoadContext context)
     {
         var coreIdentity = new PackageIdentity(Constants.CoreId, version);
-        var assemblies = LoadPackageAssemblies(context, coreIdentity);
+        var assemblies = LoadPackageAssemblies(packagesFolder, coreIdentity, context);
 
         var logicAssembly = RewriteProxyReferences(context, NuGetLogic2xModule, assemblies);
         return logicAssembly;
     }
 
-    private Assembly GetV3Implementation(NuGetVersion version, AssemblyLoadContext context)
+    private static Assembly GetV3Implementation(string packagesFolder, NuGetVersion version, AssemblyLoadContext context)
     {
         var versioningIdentity = new PackageIdentity(Constants.VersioningId, version);
-        var assemblies = LoadPackageAssemblies(context, versioningIdentity);
+        var assemblies = LoadPackageAssemblies(packagesFolder, versioningIdentity, context);
 
         var frameworksIdentity = new PackageIdentity(Constants.FrameworksId, version);
-        assemblies.AddRange(LoadPackageAssemblies(context, frameworksIdentity));
+        assemblies.AddRange(LoadPackageAssemblies(packagesFolder, frameworksIdentity, context));
 
         var logicAssembly = RewriteProxyReferences(context, NuGetLogic3xModule, assemblies);
         return logicAssembly;
     }
 
-    private Assembly RewriteProxyReferences(
+    private static Assembly RewriteProxyReferences(
         AssemblyLoadContext context,
         Lazy<ModuleDefinition> lazyBaseModule,
         List<Assembly> newReferences)
@@ -297,11 +304,9 @@ public class VersionedToolsFactory : IToolsFactory
         return context.LoadFromStream(moduleStream);
     }
 
-    private List<Assembly> LoadPackageAssemblies(
-        AssemblyLoadContext context,
-        PackageIdentity packageIdentity)
+    private static List<Assembly> LoadPackageAssemblies(string packagesFolder, PackageIdentity packageIdentity, AssemblyLoadContext context)
     {
-        var pathResolver = new VersionFolderPathResolver(_settings.GlobalPackagesFolder);
+        var pathResolver = new VersionFolderPathResolver(packagesFolder);
         var hashPath = pathResolver.GetHashPath(packageIdentity.Id, packageIdentity.Version);
 
         if (!File.Exists(hashPath))
@@ -313,13 +318,18 @@ public class VersionedToolsFactory : IToolsFactory
 
         using (var packageReader = new PackageFolderReader(installPath))
         {
-            if (!TryLoadWithFramework(context, Net6, installPath, packageReader, out var assemblies)
-                && !TryLoadWithFramework(context, Net48, installPath, packageReader, out assemblies))
+            foreach (var framework in CompatibleFrameworks)
             {
-                throw new InvalidOperationException($"The package '{packageIdentity}' is not compatible with net6.0 or net48.");
+                if (TryLoadWithFramework(context, framework, installPath, packageReader, out var assemblies))
+                {
+                    return assemblies;
+                }
             }
 
-            return assemblies;
+            var frameworks = string.Join(", ", CompatibleFrameworks.Select(x => x.GetShortFolderName()));
+            throw new InvalidOperationException(
+                $"The package {packageIdentity.Id} {packageIdentity.Version} is not compatible " +
+                $"with any of the following frameworks: {frameworks}");
         }
     }
 

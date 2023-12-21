@@ -39,7 +39,7 @@ public class Program
 
         command.SetHandler(async context =>
         {
-            var packagesDirectory = context.ParseResult.GetValueForArgument(packagesDirectoryArgument);
+            var packagesDirectory = Path.GetFullPath(context.ParseResult.GetValueForArgument(packagesDirectoryArgument));
             var sources = context.ParseResult.GetValueForOption(sourceOption);
 
             if (sources is null)
@@ -57,11 +57,112 @@ public class Program
     {
         var downloader = GetDownloader(packagesDirectory);
 
+        // download required NuGet.* packages
         using (var cacheContext = new SourceCacheContext())
         {
             var logger = new ConsoleLogger();
 
             await DownloadAsync(sources, downloader, cacheContext, logger, token);
+        }
+
+        // find all used assemblies
+        var versions = await GetLocalVersionsAsync(downloader, token);
+        var usedAssemblies = new HashSet<string>();
+        foreach (var version in versions)
+        {
+            Console.WriteLine($"Loading {version}");
+            var assemblies = await VersionedToolsFactory.GetLoadedAssembliesAsync(packagesDirectory, version);
+            var paths = assemblies.Select(x => x.Location).Where(x => x is not null).ToList();
+            usedAssemblies.UnionWith(paths);
+        }
+
+        // clean up extra file extensions
+        var deleteExtensions = new[]
+        {
+            ".nupkg",
+            ".nuspec",
+            ".xml",
+            ".png",
+            ".md",
+            ".signature.p7s",
+            ".nupkg.metadata"
+        };
+        var allowedExtensions = new[]
+        {
+            ".nupkg.sha512",
+        };
+
+        var unexpected = 0;
+        foreach (var path in Directory.EnumerateFiles(packagesDirectory, "*", SearchOption.AllDirectories))
+        {
+            var relative = Path.GetRelativePath(packagesDirectory, path);
+            ConsoleColor color;
+
+            var matchingAllowed = allowedExtensions.FirstOrDefault(x => path.EndsWith(x, StringComparison.OrdinalIgnoreCase));
+            if (matchingAllowed is not null)
+            {
+                color = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine($"Leaving allowed *{matchingAllowed} at {relative}");
+                Console.ForegroundColor = color;
+                continue;
+            }
+
+            var matchingDelete = deleteExtensions.FirstOrDefault(x => path.EndsWith(x, StringComparison.OrdinalIgnoreCase));
+            if (matchingDelete is not null)
+            {
+                Console.WriteLine($"Deleting *{matchingDelete} at {relative}");
+                File.Delete(path);
+                continue;
+            }
+
+            if (StringComparer.OrdinalIgnoreCase.Equals(Path.GetExtension(path), ".dll"))
+            {
+                if (!usedAssemblies.Contains(path))
+                {
+                    Console.WriteLine($"Deleting unused DLL at {relative}");
+                    File.Delete(path);
+                }
+                else
+                {
+                    color = Console.ForegroundColor;
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"Leaving used DLL at {relative}");
+                    Console.ForegroundColor = color;
+                }
+
+                continue;
+            }
+
+            color = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"Unexpected file at {relative}");
+            Console.ForegroundColor = color;
+            unexpected++;
+        }
+
+        if (unexpected > 0)
+        {
+            throw new InvalidOperationException($"There are {unexpected} files. Update the PackageDownloader project to account for this.");
+        }
+
+        foreach (var directory in Directory.EnumerateDirectories(packagesDirectory, "*", SearchOption.AllDirectories))
+        {
+            var current = directory;
+
+            while (current is not null)
+            {
+                if (Directory.EnumerateFileSystemEntries(current).Any())
+                {
+                    break;
+                }
+
+                var relative = Path.GetRelativePath(packagesDirectory, current);
+                Console.WriteLine($"Deleting empty directory at {relative}");
+                Directory.Delete(current);
+
+                current = Path.GetDirectoryName(current);
+            }
         }
     }
 
@@ -139,25 +240,7 @@ public class Program
             remoteVersions = versions.Select(NuGetVersion.Parse).ToHashSet();
         }
 
-        HashSet<NuGetVersion> localVersions;
-        using (var cacheContext = new SourceCacheContext())
-        {
-            var logger = new ConsoleLogger();
-
-            var versions2x = await downloader.GetDownloadedVersionsAsync(
-                Constants.PackageIds2x,
-                cacheContext,
-                logger,
-                token);
-
-            var versions3x = await downloader.GetDownloadedVersionsAsync(
-                Constants.PackageIds3x,
-                cacheContext,
-                logger,
-                token);
-
-            localVersions = versions2x.Concat(versions3x).ToHashSet();
-        }
+        var localVersions = await GetLocalVersionsAsync(downloader, token);
 
         var differentVersions = remoteVersions
             .Union(localVersions)
@@ -185,5 +268,31 @@ public class Program
                 Console.WriteLine("Matching (local and remote): " + version.Version.ToNormalizedString());
             }
         }
+    }
+
+    private static async Task<HashSet<NuGetVersion>> GetLocalVersionsAsync(AlignedVersionsDownloader downloader, CancellationToken token)
+    {
+        HashSet<NuGetVersion> localVersions;
+
+        using (var cacheContext = new SourceCacheContext())
+        {
+            var logger = new ConsoleLogger();
+
+            var versions2x = await downloader.GetDownloadedVersionsAsync(
+                Constants.PackageIds2x,
+                cacheContext,
+                logger,
+                token);
+
+            var versions3x = await downloader.GetDownloadedVersionsAsync(
+                Constants.PackageIds3x,
+                cacheContext,
+                logger,
+                token);
+
+            localVersions = versions2x.Concat(versions3x).ToHashSet();
+        }
+
+        return localVersions;
     }
 }
