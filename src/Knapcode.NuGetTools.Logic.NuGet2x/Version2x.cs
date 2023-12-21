@@ -27,6 +27,6 @@ namespace Knapcode.NuGetTools.Logic.NuGet2x
         public string FullString => SemanticVersion.ToFullString();
         public bool IsSemVer2Available => StaticIsSemVer2Available;
         public bool FullStringAvailable => StaticFullStringAvailable;
-        public string ToStringResult => SemanticVersion.ToFullString();
+        public string ToStringResult => SemanticVersion.ToString();
     }
 }

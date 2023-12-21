@@ -1,10 +1,12 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.Loader;
 using Knapcode.NuGetTools.Logic.NuGet2x;
 using Knapcode.NuGetTools.Logic.NuGet3x;
 using Knapcode.NuGetTools.Logic.Wrappers;
 using Microsoft.Extensions.Logging;
+using Mono.Cecil;
 using NuGet.Client;
 using NuGet.ContentModel;
 using NuGet.Frameworks;
@@ -20,8 +22,12 @@ namespace Knapcode.NuGetTools.Logic.Direct
         private static readonly NuGetFramework Net48 = NuGetFramework.Parse("net48");
         private static readonly NuGetFramework Net6 = NuGetFramework.Parse("net6.0");
 
-        private static readonly Lazy<byte[]> NuGet2xAssembly = new Lazy<byte[]>(() => File.ReadAllBytes(typeof(NuGetLogic2x).Assembly.Location));
-        private static readonly Lazy<byte[]> NuGet3xAssembly = new Lazy<byte[]>(() => File.ReadAllBytes(typeof(NuGetLogic3x).Assembly.Location));
+        private static readonly Lazy<ModuleDefinition> NuGetLogic2xModule
+            = new Lazy<ModuleDefinition>(() => ModuleDefinition.ReadModule(typeof(NuGetLogic2x).Assembly.Location));
+        private static readonly Lazy<ModuleDefinition> NuGetLogic3xModule
+            = new Lazy<ModuleDefinition>(() => ModuleDefinition.ReadModule(typeof(NuGetLogic3x).Assembly.Location));
+
+        private static readonly ConcurrentDictionary<NuGetVersion, VersionContext> _contexts = new();
 
         private readonly IAlignedVersionsDownloader _downloader;
         private readonly IFrameworkList _frameworkList;
@@ -31,17 +37,8 @@ namespace Knapcode.NuGetTools.Logic.Direct
         private readonly Lazy<Task<string>> _latestVersion;
         private readonly Lazy<Task<Dictionary<NuGetVersion, NuGetRelease>>> _releases;
 
-        private readonly ConcurrentDictionary<string, Lazy<AssemblyLoadContext>> _lazyContexts
-            = new ConcurrentDictionary<string, Lazy<AssemblyLoadContext>>();
-
-        private readonly ConcurrentDictionary<NuGetVersion, Task<INuGetLogic>> _logic
-            = new ConcurrentDictionary<NuGetVersion, Task<INuGetLogic>>();
-
-        private readonly ConcurrentDictionary<NuGetVersion, Task<IToolsService>> _toolServices
-            = new ConcurrentDictionary<NuGetVersion, Task<IToolsService>>();
-
-        private readonly ConcurrentDictionary<NuGetVersion, Task<IFrameworkPrecedenceService>> _frameworkPrecendenceServices
-            = new ConcurrentDictionary<NuGetVersion, Task<IFrameworkPrecedenceService>>();
+        private readonly ConcurrentDictionary<NuGetVersion, Task<IToolsService>> _toolServices = new();
+        private readonly ConcurrentDictionary<NuGetVersion, Task<IFrameworkPrecedenceService>> _frameworkPrecedenceServices = new();
         private readonly MicrosoftLogger _nuGetLog;
 
         public ToolsFactory(
@@ -155,7 +152,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
             
             try
             {
-                return await _frameworkPrecendenceServices.GetOrAdd(
+                return await _frameworkPrecedenceServices.GetOrAdd(
                     matchingVersion,
                     async key =>
                     {
@@ -168,7 +165,7 @@ namespace Knapcode.NuGetTools.Logic.Direct
             }
             catch
             {
-                _frameworkPrecendenceServices.TryRemove(matchingVersion, out var _);
+                _frameworkPrecedenceServices.TryRemove(matchingVersion, out var _);
                 throw;
             }
         }
@@ -183,19 +180,6 @@ namespace Knapcode.NuGetTools.Logic.Direct
             return _latestVersion.Value;
         }
 
-        private async Task<INuGetLogic> GetLogicAsync(NuGetVersion version)
-        {
-            try
-            {
-                return await _logic.GetOrAdd(version, GetLogicWithoutCachingAsync);
-            }
-            catch
-            {
-                _logic.TryRemove(version, out var _);
-                throw;
-            }
-        }
-
         private async Task<NuGetVersion?> GetMatchingVersionAsync(string version)
         {
             var versions = await _versions.Value;
@@ -208,7 +192,32 @@ namespace Knapcode.NuGetTools.Logic.Direct
             return matchedVersion;
         }
 
-        private async Task<INuGetLogic> GetLogicWithoutCachingAsync(NuGetVersion version)
+        private async Task<INuGetLogic> GetLogicAsync(NuGetVersion version)
+        {
+            var context = _contexts.GetOrAdd(version, _ => new VersionContext());
+
+            if (context.Logic is not null)
+            {
+                return context.Logic;
+            }
+
+            await context.Lock.WaitAsync();
+            try
+            {
+                if (context.Logic is not null)
+                {
+                    return context.Logic;
+                }
+
+                return await InitializeContextAsync(version, context);
+            }
+            finally
+            {
+                context.Lock.Release();
+            }
+        }
+
+        private async Task<INuGetLogic> InitializeContextAsync(NuGetVersion version, VersionContext context)
         {
             var releases = await _releases.Value;
             NuGetRelease release;
@@ -217,55 +226,78 @@ namespace Knapcode.NuGetTools.Logic.Direct
                 throw new ArgumentException($"The provided version '{version}' is not supported");
             }
 
-            var contextId = version.ToNormalizedString();
-            var context = GetAssemblyLoadContext(contextId);
+            var assemblyLoadContext = new AssemblyLoadContext(
+                name: $"NuGet {version.ToNormalizedString()}",
+                isCollectible: false);
 
             var logicAssembly = release switch
             {
-                NuGetRelease.Version2x => GetV2Implementation(context, version),
-                NuGetRelease.Version3x => GetV3Implementation(context, version),
+                NuGetRelease.Version2x => GetV2Implementation(version, assemblyLoadContext),
+                NuGetRelease.Version3x => GetV3Implementation(version, assemblyLoadContext),
                 _ => throw new NotImplementedException(),
             };
 
             var logicType = logicAssembly
-                .GetTypes()
+                .ExportedTypes
                 .First(t => t.IsClass && !t.IsAbstract && t.IsAssignableTo(typeof(INuGetLogic)));
 
-            return (INuGetLogic)Activator.CreateInstance(logicType)!;
+            context.Logic = (INuGetLogic)Activator.CreateInstance(logicType)!;
+            context.AssemblyLoadContext = assemblyLoadContext;
+
+            return context.Logic;
         }
 
-        private Assembly GetV2Implementation(AssemblyLoadContext context, NuGetVersion version)
+        private Assembly GetV2Implementation(NuGetVersion version, AssemblyLoadContext context)
         {
             var coreIdentity = new PackageIdentity(Constants.CoreId, version);
-            LoadPackageAssemblies(context, coreIdentity);
+            var assemblies = LoadPackageAssemblies(context, coreIdentity);
 
-            using var memoryStream = new MemoryStream(NuGet2xAssembly.Value);
-            var logicAssembly = context.LoadFromStream(memoryStream);
+            var logicAssembly = RewriteProxyReferences(context, NuGetLogic2xModule, assemblies);
             return logicAssembly;
         }
 
-        private Assembly GetV3Implementation(AssemblyLoadContext context, NuGetVersion version)
+        private Assembly GetV3Implementation(NuGetVersion version, AssemblyLoadContext context)
         {
             var versioningIdentity = new PackageIdentity(Constants.VersioningId, version);
-            LoadPackageAssemblies(context, versioningIdentity);
+            var assemblies = LoadPackageAssemblies(context, versioningIdentity);
 
             var frameworksIdentity = new PackageIdentity(Constants.FrameworksId, version);
-            LoadPackageAssemblies(context, frameworksIdentity);
+            assemblies.AddRange(LoadPackageAssemblies(context, frameworksIdentity));
 
-            using var memoryStream = new MemoryStream(NuGet3xAssembly.Value);
-            var logicAssembly = context.LoadFromStream(memoryStream);
+            var logicAssembly = RewriteProxyReferences(context, NuGetLogic3xModule, assemblies);
             return logicAssembly;
         }
 
-        private AssemblyLoadContext GetAssemblyLoadContext(string contextId)
+        private Assembly RewriteProxyReferences(
+            AssemblyLoadContext context,
+            Lazy<ModuleDefinition> lazyBaseModule,
+            List<Assembly> newReferences)
         {
-            var lazyContext = _lazyContexts.GetOrAdd(contextId, new Lazy<AssemblyLoadContext>(() => new AssemblyLoadContext(
-                contextId + ' ' + Guid.NewGuid(),
-                isCollectible: false)));
-            return lazyContext.Value;
+            using var moduleStream = new MemoryStream();
+
+            lock (lazyBaseModule)
+            {
+                var baseModule = lazyBaseModule.Value;
+
+                foreach (var reference in newReferences)
+                {
+                    var referenceName = reference.GetName();
+                    var matching = baseModule.AssemblyReferences.FirstOrDefault(x => x.Name == referenceName.Name);
+                    if (matching is not null)
+                    {
+                        matching.Version = referenceName.Version;
+                    }
+                }
+
+                baseModule.Write(moduleStream);
+            }
+
+            moduleStream.Position = 0;
+
+            return context.LoadFromStream(moduleStream);
         }
 
-        private void LoadPackageAssemblies(
+        private List<Assembly> LoadPackageAssemblies(
             AssemblyLoadContext context,
             PackageIdentity packageIdentity)
         {
@@ -281,19 +313,22 @@ namespace Knapcode.NuGetTools.Logic.Direct
 
             using (var packageReader = new PackageFolderReader(installPath))
             {
-                if (!LoadWithFramework(context, Net6, installPath, packageReader)
-                    && !LoadWithFramework(context, Net48, installPath, packageReader))
+                if (!TryLoadWithFramework(context, Net6, installPath, packageReader, out var assemblies)
+                    && !TryLoadWithFramework(context, Net48, installPath, packageReader, out assemblies))
                 {
                     throw new InvalidOperationException($"The package '{packageIdentity}' is not compatible with net6.0 or net48.");
                 }
+
+                return assemblies;
             }
         }
 
-        private static bool LoadWithFramework(
+        private static bool TryLoadWithFramework(
             AssemblyLoadContext context,
             NuGetFramework framework,
             string installPath,
-            PackageFolderReader packageReader)
+            PackageFolderReader packageReader,
+            [NotNullWhen(true)] out List<Assembly>? assemblies)
         {
             var conventions = new ManagedCodeConventions(null);
             var criteria = conventions.Criteria.ForFramework(framework);
@@ -313,18 +348,27 @@ namespace Knapcode.NuGetTools.Logic.Direct
 
             if (runtimeGroup is null)
             {
+                assemblies = null;
                 return false;
             }
 
+            assemblies = new List<Assembly>();
             foreach (var asset in runtimeGroup.Items)
             {
                 var absolutePath = Path.Combine(
                     installPath,
                     asset.Path.Replace(AssetDirectorySeparator, Path.DirectorySeparatorChar));
-                context.LoadFromAssemblyPath(absolutePath);
+                assemblies.Add(context.LoadFromAssemblyPath(absolutePath));
             }
 
             return true;
+        }
+
+        private class VersionContext
+        {
+            public SemaphoreSlim Lock { get; } = new SemaphoreSlim(initialCount: 1);
+            public AssemblyLoadContext? AssemblyLoadContext { get; set; }
+            public INuGetLogic? Logic { get; set; }
         }
     }
 }

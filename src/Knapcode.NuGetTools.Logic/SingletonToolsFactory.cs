@@ -4,17 +4,17 @@
     {
         private readonly string _version;
         private readonly IToolsService _toolsService;
-        private readonly IFrameworkPrecedenceService _frameworkPrecendenceService;
+        private readonly IFrameworkPrecedenceService _frameworkPrecedenceService;
         private readonly IFrameworkList _frameworkList;
 
         public SingletonToolsFactory(
             IToolsService toolsService,
-            IFrameworkPrecedenceService frameworkPrecendenceService,
+            IFrameworkPrecedenceService frameworkPrecedenceService,
             IFrameworkList frameworkList)
         {
             _version = toolsService.Version;
             _toolsService = toolsService;
-            _frameworkPrecendenceService = frameworkPrecendenceService;
+            _frameworkPrecedenceService = frameworkPrecedenceService;
             _frameworkList = frameworkList;
         }
 
@@ -58,7 +58,7 @@
 
             if (version == _version)
             {
-                output = _frameworkPrecendenceService;
+                output = _frameworkPrecedenceService;
             }
 
             return Task.FromResult(output);

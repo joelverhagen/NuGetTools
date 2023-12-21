@@ -50,14 +50,21 @@
                 <p>There is no framework profile.</p>
             }
             <br />
-            @if (output.Framework?.HasPlatform == true)
+            @if (output.Framework?.IsPlatformAvailable == true)
             {
-                <p>The platform identifier is <code>@output.Framework.Platform</code>.</p>
-                <p>The platform version is <code>@output.Framework.PlatformVersion</code>.</p>
+                @if (output.Framework?.HasPlatform == true)
+                {
+                    <p>The platform identifier is <code>@output.Framework.Platform</code>.</p>
+                    <p>The platform version is <code>@output.Framework.PlatformVersion</code>.</p>
+                }
+                else
+                {
+                    <p>There is no framework platform.</p>
+                }
             }
             else
             {
-                <p>There is no framework platform.</p>
+                @:<p>Platform information is only available in NuGet 5.8.0-preview.1 or later.</p>
             }
         </div>
     }

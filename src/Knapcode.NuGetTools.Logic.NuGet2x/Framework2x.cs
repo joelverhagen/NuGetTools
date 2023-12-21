@@ -19,7 +19,8 @@ namespace Knapcode.NuGetTools.Logic.NuGet2x
         public Version Version => FrameworkName.Version;
         public bool HasProfile => !string.IsNullOrEmpty(FrameworkName.Profile);
         public string Profile => FrameworkName.Profile;
-        public bool HasPlatform => false;
+        public bool IsPlatformAvailable => false;
+        public bool HasPlatform => throw new NotSupportedException();
         public string Platform => throw new NotSupportedException();
         public Version PlatformVersion => throw new NotSupportedException();
         public string ToStringResult => FrameworkName.ToString();

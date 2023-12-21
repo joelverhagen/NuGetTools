@@ -21,7 +21,7 @@ namespace Knapcode.NuGetTools.Website
         public string? Value { get; set; }
 
         protected abstract string ActionName { get; }
-        protected abstract object GetRouteValues(string value);
+        protected abstract RouteValueDictionary GetRouteValues(string value);
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
@@ -35,10 +35,17 @@ namespace Knapcode.NuGetTools.Website
 
             // get the action URL
             var urlHelper = _urlHelperFactory.GetUrlHelper(ViewContext);
-            var href = urlHelper.Action(
-                ActionName,
-                nameof(HomeController),
-                GetRouteValues(Value));
+
+            var routeValues = GetRouteValues(Value);
+
+            const string nuGetVersionKey = "nuGetVersion";
+            if (!routeValues.ContainsKey(nuGetVersionKey)
+                && ViewContext.RouteData.Values.TryGetValue(nuGetVersionKey, out var nuGetVersion))
+            {
+                routeValues.Add(nuGetVersionKey, nuGetVersion);
+            }
+
+            var href = urlHelper.Action(ActionName, "Home", routeValues);
 
             output.Attributes.Add("href", href);
 

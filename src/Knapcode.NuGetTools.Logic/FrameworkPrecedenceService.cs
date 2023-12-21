@@ -8,12 +8,20 @@ namespace Knapcode.NuGetTools.Logic
     {
         private readonly IFrameworkList _frameworkList;
         private readonly IFrameworkLogic _logic;
+        private readonly bool _hasDuplicateKeyException;
 
         public FrameworkPrecedenceService(string version, IFrameworkList frameworkList, IFrameworkLogic logic)
         {
             Version = version;
             _frameworkList = frameworkList;
             _logic = logic;
+            _hasDuplicateKeyException = version switch
+            {
+                "2.13.0-rc1-final" => true,
+                "2.13.0" => true,
+                "2.12.0" => true,
+                _ => false,
+            };
         }
 
         public string Version { get; }
@@ -43,13 +51,13 @@ namespace Knapcode.NuGetTools.Logic
 
             if (output.Framework is not null)
             {
-                output.Precedence = GetPrecendence(output, output.Framework);
+                output.Precedence = GetPrecedence(output, output.Framework);
             }
 
             return output;
         }
 
-        private IReadOnlyList<IFramework> GetPrecendence(FrameworkPrecedenceOutput output, IFramework framework)
+        private IReadOnlyList<IFramework> GetPrecedence(FrameworkPrecedenceOutput output, IFramework framework)
         {
             // Get the initial set of candidates.
             var remainingCandidates = new HashSet<IFramework>(
@@ -58,12 +66,27 @@ namespace Knapcode.NuGetTools.Logic
 
             // Perform "get nearest" on the remaining set to find the next in precedence.
             var precedence = new List<IFramework>();
+            var duplicateEncountered = false;
             while (remainingCandidates.Count > 0)
             {
-                var nearest = _logic.GetNearest(framework, remainingCandidates);
+                IFramework? nearest;
+                const string duplicateMessage = "An item with the same key has already been added. Key: ";
+                try
+                {
+                     nearest = _logic.GetNearest(framework, remainingCandidates);
+                }
+                catch (ArgumentException ex) when (_hasDuplicateKeyException && !duplicateEncountered && ex.Message.StartsWith(duplicateMessage))
+                {
+                    remainingCandidates.RemoveWhere(x => x.ToStringResult == "DNXCore,Version=v5.0");
+                    remainingCandidates.RemoveWhere(x => StringComparer.OrdinalIgnoreCase.Equals(x.Identifier, "Tizen"));
+                    remainingCandidates.RemoveWhere(x => StringComparer.OrdinalIgnoreCase.Equals(x.Identifier, ".NETCore"));
+                    duplicateEncountered = true;
+                    continue;
+                }
+
                 if (nearest is null)
                 {
-                    continue;
+                    break;
                 }
 
                 precedence.Add(nearest);
@@ -120,7 +143,7 @@ namespace Knapcode.NuGetTools.Logic
             return StringComparer.OrdinalIgnoreCase.Equals(".NETPortable", x.Identifier);
         }
 
-        private IReadOnlyList<IFramework> GetFrameworkList()
+        private List<IFramework> GetFrameworkList()
         {
             var frameworks = new List<IFramework>();
 

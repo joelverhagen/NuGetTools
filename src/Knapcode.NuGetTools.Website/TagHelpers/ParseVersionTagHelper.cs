@@ -15,9 +15,9 @@ namespace Knapcode.NuGetTools.Website
 
         protected override string ActionName => nameof(HomeController.ParseVersion);
 
-        protected override object GetRouteValues(string value)
+        protected override RouteValueDictionary GetRouteValues(string value)
         {
-            return new { version = value };
+            return new RouteValueDictionary(new { version = value });
         }
     }
 }

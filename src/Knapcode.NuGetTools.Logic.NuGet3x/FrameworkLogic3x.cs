@@ -20,7 +20,7 @@ namespace Knapcode.NuGetTools.Logic.NuGet3x
                 ((Framework3x)project).NuGetFramework,
                 package.Cast<Framework3x>().Select(x => x.NuGetFramework));
 
-            if (nearest == null)
+            if (nearest is null)
             {
                 return null;
             }

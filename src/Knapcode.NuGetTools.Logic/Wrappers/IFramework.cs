@@ -8,6 +8,7 @@
         Version Version { get; }
         bool HasProfile { get; }
         string Profile { get; }
+        bool IsPlatformAvailable { get; }
         bool HasPlatform { get; }
         string Platform { get; }
         Version PlatformVersion { get; }
