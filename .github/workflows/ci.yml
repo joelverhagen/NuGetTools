@@ -1,0 +1,57 @@
+name: Continuous integration
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+env:
+  PRODUCTION_URL: https://nugettools.azurewebsites.net
+  PACKAGES_DIR: ./src/Knapcode.NuGetTools.Website/packages
+  PUBLISH_DIR: ./src/Knapcode.NuGetTools.Website/bin/publish
+  ZIP_PATH: ./src/Knapcode.NuGetTools.Website/bin/website.zip
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          global-json-file: global.json
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Download NuGet.* packages
+        run: ./Invoke-DownloadPackages.ps1 -PackagesDir $env:PACKAGES_DIR -Force
+
+      - name: Build Release
+        run: dotnet build --configuration Release --no-restore
+      
+      - name: Test
+        run: dotnet test --logger "console;verbosity=normal" --configuration Release --no-build
+
+      - name: Publish
+        run: dotnet publish --output $env:PUBLISH_DIR --configuration Release --no-build
+
+      - name: Zip publish directory
+        run: Compress-Archive -Path $env:PUBLISH_DIR/* -DestinationPath $env:ZIP_PATH
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v3
+        with:
+          name: website
+          path: ${{ env.ZIP_PATH }}
+
+      - name: Check for new versions
+        run: dotnet run --project ./src/Knapcode.NuGetTools.PackageDownloader --configuration Release -- check-versions $env:PACKAGES_DIR $env:PRODUCTION_URL
