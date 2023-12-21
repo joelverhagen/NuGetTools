@@ -3,7 +3,7 @@ param (
     [switch] $Force
 )
 
-$PackagesDir = Resolve-Path $PackagesDir
+$PackagesDir = [IO.Path]::GetFullPath($PackagesDir)
 
 Write-Host "Downloading NuGet packages for the website to $PackagesDir"
 
