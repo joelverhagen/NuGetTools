@@ -1,4 +1,4 @@
-﻿using Knapcode.NuGetTools.Logic;
+using Knapcode.NuGetTools.Logic;
 using Knapcode.NuGetTools.Logic.Models.Framework;
 using Knapcode.NuGetTools.Logic.Models.Version;
 using Knapcode.NuGetTools.Logic.Models.VersionRange;
@@ -15,7 +15,7 @@ public class HomeController : Controller
     /// </summary>
     private const string StarDashStarVersion = "5.6.0";
 
-    private static readonly Dictionary<string, string> _versionRedirects = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, string> VersionRedirects = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
         { "3.5.0-beta2", "3.5.0-beta2-1484" },
         { "5.5.0-floating.7018", StarDashStarVersion },
@@ -64,7 +64,7 @@ public class HomeController : Controller
     }
 
     [HttpGet("/{nuGetVersion}")]
-    public async Task<IActionResult> SelectedVersionIndex([FromRoute]string nuGetVersion, CancellationToken token)
+    public async Task<IActionResult> SelectedVersionIndex([FromRoute] string nuGetVersion, CancellationToken token)
     {
         var redirect = await GetVersionRedirectAsync(token);
         if (redirect != null)
@@ -77,14 +77,14 @@ public class HomeController : Controller
         {
             return NotFound();
         }
-        
+
         var versionedOutput = await GetSelectedVersionOutputAsync(toolsService, token);
 
         return View(versionedOutput);
     }
 
     [HttpGet("/{nuGetVersion}/parse-framework")]
-    public async Task<IActionResult> ParseFramework([FromRoute]string nuGetVersion, [FromQuery]ParseFrameworkInput input, CancellationToken token)
+    public async Task<IActionResult> ParseFramework([FromRoute] string nuGetVersion, [FromQuery] ParseFrameworkInput input, CancellationToken token)
     {
         var redirect = await GetVersionRedirectAsync(token);
         if (redirect != null)
@@ -105,7 +105,7 @@ public class HomeController : Controller
     }
 
     [HttpGet("/{nuGetVersion}/parse-version")]
-    public async Task<IActionResult> ParseVersion([FromRoute]string nuGetVersion, [FromQuery]ParseVersionInput input, CancellationToken token)
+    public async Task<IActionResult> ParseVersion([FromRoute] string nuGetVersion, [FromQuery] ParseVersionInput input, CancellationToken token)
     {
         var redirect = await GetVersionRedirectAsync(token);
         if (redirect != null)
@@ -126,7 +126,7 @@ public class HomeController : Controller
     }
 
     [HttpGet("/{nuGetVersion}/parse-version-range")]
-    public async Task<IActionResult> ParseVersionRange([FromRoute]string nuGetVersion, [FromQuery]ParseVersionRangeInput input, CancellationToken token)
+    public async Task<IActionResult> ParseVersionRange([FromRoute] string nuGetVersion, [FromQuery] ParseVersionRangeInput input, CancellationToken token)
     {
         var redirect = await GetVersionRedirectAsync(token);
         if (redirect != null)
@@ -147,7 +147,7 @@ public class HomeController : Controller
     }
 
     [HttpGet("/{nuGetVersion}/framework-compatibility")]
-    public async Task<IActionResult> FrameworkCompatibility([FromRoute]string nuGetVersion, [FromQuery]FrameworkCompatibilityInput input, bool swap, CancellationToken token)
+    public async Task<IActionResult> FrameworkCompatibility([FromRoute] string nuGetVersion, [FromQuery] FrameworkCompatibilityInput input, bool swap, CancellationToken token)
     {
         var redirect = await GetVersionRedirectAsync(token);
         if (redirect != null)
@@ -180,7 +180,7 @@ public class HomeController : Controller
     }
 
     [HttpGet("/{nuGetVersion}/version-comparison")]
-    public async Task<IActionResult> VersionComparison([FromRoute]string nuGetVersion, [FromQuery]VersionComparisonInput input, bool swap, CancellationToken token)
+    public async Task<IActionResult> VersionComparison([FromRoute] string nuGetVersion, [FromQuery] VersionComparisonInput input, bool swap, CancellationToken token)
     {
         var redirect = await GetVersionRedirectAsync(token);
         if (redirect != null)
@@ -210,7 +210,7 @@ public class HomeController : Controller
     }
 
     [HttpGet("/{nuGetVersion}/sort-versions")]
-    public async Task<IActionResult> SortVersions([FromRoute]string nuGetVersion, [FromQuery]SortVersionsInput input, CancellationToken token)
+    public async Task<IActionResult> SortVersions([FromRoute] string nuGetVersion, [FromQuery] SortVersionsInput input, CancellationToken token)
     {
         var redirect = await GetVersionRedirectAsync(token);
         if (redirect != null)
@@ -231,7 +231,7 @@ public class HomeController : Controller
     }
 
     [HttpGet("/{nuGetVersion}/get-nearest-framework")]
-    public async Task<IActionResult> GetNearestFramework([FromRoute]string nuGetVersion, [FromQuery]GetNearestFrameworkInput input, CancellationToken token)
+    public async Task<IActionResult> GetNearestFramework([FromRoute] string nuGetVersion, [FromQuery] GetNearestFrameworkInput input, CancellationToken token)
     {
         var redirect = await GetVersionRedirectAsync(token);
         if (redirect != null)
@@ -252,7 +252,7 @@ public class HomeController : Controller
     }
 
     [HttpGet("/{nuGetVersion}/version-satisfies")]
-    public async Task<IActionResult> VersionSatisfies([FromRoute]string nuGetVersion, [FromQuery]VersionSatisfiesInput input, CancellationToken token)
+    public async Task<IActionResult> VersionSatisfies([FromRoute] string nuGetVersion, [FromQuery] VersionSatisfiesInput input, CancellationToken token)
     {
         var redirect = await GetVersionRedirectAsync(token);
         if (redirect != null)
@@ -273,7 +273,7 @@ public class HomeController : Controller
     }
 
     [HttpGet("/{nuGetVersion}/find-best-version-match")]
-    public async Task<IActionResult> FindBestVersionMatch([FromRoute]string nuGetVersion, [FromQuery]FindBestVersionMatchInput input, CancellationToken token)
+    public async Task<IActionResult> FindBestVersionMatch([FromRoute] string nuGetVersion, [FromQuery] FindBestVersionMatchInput input, CancellationToken token)
     {
         var redirect = await GetVersionRedirectAsync(token);
         if (redirect != null)
@@ -294,7 +294,7 @@ public class HomeController : Controller
     }
 
     [HttpGet("/{nuGetVersion}/framework-precedence")]
-    public async Task<IActionResult> FrameworkPrecedence([FromRoute]string nuGetVersion, [FromQuery]FrameworkPrecedenceInput input, CancellationToken token)
+    public async Task<IActionResult> FrameworkPrecedence([FromRoute] string nuGetVersion, [FromQuery] FrameworkPrecedenceInput input, CancellationToken token)
     {
         var redirect = await GetVersionRedirectAsync(token);
         if (redirect != null)
@@ -363,7 +363,7 @@ public class HomeController : Controller
 
         // Determine if the current version needs a redirect.
         string? redirectNuGetVersion = null;
-        if (nuGetVersion is not null && _versionRedirects.TryGetValue(nuGetVersion, out var knownRedirect))
+        if (nuGetVersion is not null && VersionRedirects.TryGetValue(nuGetVersion, out var knownRedirect))
         {
             redirectNuGetVersion = knownRedirect;
         }
@@ -371,7 +371,7 @@ public class HomeController : Controller
         {
             redirectNuGetVersion = await _toolsFactory.GetLatestVersionAsync(token);
         }
-        
+
         if (redirectNuGetVersion != null)
         {
             var urlHelper = _urlHelperFactory.GetUrlHelper(ControllerContext);

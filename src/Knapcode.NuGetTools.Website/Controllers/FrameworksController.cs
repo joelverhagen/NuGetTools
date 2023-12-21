@@ -1,4 +1,4 @@
-﻿using Knapcode.NuGetTools.Logic;
+using Knapcode.NuGetTools.Logic;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Knapcode.NuGetTools.Website;

@@ -1,4 +1,4 @@
-﻿namespace Knapcode.NuGetTools.Logic;
+namespace Knapcode.NuGetTools.Logic;
 
 public interface IFrameworkEnumerator
 {

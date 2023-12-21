@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using Knapcode.NuGetTools.Logic.NuGet3x;
 using NuGet.Frameworks;
 
@@ -49,7 +49,7 @@ public class FrameworkEnumerator : IFrameworkEnumerator
     public IEnumerable<FrameworkEnumeratorData> Enumerate(FrameworkEnumerationOptions options)
     {
         var existing = new HashSet<FrameworkEnumeratorData>();
-        
+
         if (options.HasFlag(FrameworkEnumerationOptions.FrameworkNameProvider))
         {
             foreach (var added in AddDefaultFrameworkNameProvider(existing))

@@ -1,4 +1,4 @@
-﻿namespace Knapcode.NuGetTools.Logic.Models;
+namespace Knapcode.NuGetTools.Logic.Models;
 
 public enum InputStatus
 {

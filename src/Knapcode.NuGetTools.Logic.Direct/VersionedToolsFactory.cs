@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -27,7 +27,7 @@ public class VersionedToolsFactory : IToolsFactory
     private static readonly Lazy<ModuleDefinition> NuGetLogic3xModule
         = new Lazy<ModuleDefinition>(() => ModuleDefinition.ReadModule(typeof(NuGetLogic3x).Assembly.Location));
 
-    private static readonly ConcurrentDictionary<NuGetVersion, VersionContext> _contexts = new();
+    private static readonly ConcurrentDictionary<NuGetVersion, VersionContext> Contexts = new();
 
     private readonly IAlignedVersionsDownloader _downloader;
     private readonly IFrameworkList _frameworkList;
@@ -149,7 +149,7 @@ public class VersionedToolsFactory : IToolsFactory
         {
             return null;
         }
-        
+
         try
         {
             return await _frameworkPrecedenceServices.GetOrAdd(
@@ -194,7 +194,7 @@ public class VersionedToolsFactory : IToolsFactory
 
     private async Task<INuGetLogic> GetLogicAsync(NuGetVersion version)
     {
-        var context = _contexts.GetOrAdd(version, _ => new VersionContext());
+        var context = Contexts.GetOrAdd(version, _ => new VersionContext());
 
         if (context.Logic is not null)
         {

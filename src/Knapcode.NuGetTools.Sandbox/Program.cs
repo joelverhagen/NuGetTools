@@ -1,4 +1,4 @@
-﻿namespace Knapcode.NuGetTools.Sandbox;
+namespace Knapcode.NuGetTools.Sandbox;
 
 public class Program
 {

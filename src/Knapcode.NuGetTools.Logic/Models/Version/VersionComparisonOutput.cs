@@ -10,5 +10,5 @@ public class VersionComparisonOutput
     public bool IsVersionBValid { get; set; }
     public IVersion? VersionA { get; set; }
     public IVersion? VersionB { get; set; }
-    public ComparisonResult Result  { get; set; }
+    public ComparisonResult Result { get; set; }
 }

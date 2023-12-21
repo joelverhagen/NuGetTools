@@ -1,4 +1,4 @@
-﻿using Knapcode.NuGetTools.Logic.Wrappers;
+using Knapcode.NuGetTools.Logic.Wrappers;
 
 namespace Knapcode.NuGetTools.Logic.Models.Version;
 

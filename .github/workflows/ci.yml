@@ -62,3 +62,25 @@ jobs:
           $report
           $notMatching = $report | ? { !$_.StartsWith("Matching") }
           Write-Output "versions-changed=$(($notMatching.Length -ne 0).ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+
+  format:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    outputs:
+      versions-changed: ${{ steps.check-versions.outputs.versions-changed }}
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          global-json-file: global.json
+
+      - name: Check formatting
+        run: dotnet format --verify-no-changes

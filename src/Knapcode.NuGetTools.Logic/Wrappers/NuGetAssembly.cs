@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Text;
 using Microsoft.CodeAnalysis.CSharp;
@@ -43,7 +43,7 @@ public record NuGetAssembly(
                 }
 
                 AppendArgument(builder, arg);
-                
+
             }
 
             foreach (var arg in attribute.NamedArguments)

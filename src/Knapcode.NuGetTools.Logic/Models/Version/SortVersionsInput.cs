@@ -1,4 +1,4 @@
-﻿namespace Knapcode.NuGetTools.Logic.Models.Version;
+namespace Knapcode.NuGetTools.Logic.Models.Version;
 
 public class SortVersionsInput
 {

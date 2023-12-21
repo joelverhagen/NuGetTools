@@ -1,4 +1,4 @@
-﻿namespace Knapcode.NuGetTools.Logic.Direct;
+namespace Knapcode.NuGetTools.Logic.Direct;
 
 public static class Constants
 {

@@ -1,4 +1,4 @@
-﻿using Knapcode.NuGetTools.Logic.Models.Framework;
+using Knapcode.NuGetTools.Logic.Models.Framework;
 
 namespace Knapcode.NuGetTools.Logic;
 

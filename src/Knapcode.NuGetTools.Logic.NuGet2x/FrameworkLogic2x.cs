@@ -1,4 +1,4 @@
-﻿using System.Runtime.Versioning;
+using System.Runtime.Versioning;
 using Knapcode.NuGetTools.Logic.Wrappers;
 using NuGet;
 

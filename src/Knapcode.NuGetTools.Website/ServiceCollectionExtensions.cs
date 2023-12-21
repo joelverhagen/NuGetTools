@@ -1,5 +1,5 @@
-﻿using Knapcode.NuGetTools.Logic.Direct;
 using Knapcode.NuGetTools.Logic;
+using Knapcode.NuGetTools.Logic.Direct;
 using Knapcode.NuGetTools.Logic.NuGet3x;
 using Knapcode.NuGetTools.Logic.Wrappers;
 using NuGet.Common;

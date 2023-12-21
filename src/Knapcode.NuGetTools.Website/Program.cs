@@ -1,4 +1,4 @@
-﻿using Knapcode.NuGetTools.Website;
+using Knapcode.NuGetTools.Website;
 using Microsoft.ApplicationInsights.Extensibility;
 
 var builder = WebApplication.CreateBuilder(args);

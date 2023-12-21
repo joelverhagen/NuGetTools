@@ -1,4 +1,4 @@
-﻿namespace Knapcode.NuGetTools.Website;
+namespace Knapcode.NuGetTools.Website;
 
 public class VersionUrl
 {

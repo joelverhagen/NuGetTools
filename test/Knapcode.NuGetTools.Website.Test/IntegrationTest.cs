@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text.Json;
 using NuGet.Versioning;
 using Xunit;
@@ -53,7 +53,7 @@ public class IntegrationTest : IClassFixture<TestServerFixture>
             AvailableVersionData.Add(version);
         }
     }
-    
+
     private readonly TestServerFixture _fixture;
     private readonly ITestOutputHelper _output;
 

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Knapcode.NuGetTools.Website;

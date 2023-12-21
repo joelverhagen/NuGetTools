@@ -1,4 +1,4 @@
-﻿using NuGet.Common;
+using NuGet.Common;
 
 namespace Knapcode.NuGetTools.Logic.Direct;
 

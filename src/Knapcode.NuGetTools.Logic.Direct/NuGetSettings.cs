@@ -1,4 +1,4 @@
-﻿using NuGet.Configuration;
+using NuGet.Configuration;
 
 namespace Knapcode.NuGetTools.Logic.Direct;
 
@@ -17,7 +17,7 @@ public class NuGetSettings
         {
             return SettingsUtility.GetGlobalPackagesFolder(Settings);
         }
-        
+
         set
         {
             var path = Path.GetFullPath(value);

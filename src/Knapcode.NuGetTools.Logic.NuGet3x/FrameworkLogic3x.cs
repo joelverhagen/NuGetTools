@@ -1,4 +1,4 @@
-﻿using Knapcode.NuGetTools.Logic.Wrappers;
+using Knapcode.NuGetTools.Logic.Wrappers;
 using NuGet.Frameworks;
 
 namespace Knapcode.NuGetTools.Logic.NuGet3x;

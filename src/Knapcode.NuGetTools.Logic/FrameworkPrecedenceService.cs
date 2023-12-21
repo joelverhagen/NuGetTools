@@ -1,4 +1,4 @@
-﻿using Knapcode.NuGetTools.Logic.Models;
+using Knapcode.NuGetTools.Logic.Models;
 using Knapcode.NuGetTools.Logic.Models.Framework;
 using Knapcode.NuGetTools.Logic.Wrappers;
 
@@ -73,7 +73,7 @@ public class FrameworkPrecedenceService : IFrameworkPrecedenceService
             const string duplicateMessage = "An item with the same key has already been added. Key: ";
             try
             {
-                 nearest = _logic.GetNearest(framework, remainingCandidates);
+                nearest = _logic.GetNearest(framework, remainingCandidates);
             }
             catch (ArgumentException ex) when (_hasDuplicateKeyException && !duplicateEncountered && ex.Message.StartsWith(duplicateMessage))
             {

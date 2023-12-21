@@ -1,4 +1,4 @@
-﻿namespace Knapcode.NuGetTools.Logic;
+namespace Knapcode.NuGetTools.Logic;
 
 public class FrameworkList : IFrameworkList
 {
@@ -16,7 +16,7 @@ public class FrameworkList : IFrameworkList
         _shortFolderNames = new Lazy<IReadOnlyList<string>>(GetShortFolderNames);
         _identifiers = new Lazy<IReadOnlyList<string>>(GetIdentifiers);
     }
-    
+
     public IReadOnlyList<string> DotNetFrameworkNames => _dotNetFrameworkNames.Value;
 
     public IReadOnlyList<string> ShortFolderNames => _shortFolderNames.Value;

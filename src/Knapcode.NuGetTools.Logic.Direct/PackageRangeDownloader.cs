@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using NuGet.Common;
 using NuGet.PackageManagement;
 using NuGet.Packaging.Core;
@@ -18,7 +18,7 @@ public class PackageRangeDownloader : IPackageRangeDownloader
     private readonly ConcurrentDictionary<SourceRepository, Task<PackageMetadataResource>> _packageMetadataResources
         = new ConcurrentDictionary<SourceRepository, Task<PackageMetadataResource>>();
 
-    private readonly Lazy<Task<FindPackageByIdResource>> _findPackageByIdResource; 
+    private readonly Lazy<Task<FindPackageByIdResource>> _findPackageByIdResource;
 
     public PackageRangeDownloader(NuGetSettings nuGetSettings)
     {
@@ -77,7 +77,7 @@ public class PackageRangeDownloader : IPackageRangeDownloader
         CancellationToken token)
     {
         var sourceRepositories = GetSourceRepositories(sources);
-        
+
         var downloadTasks = packageIdentities
             .Select(x => DownloadPackageAsync(sourceRepositories, x, sourceCacheContext, log, token));
 
@@ -105,7 +105,7 @@ public class PackageRangeDownloader : IPackageRangeDownloader
         var metadataResource = await _packageMetadataResources.GetOrAdd(
             sourceRepository,
             key => key.GetResourceAsync<PackageMetadataResource>(token));
-        
+
         using (var sourceCacheContext = new SourceCacheContext())
         {
             var allMetadata = await metadataResource.GetMetadataAsync(

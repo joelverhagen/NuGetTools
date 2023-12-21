@@ -1,4 +1,4 @@
-﻿namespace Knapcode.NuGetTools.Logic.Wrappers;
+namespace Knapcode.NuGetTools.Logic.Wrappers;
 
 public static class VersionExtensions
 {
