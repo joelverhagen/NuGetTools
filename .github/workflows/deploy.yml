@@ -19,20 +19,20 @@ jobs:
 
     steps:
       - name: Check out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Set up .NET Core
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 6.0.x
+          global-json-file: global.json
 
       - name: Build
         run: .\build.ps1
 
       - name: Zip publish directory
-        run: Compress-Archive -Path .\src\Knapcode.NuGetTools.Website\bin\Release\net472\publish\* -DestinationPath .\src\Knapcode.NuGetTools.Website\bin\website.zip
+        run: Compress-Archive -Path .\src\Knapcode.NuGetTools.Website\bin\Release\net8.0\publish\* -DestinationPath .\src\Knapcode.NuGetTools.Website\bin\website.zip
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
