@@ -12,7 +12,6 @@ namespace Knapcode.NuGetTools.Logic.Direct
             ILogger log,
             CancellationToken token);
 
-#if NETCOREAPP
         Task<IEnumerable<NuGetVersion>> DownloadPackagesAsync(
             IEnumerable<string> sources,
             IEnumerable<string> ids,
@@ -20,6 +19,5 @@ namespace Knapcode.NuGetTools.Logic.Direct
             SourceCacheContext sourceCacheContext,
             ILogger log,
             CancellationToken token);
-#endif
     }
 }

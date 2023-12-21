@@ -2,7 +2,6 @@
 using NuGet.Packaging.Core;
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
-using NuGetVersionRange = NuGet.Versioning.VersionRange;
 
 namespace Knapcode.NuGetTools.Logic.Direct
 {
@@ -35,11 +34,10 @@ namespace Knapcode.NuGetTools.Logic.Direct
                 });
         }
 
-#if NETCOREAPP
         public async Task<IEnumerable<NuGetVersion>> DownloadPackagesAsync(
             IEnumerable<string> sources,
             IEnumerable<string> ids,
-            NuGetVersionRange versionRange,
+            VersionRange versionRange,
             SourceCacheContext sourceCacheContext,
             ILogger log,
             CancellationToken token)
@@ -81,7 +79,6 @@ namespace Knapcode.NuGetTools.Logic.Direct
                     return availableVersions.Select(x => x.Version);
                 });
         }
-#endif
 
         private async Task<IEnumerable<NuGetVersion>> GetAlignedVersionsAsync(
             IEnumerable<string> ids,

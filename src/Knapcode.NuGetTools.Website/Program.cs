@@ -14,10 +14,7 @@ if (!app.Environment.IsDevelopment() && !app.Environment.IsAutomation())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
-app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
