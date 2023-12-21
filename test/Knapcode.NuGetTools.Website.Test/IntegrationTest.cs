@@ -34,19 +34,6 @@ public class IntegrationTest : IClassFixture<TestServerFixture>
                 .ToList();
         }
 
-        // If we're testing a real URL, limit the test versions to the latest per major version.
-        if (parsedBaseAddress != null)
-        {
-            AvailableVersions = AvailableVersions
-                .Select(NuGetVersion.Parse)
-                .GroupBy(x => x.Major)
-                .Select(g => g.Max())
-                .OrderBy(x => x)
-                .Where(x => x is not null)
-                .Select(x => x!.ToNormalizedString())
-                .ToList()!;
-        }
-
         AvailableVersionData = new TheoryData<string>();
         foreach (var version in AvailableVersions)
         {
