@@ -47,7 +47,7 @@ jobs:
         run: dotnet test --logger "console;verbosity=normal" --configuration Release --no-build
 
       - name: Publish
-        run: dotnet publish --output $env:PUBLISH_DIR --configuration Release --no-build
+        run: dotnet publish ./src/Knapcode.NuGetTools.Website --output $env:PUBLISH_DIR --configuration Release --no-build
 
       - name: Zip publish directory
         run: Compress-Archive -Path $env:PUBLISH_DIR/* -DestinationPath $env:ZIP_PATH

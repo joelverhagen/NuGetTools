@@ -17,6 +17,8 @@ jobs:
     defaults:
       run:
         shell: pwsh
+    outputs:
+      versions-changed: ${{ steps.check-versions.outputs.versions-changed }}
 
     steps:
       - name: Check out
@@ -42,7 +44,7 @@ jobs:
         run: dotnet test --logger "console;verbosity=normal" --configuration Release --no-build
 
       - name: Publish
-        run: dotnet publish --output $env:PUBLISH_DIR --configuration Release --no-build
+        run: dotnet publish ./src/Knapcode.NuGetTools.Website --output $env:PUBLISH_DIR --configuration Release --no-build
 
       - name: Zip publish directory
         run: Compress-Archive -Path $env:PUBLISH_DIR/* -DestinationPath $env:ZIP_PATH
@@ -54,4 +56,9 @@ jobs:
           path: ${{ env.ZIP_PATH }}
 
       - name: Check for new versions
-        run: dotnet run --project ./src/Knapcode.NuGetTools.PackageDownloader --configuration Release -- check-versions $env:PACKAGES_DIR $env:PRODUCTION_URL
+        id: check-versions
+        run: |
+          $report = dotnet run --project ./src/Knapcode.NuGetTools.PackageDownloader --configuration Release -- check-versions $env:PACKAGES_DIR $env:PRODUCTION_URL
+          $report
+          $notMatching = $report | ? { !$_.StartsWith("Matching") }
+          Write-Output "versions-changed=$(($notMatching.Length -ne 0).ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
