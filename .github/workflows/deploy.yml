@@ -8,6 +8,10 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
 env:
   PRODUCTION_URL: https://nugettools.azurewebsites.net
   PACKAGES_DIR: ./src/Knapcode.NuGetTools.Website/packages
@@ -67,8 +71,6 @@ jobs:
           Write-Output "versions-changed=$(($notMatching.Length -ne 0).ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
 
   deploy-to-dev:
-    concurrency:
-      group: deploy-to-dev
     permissions:
       id-token: write
       contents: read
@@ -103,8 +105,6 @@ jobs:
           package: ./website.zip
 
   deploy-to-prod:
-    concurrency:
-      group: deploy-to-prod
     permissions:
       id-token: write
       contents: read
