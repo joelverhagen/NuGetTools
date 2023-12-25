@@ -99,7 +99,7 @@ jobs:
 
       - name: Deploy
         id: deploy
-        uses: azure/webapps-deploy@v2
+        uses: azure/webapps-deploy@v3
         with:
           app-name: NuGetToolsDev
           package: ./website.zip
@@ -138,7 +138,7 @@ jobs:
 
       - name: Deploy
         id: deploy
-        uses: azure/webapps-deploy@v2
+        uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ env.WEBAPP_NAME }}
           slot-name: ${{ env.SLOT_NAME }}
