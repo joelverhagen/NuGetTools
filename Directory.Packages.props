@@ -6,7 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
-    <GlobalPackageReference Include="MinVer" Version="4.3.0" />
+    <GlobalPackageReference Include="MinVer" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="AngleSharp" Version="1.1.0" />
