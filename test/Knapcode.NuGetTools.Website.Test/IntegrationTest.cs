@@ -9,6 +9,7 @@ namespace Knapcode.NuGetTools.Website.Tests;
 public class IntegrationTest : IClassFixture<TestServerFixture>
 {
     public static readonly List<string> AvailableVersions;
+    public static readonly string MaxVersion;
     public static readonly TheoryData<string> AvailableVersionData;
 
     static IntegrationTest()
@@ -26,10 +27,9 @@ public class IntegrationTest : IClassFixture<TestServerFixture>
 
         using (var tsf = new TestServerFixture())
         {
-            AvailableVersions = tsf
-                .GetAvailableVersionsAsync()
-                .Result
-                .OrderBy(x => x)
+            var versions = tsf.GetAvailableVersionsAsync().Result.OrderBy(x => x).ToList();
+            MaxVersion = versions.Last().ToNormalizedString();
+            AvailableVersions = versions
                 .Select(x => x.ToNormalizedString())
                 .ToList();
         }
@@ -300,30 +300,24 @@ public class IntegrationTest : IClassFixture<TestServerFixture>
     [Fact]
     public async Task RootRedirectsToLatestVersion()
     {
-        // Arrange
-        var maxVersion = AvailableVersions.Max();
-
-        // Act
+        // Arrange & Act
         using (var response = await _fixture.Client.GetAsync("/"))
         {
             // Assert
             Assert.Equal(HttpStatusCode.Found, response.StatusCode);
-            Assert.EndsWith($"/{maxVersion}", response.Headers.Location?.ToString());
+            Assert.EndsWith($"/{MaxVersion}", response.Headers.Location?.ToString());
         }
     }
 
     [Fact]
     public async Task LatestPlaceholderRedirectToLatest()
     {
-        // Arrange
-        var maxVersion = AvailableVersions.Max();
-
-        // Act
+        // Arrange & Act
         using (var response = await _fixture.Client.GetAsync("/latest/parse-version?version=1.0.0-beta01"))
         {
             // Assert
             Assert.Equal(HttpStatusCode.Found, response.StatusCode);
-            Assert.EndsWith($"/{maxVersion}/parse-version?version=1.0.0-beta01", response.Headers.Location?.ToString());
+            Assert.EndsWith($"/{MaxVersion}/parse-version?version=1.0.0-beta01", response.Headers.Location?.ToString());
         }
     }
 }
