@@ -5,7 +5,10 @@ name: Keep alive
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "0 1 * * *"
+  workflow_run:
+    workflows: [Deploy]
+    types: [completed]
 
 env:
   PRODUCTION_URL: https://nugettools.azurewebsites.net
