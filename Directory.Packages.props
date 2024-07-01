@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <NuGetPackageVersion>6.10.0</NuGetPackageVersion>
+    <NuGetPackageVersion>6.10.1</NuGetPackageVersion>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>false</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
