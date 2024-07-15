@@ -21,7 +21,7 @@
     <PackageVersion Include="NuGet.PackageManagement" Version="$(NuGetPackageVersion)" />
     <PackageVersion Include="NuGet.Versioning" Version="$(NuGetPackageVersion)" />
     <PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
-    <PackageVersion Include="xunit" Version="2.8.1" />
+    <PackageVersion Include="xunit" Version="2.9.0" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.1" />
   </ItemGroup>
 </Project>
