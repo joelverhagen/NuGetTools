@@ -35,6 +35,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Knapcode.NuGetTools.Logic.N
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Knapcode.NuGetTools.Logic.NuGet2x", "src\Knapcode.NuGetTools.Logic.NuGet2x\Knapcode.NuGetTools.Logic.NuGet2x.csproj", "{F7C925D0-D3E8-470C-B095-AD4EA9103ED4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{41599FB4-DDD2-47E3-98FF-659A4854DD07}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\ci.yml = .github\workflows\ci.yml
+		.github\workflows\deploy.yml = .github\workflows\deploy.yml
+		.github\workflows\keep-alive.yml = .github\workflows\keep-alive.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -120,6 +127,7 @@ Global
 		{2EE6D448-3E19-432C-A25B-E21474D8D8E3} = {C65B2136-1245-4F2D-950F-55187D51FEC0}
 		{EE80559E-3E56-472C-A3DA-49213721F938} = {C65B2136-1245-4F2D-950F-55187D51FEC0}
 		{F7C925D0-D3E8-470C-B095-AD4EA9103ED4} = {C65B2136-1245-4F2D-950F-55187D51FEC0}
+		{41599FB4-DDD2-47E3-98FF-659A4854DD07} = {A4ECEBC3-81BD-4BE4-80E7-D4011B729DA2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {22DC91EB-7A5F-46AA-992C-9C28049612AD}
