@@ -1,5 +1,5 @@
 using System.CommandLine;
-using System.CommandLine.Parsing;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Knapcode.NuGetTools.Logic.Direct;
 using NuGet.Common;
@@ -25,7 +25,10 @@ public class Program
     {
         var command = new Command(name, "Download NuGet client SDK packages to a specific directory.");
 
-        var packagesDirectoryArgument = new Argument<string>("PACKAGES_DIR", "The directory to place all of the packages.");
+        var packagesDirectoryArgument = new Argument<string>("PACKAGES_DIR", "The directory to place all of the packages.")
+        {
+            Arity = ArgumentArity.ZeroOrOne,
+        };
         command.AddArgument(packagesDirectoryArgument);
 
         var sourceOption = new Option<List<string>>(
@@ -39,7 +42,8 @@ public class Program
 
         command.SetHandler(async context =>
         {
-            var packagesDirectory = Path.GetFullPath(context.ParseResult.GetValueForArgument(packagesDirectoryArgument));
+            var packagesArgument = (string?)context.ParseResult.GetValueForArgument(packagesDirectoryArgument);
+            var packagesDirectory = Path.GetFullPath(packagesArgument ?? GetWebsitePackagesDirectory());
             var sources = context.ParseResult.GetValueForOption(sourceOption);
 
             if (sources is null)
@@ -294,5 +298,10 @@ public class Program
         }
 
         return localVersions;
+    }
+
+    private static string GetWebsitePackagesDirectory([CallerFilePath] string path = "")
+    {
+        return Path.Combine(Path.GetDirectoryName(path)!, "..", "Knapcode.NuGetTools.Website", "packages");
     }
 }
