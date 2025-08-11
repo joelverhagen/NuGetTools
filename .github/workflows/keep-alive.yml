@@ -15,6 +15,7 @@ env:
 
 jobs:
   keep-alive:
+    if: github.repository == 'joelverhagen/NuGetTools'
     runs-on: ubuntu-latest
 
     steps:
